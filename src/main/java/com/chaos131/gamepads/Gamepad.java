@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.button.Button;
+import edu.wpi.first.math.MathUtil;
+
 
 /** Add your docs here. */
 public class Gamepad {
@@ -64,20 +66,24 @@ public class Gamepad {
         return m_joystick.getName();
     }
 
+    private double applyDeadband(double value) {
+        return MathUtil.applyDeadband(value, 0.1);
+    }
+
     public double getLeftX() {
-        return getControllerMapping().getLeftX(m_joystick);
+        return applyDeadband(getControllerMapping().getLeftX(m_joystick));
     }
 
     public double getLeftY() {
-        return getControllerMapping().getLeftY(m_joystick);
+        return applyDeadband(getControllerMapping().getLeftY(m_joystick));
     }
 
     public double getRightX() {
-        return getControllerMapping().getRightX(m_joystick);
+        return applyDeadband(getControllerMapping().getRightX(m_joystick));
     }
 
     public double getRightY() {
-        return getControllerMapping().getRightY(m_joystick);
+        return applyDeadband(getControllerMapping().getRightY(m_joystick));
     }
 
     public Button getButtonA() {
