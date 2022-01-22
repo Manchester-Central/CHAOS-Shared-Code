@@ -33,6 +33,7 @@ public class Gamepad {
 
     private final XboxControllerMapping m_xboxControllerMapping = new XboxControllerMapping();
     private final LogitechControllerMapping m_logitechControllerMapping = new LogitechControllerMapping();
+    private final WirelessControllerMapping m_wirelessControllerMapping = new WirelessControllerMapping();
 
     public Gamepad(int port, String controllerTitle) {
         m_joystick = new Joystick(port);
@@ -57,6 +58,8 @@ public class Gamepad {
         switch (joystickName) {
             case "xbox controller":
                 return m_xboxControllerMapping;
+            case "wireless controller":
+                return m_wirelessControllerMapping;
             default:
                 return m_logitechControllerMapping;
         }
