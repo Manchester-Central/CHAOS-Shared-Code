@@ -52,7 +52,9 @@ public class Gamepad {
         m_buttonSelect = createButton(ButtonType.Select);
         m_buttonStart = createButton(ButtonType.Start);
 
-        addShuffleboeardTab();
+        if(isDebugMode) {
+            addShuffleboeardTab();
+        }
     }
 
     private IControllerMapping getControllerMapping() {
