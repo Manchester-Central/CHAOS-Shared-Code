@@ -143,16 +143,16 @@ public class Gamepad {
 
     private void addShuffleboeardTab() {
         ShuffleboardTab tab = Shuffleboard.getTab("Gamepad - " + m_controllerTitle);
-        tab.addBoolean("A", m_buttonA);
-        tab.addBoolean("B", m_buttonB);
-        tab.addBoolean("X", m_buttonX);
-        tab.addBoolean("Y", m_buttonY);
-        tab.addBoolean("LB", m_buttonLB);
-        tab.addBoolean("LT", m_buttonLT);
-        tab.addBoolean("RB", m_buttonRB);
-        tab.addBoolean("RT", m_buttonRT);
-        tab.addBoolean("Select", m_buttonSelect);
-        tab.addBoolean("Start", m_buttonStart);
+        tab.addBoolean("A", () -> m_buttonA.get());
+        tab.addBoolean("B", () -> m_buttonB.get());
+        tab.addBoolean("X", () -> m_buttonX.get());
+        tab.addBoolean("Y", () -> m_buttonY.get());
+        tab.addBoolean("LB", () -> m_buttonLB.get());
+        tab.addBoolean("LT", () -> m_buttonLT.get());
+        tab.addBoolean("RB", () -> m_buttonRB.get());
+        tab.addBoolean("RT", () -> m_buttonRT.get());
+        tab.addBoolean("Select", () -> m_buttonSelect.get());
+        tab.addBoolean("Start", () -> m_buttonStart.get());
 
         tab.addNumber("Left X", () -> getLeftX());
         tab.addNumber("Left Y", () -> getLeftY());
