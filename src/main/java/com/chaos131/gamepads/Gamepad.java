@@ -4,10 +4,6 @@
 
 package com.chaos131.gamepads;
 
-import java.util.function.BooleanSupplier;
-import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
-
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -35,7 +31,13 @@ public class Gamepad {
     private final LogitechControllerMapping m_logitechControllerMapping = new LogitechControllerMapping();
     private final WirelessControllerMapping m_wirelessControllerMapping = new WirelessControllerMapping();
 
-    public Gamepad(int port, String controllerTitle) {
+    /**
+     * Creates a new Gamepad instance that can be used for controlling the robot
+     * @param port the port number of the controller in the FRC Driver Station
+     * @param controllerTitle the name of the controller
+     * @param isDebugMode enable this to turn on logging of the data to Shuffleboard (disable to help improve network performance)
+     */
+    public Gamepad(int port, String controllerTitle, boolean isDebugMode) {
         m_joystick = new Joystick(port);
         m_controllerTitle = controllerTitle;
 
@@ -139,41 +141,23 @@ public class Gamepad {
 
     private void addShuffleboeardTab() {
         ShuffleboardTab tab = Shuffleboard.getTab("Gamepad - " + m_controllerTitle);
-        addButtonToDashboard(tab, "A", m_buttonA);
-        addButtonToDashboard(tab, "B", m_buttonB);
-        addButtonToDashboard(tab, "X", m_buttonX);
-        addButtonToDashboard(tab, "Y", m_buttonY);
-        addButtonToDashboard(tab, "LB", m_buttonLB);
-        addButtonToDashboard(tab, "LT", m_buttonLT);
-        addButtonToDashboard(tab, "RB", m_buttonRB);
-        addButtonToDashboard(tab, "RT", m_buttonRT);
-        addButtonToDashboard(tab, "Select", m_buttonSelect);
-        addButtonToDashboard(tab, "Start", m_buttonStart);
+        tab.addBoolean("A", m_buttonA);
+        tab.addBoolean("B", m_buttonB);
+        tab.addBoolean("X", m_buttonX);
+        tab.addBoolean("Y", m_buttonY);
+        tab.addBoolean("LB", m_buttonLB);
+        tab.addBoolean("LT", m_buttonLT);
+        tab.addBoolean("RB", m_buttonRB);
+        tab.addBoolean("RT", m_buttonRT);
+        tab.addBoolean("Select", m_buttonSelect);
+        tab.addBoolean("Start", m_buttonStart);
 
-        tab.addNumber("Left X", new DoubleSupplier(){
-            public double getAsDouble() { return getLeftX(); };
-        });
+        tab.addNumber("Left X", () -> getLeftX());
+        tab.addNumber("Left Y", () -> getLeftY());
+        tab.addNumber("Right X", () -> getRightX());
+        tab.addNumber("Right Y", () -> getRightY());
 
-        tab.addNumber("Left Y", new DoubleSupplier(){
-            public double getAsDouble() { return getLeftY(); };
-        });
-
-        tab.addNumber("Right X", new DoubleSupplier(){
-            public double getAsDouble() { return getRightX(); };
-        });
-
-        tab.addNumber("Right Y", new DoubleSupplier(){
-            public double getAsDouble() { return getRightY(); };
-        });
-
-        tab.addString("Controller Type --> Mapping", new Supplier<String>() {
-            public String get() { return getControllerName() +  " --> " + getControllerMapping().getClass().getSimpleName(); }
-        });
-    }
-
-    private void addButtonToDashboard(ShuffleboardTab tab, String buttonName, Button button) {
-        tab.addBoolean(buttonName, new BooleanSupplier(){
-            public boolean getAsBoolean() { return button.get(); };
-        });
+        tab.addString("Controller Type --> Mapping",
+            () -> getControllerName() +  " --> " + getControllerMapping().getClass().getSimpleName());
     }
 }
