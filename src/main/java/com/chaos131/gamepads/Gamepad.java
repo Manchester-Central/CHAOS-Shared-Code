@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.button.Button;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import edu.wpi.first.math.MathUtil;
 
 
@@ -26,6 +27,15 @@ public class Gamepad {
     private Button m_buttonRT;
     private Button m_buttonSelect;
     private Button m_buttonStart;
+
+    private Button m_buttonPovNorth;
+    private Button m_buttonPovNorthEast;
+    private Button m_buttonPovEast;
+    private Button m_buttonPovSouthEast;
+    private Button m_buttonPovSouth;
+    private Button m_buttonPovSouthWest;
+    private Button m_buttonPovWest;
+    private Button m_buttonPovNorthWest;
 
     private final XboxControllerMapping m_xboxControllerMapping = new XboxControllerMapping();
     private final LogitechControllerMapping m_logitechControllerMapping = new LogitechControllerMapping();
@@ -51,6 +61,15 @@ public class Gamepad {
         m_buttonRT = createButton(ButtonType.RightTrigger);
         m_buttonSelect = createButton(ButtonType.Select);
         m_buttonStart = createButton(ButtonType.Start);
+
+        m_buttonPovNorth = new POVButton(m_joystick, 0);
+        m_buttonPovNorthEast = new POVButton(m_joystick, 45);
+        m_buttonPovEast = new POVButton(m_joystick, 90);
+        m_buttonPovSouthEast = new POVButton(m_joystick, 135);
+        m_buttonPovSouth = new POVButton(m_joystick, 180);
+        m_buttonPovSouthWest = new POVButton(m_joystick, 225);
+        m_buttonPovWest = new POVButton(m_joystick, 270);
+        m_buttonPovNorthWest = new POVButton(m_joystick, 315);
 
         if(isDebugMode) {
             addShuffleboeardTab();
@@ -133,6 +152,42 @@ public class Gamepad {
         return m_buttonStart;
     }
 
+    public Button getPOVNorth() {
+        return m_buttonPovNorth;
+    }
+
+    public Button getPOVNorthEast() {
+        return m_buttonPovNorthEast;
+    }
+
+    public Button getPOVEast() {
+        return m_buttonPovEast;
+    }
+
+    public Button getPOVSouthEast() {
+        return m_buttonPovSouthEast;
+    }
+
+    public Button getPOVSouth() {
+        return m_buttonPovSouth;
+    }
+
+    public Button getPOVSouthWest() {
+        return m_buttonPovSouthWest;
+    }
+
+    public Button getPOVWest() {
+        return m_buttonPovWest;
+    }
+
+    public Button getPOVNorthWest() {
+        return m_buttonPovNorthWest;
+    }
+
+    public int getPovAngle() {
+        return m_joystick.getPOV();
+    }
+
     private Button createButton(ButtonType buttonType) {
         return new Button() {
             public boolean get() {
@@ -153,6 +208,15 @@ public class Gamepad {
         tab.addBoolean("RT", () -> m_buttonRT.get());
         tab.addBoolean("Select", () -> m_buttonSelect.get());
         tab.addBoolean("Start", () -> m_buttonStart.get());
+
+        tab.addBoolean("POVNorth", () -> m_buttonPovNorth.get());
+        tab.addBoolean("POVNorthEast", () -> m_buttonPovNorthEast.get());
+        tab.addBoolean("POVEast", () -> m_buttonPovEast.get());
+        tab.addBoolean("POVSouthEast", () -> m_buttonPovSouthEast.get());
+        tab.addBoolean("POVSouth", () -> m_buttonPovSouth.get());
+        tab.addBoolean("POVSouthWest", () -> m_buttonPovSouthWest.get());
+        tab.addBoolean("POVWest", () -> m_buttonPovWest.get());
+        tab.addBoolean("POVNorthWest", () -> m_buttonPovNorthWest.get());
 
         tab.addNumber("Left X", () -> getLeftX());
         tab.addNumber("Left Y", () -> getLeftY());
