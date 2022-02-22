@@ -25,7 +25,7 @@ import com.chaos131.auto.conditions.TimeAutoCondition;
 */
 public class AutoBuilder {
     private SequentialCommandGroup m_commandList = new SequentialCommandGroup(); // sequence of commands to run
-    private Map<String, Function<ParsedCommand, BaseAutoCommand>> m_knownCommands = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private Map<String, Function<ParsedCommand, Command>> m_knownCommands = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private Map<String, Function<String, IAutoCondition>> m_knownConditions = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
     public AutoBuilder() {
@@ -38,7 +38,7 @@ public class AutoBuilder {
         registerCondition(TimeAutoCondition.CONDITION_NAME, (String timeMs) -> new TimeAutoCondition(Integer.parseInt(timeMs)));
     }
 
-    public AutoBuilder registerCommand(String commandName, Function<ParsedCommand, BaseAutoCommand> commandGetter) {
+    public AutoBuilder registerCommand(String commandName, Function<ParsedCommand, Command> commandGetter) {
         m_knownCommands.put(commandName, commandGetter);
         return this;
     }
@@ -63,13 +63,20 @@ public class AutoBuilder {
     }
 
     // depending on the arguments, creates new command
-    private BaseAutoCommand getCommand(ParsedCommand parsedCommand) {
+    private Command getCommand(ParsedCommand parsedCommand) {
         try {
             if (m_knownCommands.containsKey(parsedCommand.commandName)) {
                 var command = m_knownCommands.get(parsedCommand.commandName).apply(parsedCommand);
+                var autoBaseCommand = (BaseAutoCommand) null;
+                if(command instanceof BaseAutoCommand) {
+                    autoBaseCommand = (BaseAutoCommand) command;
+                } else {
+                    autoBaseCommand = new DoNothing(parsedCommand);
+                    command = command.raceWith(autoBaseCommand);
+                }
                 for(var key: parsedCommand.getArgumentKeys()) {
                     if(m_knownConditions.containsKey(key)) {
-                        command.addCondition(m_knownConditions.get(key).apply(parsedCommand.getArgument(key)));
+                        autoBaseCommand.addCondition(m_knownConditions.get(key).apply(parsedCommand.getArgument(key)));
                     }
                 }
                 return command;
