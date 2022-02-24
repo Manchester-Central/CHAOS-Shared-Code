@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
 
-import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -24,16 +23,19 @@ import com.chaos131.auto.conditions.TimeAutoCondition;
  *  - https://github.com/Manchester-Central/2020-Infinite-Recharge/blob/master/src/main/java/frc/robot/auto/AutoBuilder.java
 */
 public class AutoBuilder {
+    private final String k_KeyName = "Auto Steps";
     private SequentialCommandGroup m_commandList = new SequentialCommandGroup(); // sequence of commands to run
     private Map<String, Function<ParsedCommand, Command>> m_knownCommands = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private Map<String, Function<String, IAutoCondition>> m_knownConditions = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
     public AutoBuilder() {
         var defaultAuto = new String[] { "No Auto Selected" };
-        if(Preferences.containsKey("LastRunAuto")) {
-            defaultAuto = Preferences.getString("LastRunAuto", "No Auto Selected").split(";");
+        SmartDashboard.setPersistent(k_KeyName);
+        var lastAuto = SmartDashboard.getStringArray(k_KeyName, new String[]{});
+        if (lastAuto.length == 0) {
+            lastAuto = defaultAuto;
         }
-        SmartDashboard.putStringArray("Auto Steps", defaultAuto);
+        SmartDashboard.putStringArray(k_KeyName, lastAuto);
         registerCommand(DoNothing.COMMAND_NAME, (ParsedCommand parsedCommand) -> new DoNothing(parsedCommand));
         registerCondition(TimeAutoCondition.CONDITION_NAME, (String timeMs) -> new TimeAutoCondition(Integer.parseInt(timeMs)));
     }
@@ -50,7 +52,7 @@ public class AutoBuilder {
 
     public Command createAutoCommand() {
         m_commandList = new SequentialCommandGroup();
-        var steps = SmartDashboard.getStringArray("Auto Steps", new String[]{});
+        var steps = SmartDashboard.getStringArray(k_KeyName, new String[]{});
         for (var step: steps) {
             System.out.println(step);
             var parsedCommand = new ParsedCommand(step);
@@ -58,7 +60,6 @@ public class AutoBuilder {
             m_commandList.addCommands(command);
             System.out.printf("Added command %s for %s\n", command.getClass(), step);
         }
-        Preferences.setString("LastRunAuto", String.join(";", steps));
         return m_commandList;
     }
 
