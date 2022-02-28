@@ -93,7 +93,7 @@ public class Gamepad {
     }
 
     private double applyDeadband(double value) {
-        return MathUtil.applyDeadband(value, 0.1);
+        return MathUtil.applyDeadband(value, 0.05);
     }
 
     public double getLeftX() {
