@@ -5,5 +5,5 @@
 package com.chaos131.gamepads;
 
 public enum ButtonType {
-    A, B, X, Y, LeftBumper, LeftTrigger, RightBumper, RightTrigger, Select, Start
+    A, B, X, Y, LeftBumper, LeftTrigger, RightBumper, RightTrigger, Select, Start, LeftStick, RightStick,
 }
