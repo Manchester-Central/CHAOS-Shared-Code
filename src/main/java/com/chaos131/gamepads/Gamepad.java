@@ -27,6 +27,8 @@ public class Gamepad {
     private Button m_buttonRT;
     private Button m_buttonSelect;
     private Button m_buttonStart;
+    private Button m_buttonLeftStick;
+    private Button m_buttonRightStick;
 
     private Button m_buttonPovNorth;
     private Button m_buttonPovNorthEast;
@@ -61,6 +63,8 @@ public class Gamepad {
         m_buttonRT = createButton(ButtonType.RightTrigger);
         m_buttonSelect = createButton(ButtonType.Select);
         m_buttonStart = createButton(ButtonType.Start);
+        m_buttonLeftStick = createButton(ButtonType.LeftStick);
+        m_buttonRightStick = createButton(ButtonType.RightStick);
 
         m_buttonPovNorth = new POVButton(m_joystick, 0);
         m_buttonPovNorthEast = new POVButton(m_joystick, 45);
@@ -152,6 +156,14 @@ public class Gamepad {
         return m_buttonStart;
     }
 
+    public Button getButtonLeftStick() {
+        return m_buttonLeftStick;
+    }
+
+    public Button getButtonRightStick() {
+        return m_buttonRightStick;
+    }
+
     public Button getPOVNorth() {
         return m_buttonPovNorth;
     }
@@ -208,6 +220,8 @@ public class Gamepad {
         tab.addBoolean("RT", () -> m_buttonRT.get());
         tab.addBoolean("Select", () -> m_buttonSelect.get());
         tab.addBoolean("Start", () -> m_buttonStart.get());
+        tab.addBoolean("LeftStick", () -> m_buttonLeftStick.get());
+        tab.addBoolean("RightStick", () -> m_buttonRightStick.get());
 
         tab.addBoolean("POVNorth", () -> m_buttonPovNorth.get());
         tab.addBoolean("POVNorthEast", () -> m_buttonPovNorthEast.get());
