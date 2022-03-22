@@ -33,7 +33,7 @@ repositories {
 
 ### Manually add
 
-Download the shared code and run the "Java: Export Jar" task with all defaults. Copy the produced jar file into a libs folder in your target project.
+Download the shared code, run the "WPILib: Build Robot Code" task, and then run the "Java: Export Jar" task with all defaults. Copy the produced jar file into a libs folder in your target project.
 **You should also be able to grab the latest jar files from the Release section on github.**
 
 In your build.gradle, add this to your dependencies.
