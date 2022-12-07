@@ -116,6 +116,22 @@ public class Gamepad {
         return applyDeadband(getControllerMapping().getRightY(m_joystick));
     }
 
+    public double getLeftAngle() {
+        return Math.atan2(getLeftY(), getLeftX());
+    }
+
+    public double getRightAngle() {
+        return Math.atan2(getRightY(), getRightX());
+    }
+
+    public double getRightMagnitude() {
+        return Math.hypot(getRightX(), getRightY());
+    }
+
+    public double getLeftMagnitude() {
+        return Math.hypot(getLeftX(), getLeftY());
+    }
+
     public Button getButtonA() {
         return m_buttonA;
     }
@@ -240,4 +256,6 @@ public class Gamepad {
         tab.addString("Controller Type --> Mapping",
             () -> getControllerName() +  " --> " + getControllerMapping().getClass().getSimpleName());
     }
+
+
 }
