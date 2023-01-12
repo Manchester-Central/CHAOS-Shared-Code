@@ -27,7 +27,7 @@ public class Gamepad extends CommandXboxController {
 
     @Override
     public double getLeftY() {
-        return applyDeadband(super.getLeftY());
+        return applyDeadband(-super.getLeftY());
     }
 
     @Override
@@ -37,7 +37,7 @@ public class Gamepad extends CommandXboxController {
 
     @Override
     public double getRightY() {
-        return applyDeadband(super.getRightY());
+        return applyDeadband(-super.getRightY());
     }
 
     @Override
