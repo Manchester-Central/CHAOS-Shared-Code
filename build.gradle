@@ -18,6 +18,7 @@ dependencies {
     implementation group: 'edu.wpi.first.wpilibj', name: 'wpilibj-java', version: '2023.4.1'
     implementation group: 'edu.wpi.first.wpimath', name: 'wpimath-java', version: '2023.4.1'
     implementation group: 'edu.wpi.first.wpiutil', name: 'wpiutil-java', version: '2023.4.1'
+    implementation group: 'edu.wpi.first.ntcore', name: 'ntcore-java', version: '2023.4.1'
 }
 
 publishing {

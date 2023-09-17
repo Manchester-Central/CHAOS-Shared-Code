@@ -4,13 +4,12 @@
 
 package com.chaos131.pid;
 
-public class PIDUpdate {
-    public final double P, I, D, F;
+public class PIDValue {
+    public final double P, I, D;
 
-    public PIDUpdate(double p, double i, double d, double f) {
+    public PIDValue(double p, double i, double d) {
         P = p;
         I = i; 
         D = d;
-        F = f;
     }
 }
