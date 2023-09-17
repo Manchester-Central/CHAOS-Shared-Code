@@ -33,12 +33,12 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class SwerveDrive extends SubsystemBase {
+public class BaseSwerveDrive extends SubsystemBase {
 
   public static double TranslationSpeedModifier = 1.0;
   public static double RotationSpeedModifier = 1.0;
 
-  private List<ISwerveModule> m_swerveModules;
+  private List<BaseSwerveModule> m_swerveModules;
   private Supplier<Rotation2d> m_getRotation;
 
   private SwerveDriveKinematics m_kinematics;
@@ -59,7 +59,7 @@ public class SwerveDrive extends SubsystemBase {
   private SwerveConfigs m_swerveConfigs;
 
   /** Creates a new SwerveDrive. */
-  public SwerveDrive(ISwerveModule[] swerveModules, SwerveConfigs swerveConfigs, Supplier<Rotation2d> getRotation) {
+  public BaseSwerveDrive(BaseSwerveModule[] swerveModules, SwerveConfigs swerveConfigs, Supplier<Rotation2d> getRotation) {
     m_swerveModules = Arrays.asList(swerveModules);
     m_swerveConfigs = swerveConfigs;
     m_getRotation = getRotation;
@@ -96,6 +96,8 @@ public class SwerveDrive extends SubsystemBase {
     var moduleAnglePID = m_swerveConfigs.defaultModuleAnglePIDValues();
     m_moduleAnglePIDTuner = new PIDTuner("Swerve/ModuleAngle_PID_Tuner", isDebugMode, moduleAnglePID.P, moduleAnglePID.I, moduleAnglePID.D, this::updateAnglePIDConstants);
 
+    forAllModules(module -> module.setSimUpdateFrequency_hz(m_swerveConfigs.updateFrequency_hz()));
+
     m_logger.addNumber("SwerveDrive/X_m", isDebugMode, () -> getPose().getX());
     m_logger.addNumber("SwerveDrive/Y_m", isDebugMode, () -> getPose().getY());
     m_logger.addNumber("SwerveDrive/Rotation_deg", isDebugMode, () -> getOdometryRotation().getDegrees());
@@ -103,11 +105,11 @@ public class SwerveDrive extends SubsystemBase {
 
   }
 
-  public void forAllModules(Consumer<ISwerveModule> lambdaFunction) {
+  public void forAllModules(Consumer<BaseSwerveModule> lambdaFunction) {
     m_swerveModules.forEach(lambdaFunction);
   }
 
-  public <T> List<T> mapModules(Function<ISwerveModule, T> lambdaFunction) {
+  public <T> List<T> mapModules(Function<BaseSwerveModule, T> lambdaFunction) {
     return m_swerveModules.stream().map(lambdaFunction).toList();
   }
     
@@ -150,8 +152,8 @@ public class SwerveDrive extends SubsystemBase {
     }
   }
 
-  public void enableParkMode() {
-    forAllModules((module) -> module.setParkMode());
+  public void setXMode() {
+    forAllModules((module) -> module.setXMode());
   }
 
   public void debug_setSwerveModule(SwerveModuleState swerveModuleState) {
@@ -277,7 +279,7 @@ public class SwerveDrive extends SubsystemBase {
     resetPose(updatedPose);
   }
 
-  public void updateModuleOnField(ISwerveModule swerveModule, Pose2d robotPose) {
+  public void updateModuleOnField(BaseSwerveModule swerveModule, Pose2d robotPose) {
     if (!m_swerveConfigs.IsDebugMode()) {
       return;
     }

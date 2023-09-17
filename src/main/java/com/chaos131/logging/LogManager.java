@@ -29,7 +29,7 @@ public class LogManager {
         return _instance;
     }
 
-    public LogManager() {
+    private LogManager() {
         m_loggingThread = new LoggingThread();
         m_shuffleboardTab = Shuffleboard.getTab("Logging");
         addNumber("timeMs", true, () -> getCurrentTimeMs());
