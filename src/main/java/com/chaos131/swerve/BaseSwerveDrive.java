@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.chaos131.logging.LogManager;
 import com.chaos131.pid.PIDFValue;
@@ -110,7 +111,7 @@ public class BaseSwerveDrive extends SubsystemBase {
   }
 
   public <T> List<T> mapModules(Function<BaseSwerveModule, T> lambdaFunction) {
-    return m_swerveModules.stream().map(lambdaFunction).toList();
+    return m_swerveModules.stream().map(lambdaFunction).collect(Collectors.toList());
   }
     
   public void addCoachTabDashboardValues(ShuffleboardTab coachTab) {
