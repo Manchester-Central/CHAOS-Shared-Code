@@ -1,3 +1,14 @@
+![GitHub top language](https://img.shields.io/github/languages/top/Manchester-Central/CHAOS-Shared-Code?style=flat-square)
+[![WPILib License](https://img.shields.io/badge/license-WPI_Lib-blue?style=flat-square)](https://github.com/Manchester-Central/CHAOS-Shared-Code/blob/main/WPILib-License.md)
+![GitHub contributors](https://img.shields.io/github/contributors/Manchester-Central/CHAOS-Shared-Code?style=flat-square)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/w/Manchester-Central/CHAOS-Shared-Code?style=flat-square)
+![GitHub issues](https://img.shields.io/github/issues/Manchester-Central/CHAOS-Shared-Code?style=flat-square)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/Manchester-Central/CHAOS-Shared-Code?style=flat-square)
+![GitHub followers](https://img.shields.io/github/followers/Manchester-Central?style=social)
+
+
+![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/Manchester-Central/CHAOS-Shared-Code/gradle.yml?style=flat-square)
+
 # CHAOS Shared Code
 This is code that our team uses for different projects.
 
