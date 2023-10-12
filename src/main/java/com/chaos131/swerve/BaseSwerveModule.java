@@ -43,9 +43,9 @@ public abstract class BaseSwerveModule {
 
   protected abstract double getEncoderDistance_m();
   protected abstract double getEncoderVelocity_mps();
-  protected abstract void setEncoderVelocity_mps(double velocity_mps);
+  protected abstract void setTargetVelocity_mps(double velocity_mps);
   protected abstract Rotation2d getEncoderAngle();
-  protected abstract void setEncoderAngle(Rotation2d angle);
+  protected abstract void setTargetAngle(Rotation2d angle);
   protected abstract Rotation2d getAbsoluteAngle();
   protected abstract void stopAngleMotor();
   protected abstract void stopVelocityMotor();
@@ -68,8 +68,8 @@ public abstract class BaseSwerveModule {
     state = SwerveModuleState.optimize(state, getModuleState().angle);
     var targetAngle = Rotation2d.fromDegrees(closestTarget(getModuleState().angle.getDegrees(), state.angle.getDegrees()));
 
-    setEncoderAngle(targetAngle);
-    setEncoderVelocity_mps(state.speedMetersPerSecond);
+    setTargetAngle(targetAngle);
+    setTargetVelocity_mps(state.speedMetersPerSecond);
     m_targetState = state;
   }
 

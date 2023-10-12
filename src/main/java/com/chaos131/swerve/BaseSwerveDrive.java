@@ -92,9 +92,9 @@ public class BaseSwerveDrive extends SubsystemBase {
     m_AnglePidTuner = new PIDTuner("SwerveDrive/Angle_PID_Tuner", true, m_AngleDegreesPid);
 
     var moduleVelocityPIDF = m_swerveConfigs.defaultModuleVelocityPIDFValues();
-    m_moduleVelocityPIDTuner = new PIDTuner("Swerve/ModuleVelocity_PID_Tuner", isDebugMode, moduleVelocityPIDF.P, moduleVelocityPIDF.I, moduleVelocityPIDF.D, moduleVelocityPIDF.F, this::updateVelocityPIDConstants);
+    m_moduleVelocityPIDTuner = new PIDTuner("SwerveDrive/ModuleVelocity_PID_Tuner", isDebugMode, moduleVelocityPIDF.P, moduleVelocityPIDF.I, moduleVelocityPIDF.D, moduleVelocityPIDF.F, this::updateVelocityPIDConstants);
     var moduleAnglePID = m_swerveConfigs.defaultModuleAnglePIDValues();
-    m_moduleAnglePIDTuner = new PIDTuner("Swerve/ModuleAngle_PID_Tuner", isDebugMode, moduleAnglePID.P, moduleAnglePID.I, moduleAnglePID.D, this::updateAnglePIDConstants);
+    m_moduleAnglePIDTuner = new PIDTuner("SwerveDrive/ModuleAngle_PID_Tuner", isDebugMode, moduleAnglePID.P, moduleAnglePID.I, moduleAnglePID.D, this::updateAnglePIDConstants);
 
     forAllModules(module -> module.setSimUpdateFrequency_hz(m_swerveConfigs.updateFrequency_hz()));
 
