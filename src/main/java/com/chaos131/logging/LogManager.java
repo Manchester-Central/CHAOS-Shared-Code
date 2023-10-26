@@ -24,7 +24,7 @@ public class LogManager {
     private Map<String, Supplier<String>> m_suppliers = new HashMap<String, Supplier<String>>();
     private LoggingThread m_loggingThread;
 
-    private static LogManager _instance;
+    private static LogManager _instance = new LogManager();
     public static LogManager getInstance() {
         return _instance;
     }

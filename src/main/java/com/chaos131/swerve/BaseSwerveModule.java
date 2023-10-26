@@ -21,7 +21,7 @@ public abstract class BaseSwerveModule {
 
   private double m_simdistance;
   protected SwerveModuleState m_targetState;
-  private double m_updateFrequency_hz;
+  private double m_updateFrequency_hz = 50;
 
   private LinearFilter m_absoluteAngleDegreesRollingAverage = LinearFilter.movingAverage(100);
   protected double m_absoluteAngleDegreesRollingAverageValue = 0;

@@ -67,6 +67,8 @@ public class BaseSwerveDrive extends SubsystemBase {
     var isDebugMode = swerveConfigs.IsDebugMode();
     m_driveToTargetTolerance = swerveConfigs.defaultDriveToTargetTolerance();
 
+    forAllModules(module -> module.setSimUpdateFrequency_hz(m_swerveConfigs.updateFrequency_hz()));
+
     m_kinematics = new SwerveDriveKinematics(
         getModuleTranslations());
     Pose2d initialPoseMeters = new Pose2d(8, 4, Rotation2d.fromDegrees(0));
@@ -96,8 +98,6 @@ public class BaseSwerveDrive extends SubsystemBase {
     m_moduleVelocityPIDTuner = new PIDTuner("SwerveDrive/ModuleVelocity_PID_Tuner", isDebugMode, moduleVelocityPIDF.P, moduleVelocityPIDF.I, moduleVelocityPIDF.D, moduleVelocityPIDF.F, this::updateVelocityPIDConstants);
     var moduleAnglePID = m_swerveConfigs.defaultModuleAnglePIDValues();
     m_moduleAnglePIDTuner = new PIDTuner("SwerveDrive/ModuleAngle_PID_Tuner", isDebugMode, moduleAnglePID.P, moduleAnglePID.I, moduleAnglePID.D, this::updateAnglePIDConstants);
-
-    forAllModules(module -> module.setSimUpdateFrequency_hz(m_swerveConfigs.updateFrequency_hz()));
 
     m_logger.addNumber("SwerveDrive/X_m", isDebugMode, () -> getPose().getX());
     m_logger.addNumber("SwerveDrive/Y_m", isDebugMode, () -> getPose().getY());
@@ -257,6 +257,7 @@ public class BaseSwerveDrive extends SubsystemBase {
       m_simrotation = m_simrotation.plus(Rotation2d.fromRadians(radians));
     }
     Pose2d robotPose = m_odometry.update(getGyroRotation(), getModulePositions());
+    
     m_field.setRobotPose(robotPose);
     forAllModules((module) -> updateModuleOnField(module, robotPose));
     m_XPidTuner.tune();
