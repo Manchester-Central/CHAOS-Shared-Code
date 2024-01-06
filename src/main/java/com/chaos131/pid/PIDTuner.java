@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class PIDTuner {
     private final String m_componentName;
     private final boolean m_tuningEnabled;
-    private final Consumer<PIDUpdate> m_pidfUpdater;
+    private final Consumer<PIDFValue> m_pidfUpdater;
     private double m_p, m_i, m_d, m_f;
 
     public PIDTuner(
@@ -21,7 +21,7 @@ public class PIDTuner {
         boolean tuningEnabled,
         PIDController pidController
     ) {
-        this(componentName, tuningEnabled, pidController.getP(), pidController.getI(), pidController.getD(), (PIDUpdate update) -> {
+        this(componentName, tuningEnabled, pidController.getP(), pidController.getI(), pidController.getD(), (PIDFValue update) -> {
             pidController.setPID(update.P, update.I, update.D);
         });
     }
@@ -32,7 +32,7 @@ public class PIDTuner {
         double defaultP,
         double defaultI,
         double defaultD,
-        Consumer<PIDUpdate> pidfUpdater
+        Consumer<PIDFValue> pidfUpdater
     ) {
         this(componentName, tuningEnabled, defaultP, defaultI, defaultD, 0.0, pidfUpdater);
     }
@@ -44,7 +44,7 @@ public class PIDTuner {
         double defaultI,
         double defaultD,
         double defaultF,
-        Consumer<PIDUpdate> pidfUpdater
+        Consumer<PIDFValue> pidfUpdater
     ) {
         m_componentName = componentName;
         m_tuningEnabled = tuningEnabled;
@@ -87,6 +87,6 @@ public class PIDTuner {
     }
 
     private void update() {
-        m_pidfUpdater.accept(new PIDUpdate(m_p, m_i, m_d, m_f));
+        m_pidfUpdater.accept(new PIDFValue(m_p, m_i, m_d, m_f));
     }
 }
