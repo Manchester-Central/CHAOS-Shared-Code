@@ -1,6 +1,9 @@
 name: Java Build & Lint
 
-on: [push]
+on: [pull_request]
+
+permissions:
+  pull-requests: write
 
 jobs:
   build:
@@ -12,7 +15,7 @@ jobs:
     - name: Set up JDK
       uses: actions/setup-java@v1
       with:
-        java-version: '11.0.4'
+        java-version: '17.0.1'
     - name: Run Linter
       run: bash .githooks/pre-commit.sh
     - name: Cache Gradle dependendies
@@ -24,3 +27,12 @@ jobs:
           ${{ runner.os }}-gradle- 
     - name: Build with Gradle
       run: bash ./gradlew build --info
+    - uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '👋 Thanks for reporting!'
+          })
