@@ -39,7 +39,10 @@ jobs:
     - name: Show Release Version
       id: release-info
       run: |
-        my_version="${{ env.release_major_version }}.${{ env.release_minor_version }}.${{ github.run_id }}"
+        last_version=$(git tag -l "${{ env.release_major_version }}.${{ env.release_minor_version }}.*" --sort=v:refname | tail -1)
+        last_patch=$(cut -d '.' -f 3 <<< "$last_version")
+        new_patch="$(($last_patch + 1))" # TODO: Start from zero if not set
+        my_version="${{ env.release_major_version }}.${{ env.release_minor_version }}.${{ new_patch }}"
         echo "Output [$my_version]"
         echo "version=$my_version" >> $GITHUB_OUTPUT 
     - name: Create Release
@@ -51,25 +54,6 @@ jobs:
         prerelease: true
       env:
         GITHUB_TOKEN: ${{ github.token }}
-    # - name: Create Release
-    #   uses: rymndhng/release-on-push-action@v0.28.0
-    #   id: release
-    #   with:
-    #     bump_version_scheme: patch
-    #     release_name: "BETA <RELEASE_VERSION>"
-    #     max_commits: 0 # Can try increasing later
-    # - name: Get Release Info
-    #   uses: cardinalby/git-get-release-action@v1
-    #   id: get-release
-    #   env:
-    #     GITHUB_TOKEN: ${{ github.token }}
-    #   with:
-    #     tag: "${{ steps.release.outputs.tag_name }}"   
-    # - name: Check Output Parameters
-    #   run: |
-    #     echo "Got tag name ${{ steps.release.outputs.tag_name }}"
-    #     echo "Got release version ${{ steps.release.outputs.version }}"
-    #     echo "Upload release artifacts to ${{ steps.get-release.outputs.upload_url }}"
     - name: Upload Jar File
       id: upload-jar
       uses: actions/upload-release-asset@v1
