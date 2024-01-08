@@ -42,7 +42,7 @@ jobs:
         last_version=$(git tag -l "${{ env.release_major_version }}.${{ env.release_minor_version }}.*" --sort=v:refname | tail -1)
         last_patch=$(cut -d '.' -f 3 <<< "$last_version")
         new_patch="$(($last_patch + 1))" # TODO: Start from zero if not set
-        my_version="${{ env.release_major_version }}.${{ env.release_minor_version }}.${{ new_patch }}"
+        my_version="${{ env.release_major_version }}.${{ env.release_minor_version }}.$new_patch"
         echo "Output [$my_version]"
         echo "version=$my_version" >> $GITHUB_OUTPUT 
     - name: Create Release
