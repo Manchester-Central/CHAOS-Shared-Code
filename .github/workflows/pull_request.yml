@@ -39,9 +39,12 @@ jobs:
     - name: Show Release Version
       id: release-info
       run: |
-        version="${{ env.release_major_version }}.${{ env.release_minor_version }}.${{ github.run_id }}" # Find a way to make patch start at zero
-        echo "version=$version" >> $GITHUB_OUTPUT
-        echo "Creating release for ${{ version }}"
+        my_var="Hello World"
+        echo "Output [$my_var]"
+        echo "my_var=$my_var" >> $GITHUB_OUTPUT 
+        # version="${{ env.release_major_version }}.${{ env.release_minor_version }}.${{ github.run_id }}"
+        # echo "version=$version" >> $GITHUB_OUTPUT
+        # echo "Creating release for ${{ version }}"
     - name: Create Release
       id: release
       uses: avakar/tag-and-release@v1
