@@ -31,23 +31,23 @@ jobs:
           ${{ runner.os }}-gradle- 
     - name: Build with Gradle
       run: bash ./gradlew build --info
-    - name: Get Release Version
-      id: get-release-version
+    - name: Load Release JSON Config
       uses: rgarcia-phi/json-to-variables@v1.1.0
       with:
         filename: 'release-config.json'
         prefix: release
-      outputs:
-        version: "${{ env.major_version }}.${{ env.minor_version }}.${{ GITHUB_RUN_ID }}" # Find a way to make patch start at zero
     - name: Show Release Version
+      id: release-info
       run: |
-        echo "Creating release for ${{ steps.get-release-version.outputs.version }}"
+        version="${{ env.release_major_version }}.${{ env.release_minor_version }}.${{ GITHUB_RUN_ID }}" # Find a way to make patch start at zero
+        echo "version=$version" >> $GITHUB_OUTPUT
+        echo "Creating release for ${{ version }}"
     - name: Create Release
       id: release
       uses: avakar/tag-and-release@v1
       with:
-        tag_name: "${{ steps.get-release-version.outputs.version }}"
-        release_name: "BETA ${{ steps.get-release-version.outputs.version }}"
+        tag_name: "${{ steps.release-info.outputs.version }}"
+        release_name: "BETA ${{ steps.release-info.outputs.version }}"
         prerelease: true
       env:
         GITHUB_TOKEN: ${{ github.token }}
@@ -78,7 +78,7 @@ jobs:
       with:
         upload_url: "${{ steps.release.outputs.upload_url }}"
         asset_path: ./build/libs/CHAOS-Shared-Code.jar
-        asset_name: "CHAOS-Shared-Code-${{ steps.get-release-version.outputs.version }}-beta.jar"
+        asset_name: "CHAOS-Shared-Code-${{ steps.release-info.outputs.version }}-beta.jar"
         asset_content_type: application/zip
     - name: Send Jar Link to PR
       uses: actions/github-script@v6
