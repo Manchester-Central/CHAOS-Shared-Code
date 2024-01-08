@@ -37,6 +37,7 @@ jobs:
       with:
         bump_version_scheme: patch
         release_name: "BETA <RELEASE_VERSION>"
+        max_commits: 0
     - name: Get Release Info
       uses: cardinalby/git-get-release-action@v1
       id: get-release
