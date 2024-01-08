@@ -3,8 +3,8 @@ plugins {
     id 'maven-publish'
 }
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 repositories {
     jcenter()
@@ -14,11 +14,12 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'edu.wpi.first.wpilibNewCommands', name: 'wpilibNewCommands-java', version: '2023.4.1'
-    implementation group: 'edu.wpi.first.wpilibj', name: 'wpilibj-java', version: '2023.4.1'
-    implementation group: 'edu.wpi.first.wpimath', name: 'wpimath-java', version: '2023.4.1'
-    implementation group: 'edu.wpi.first.wpiutil', name: 'wpiutil-java', version: '2023.4.1'
-    implementation group: 'edu.wpi.first.ntcore', name: 'ntcore-java', version: '2023.4.1'
+    implementation group: 'edu.wpi.first.wpilibNewCommands', name: 'wpilibNewCommands-java', version: '2024.1.1'
+    implementation group: 'edu.wpi.first.wpilibj', name: 'wpilibj-java', version: '2024.1.1'
+    implementation group: 'edu.wpi.first.wpimath', name: 'wpimath-java', version: '2024.1.1'
+    implementation group: 'edu.wpi.first.wpiutil', name: 'wpiutil-java', version: '2024.1.1'
+    implementation group: 'edu.wpi.first.ntcore', name: 'ntcore-java', version: '2024.1.1'
+    implementation group: 'edu.wpi.first.wpiunits', name: 'wpiunits-java', version: '2024.1.1'
 }
 
 publishing {
