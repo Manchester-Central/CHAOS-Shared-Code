@@ -31,34 +31,54 @@ jobs:
           ${{ runner.os }}-gradle- 
     - name: Build with Gradle
       run: bash ./gradlew build --info
-    - name: Create Release
-      uses: rymndhng/release-on-push-action@v0.28.0
-      id: release
+    - name: Get Release Version
+      id: get-release-version
+      uses: rgarcia-phi/json-to-variables@v1.1.0
       with:
-        bump_version_scheme: patch
-        release_name: "BETA <RELEASE_VERSION>"
-        max_commits: 0
-    - name: Get Release Info
-      uses: cardinalby/git-get-release-action@v1
-      id: get-release
+        filename: 'release-config.json'
+        prefix: release
+      outputs:
+        version: "${{ env.major_version }}.${{ env.minor_version }}.${{ GITHUB_RUN_ID }}" # Find a way to make patch start at zero
+    - name: Show Release Version
+      run: |
+        echo "Creating release for ${{ steps.get-release-version.outputs.version }}"
+    - name: Create Release
+      id: release
+      uses: avakar/tag-and-release@v1
+      with:
+        tag_name: "${{ steps.get-release-version.outputs.version }}"
+        release_name: "BETA ${{ steps.get-release-version.outputs.version }}"
+        prerelease: true
       env:
         GITHUB_TOKEN: ${{ github.token }}
-      with:
-        tag: "${{ steps.release.outputs.tag_name }}"   
-    - name: Check Output Parameters
-      run: |
-        echo "Got tag name ${{ steps.release.outputs.tag_name }}"
-        echo "Got release version ${{ steps.release.outputs.version }}"
-        echo "Upload release artifacts to ${{ steps.get-release.outputs.upload_url }}"
+    # - name: Create Release
+    #   uses: rymndhng/release-on-push-action@v0.28.0
+    #   id: release
+    #   with:
+    #     bump_version_scheme: patch
+    #     release_name: "BETA <RELEASE_VERSION>"
+    #     max_commits: 0 # Can try increasing later
+    # - name: Get Release Info
+    #   uses: cardinalby/git-get-release-action@v1
+    #   id: get-release
+    #   env:
+    #     GITHUB_TOKEN: ${{ github.token }}
+    #   with:
+    #     tag: "${{ steps.release.outputs.tag_name }}"   
+    # - name: Check Output Parameters
+    #   run: |
+    #     echo "Got tag name ${{ steps.release.outputs.tag_name }}"
+    #     echo "Got release version ${{ steps.release.outputs.version }}"
+    #     echo "Upload release artifacts to ${{ steps.get-release.outputs.upload_url }}"
     - name: Upload Jar File
       id: upload-jar
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
-        upload_url: "${{ steps.get-release.outputs.upload_url }}"
+        upload_url: "${{ steps.release.outputs.upload_url }}"
         asset_path: ./build/libs/CHAOS-Shared-Code.jar
-        asset_name: "CHAOS-Shared-Code-${{ steps.release.outputs.version }}.jar"
+        asset_name: "CHAOS-Shared-Code-${{ steps.get-release-version.outputs.version }}-beta.jar"
         asset_content_type: application/zip
     - name: Send Jar Link to PR
       uses: actions/github-script@v6
