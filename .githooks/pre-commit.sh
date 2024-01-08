@@ -1,6 +1,6 @@
 #!/bin/bash
 
-URL="https://github.com/google/google-java-format/releases/download/google-java-format-1.9/google-java-format-1.9-all-deps.jar"
+URL="https://github.com/google/google-java-format/releases/download/v1.19.2/google-java-format-1.19.2-all-deps.jar"
 JARFILE=".format/google-java-format.jar"
 
 if ! shopt -q globstar; then
