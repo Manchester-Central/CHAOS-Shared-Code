@@ -39,7 +39,7 @@ jobs:
     - name: Show Release Version
       id: release-info
       run: |
-        version="${{ env.release_major_version }}.${{ env.release_minor_version }}.${{ GITHUB_RUN_ID }}" # Find a way to make patch start at zero
+        version="${{ env.release_major_version }}.${{ env.release_minor_version }}.${{ github.run_id }}" # Find a way to make patch start at zero
         echo "version=$version" >> $GITHUB_OUTPUT
         echo "Creating release for ${{ version }}"
     - name: Create Release
