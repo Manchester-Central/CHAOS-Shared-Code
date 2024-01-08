@@ -39,9 +39,9 @@ jobs:
     - name: Show Release Version
       id: release-info
       run: |
-        my_var="Hello World"
-        echo "Output [$my_var]"
-        echo "my_var=$my_var" >> $GITHUB_OUTPUT 
+        my_version="${{ env.release_major_version }}.${{ env.release_minor_version }}.${{ github.run_id }}"
+        echo "Output [$my_version]"
+        echo "version=$my_version" >> $GITHUB_OUTPUT 
     - name: Create Release
       id: release
       uses: avakar/tag-and-release@v1
