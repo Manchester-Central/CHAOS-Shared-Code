@@ -36,6 +36,11 @@ jobs:
       with:
         bump_version_scheme: patch
         release_name: "BETA Release <RELEASE_VERSION>"
+    - name: Check Output Parameters
+      run: |
+        echo "Got tag name ${{ steps.release.outputs.tag_name }}"
+        echo "Got release version ${{ steps.release.outputs.version }}"
+        echo "Upload release artifacts to ${{ steps.release.outputs.upload_url }}"
     - name: Upload Jar File
       uses: actions/upload-release-asset@v1
       env:
