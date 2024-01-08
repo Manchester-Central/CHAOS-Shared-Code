@@ -31,12 +31,14 @@ jobs:
           ${{ runner.os }}-gradle- 
     - name: Build with Gradle
       run: bash ./gradlew build --info
-    - uses: rymndhng/release-on-push-action@v0.28.0
+    - name: Create Release
+      uses: rymndhng/release-on-push-action@v0.28.0
       id: release
       with:
         bump_version_scheme: patch
         release_name: "BETA <RELEASE_VERSION>"
-    - uses: cardinalby/git-get-release-action@v1
+    - name: Get Release Info
+      uses: cardinalby/git-get-release-action@v1
       id: get-release
       env:
         GITHUB_TOKEN: ${{ github.token }}
@@ -57,7 +59,8 @@ jobs:
         asset_path: ./build/libs/CHAOS-Shared-Code.jar
         asset_name: "CHAOS-Shared-Code-${{ steps.release.outputs.version }}.jar"
         asset_content_type: application/zip
-    - uses: actions/github-script@v6
+    - name: Send Jar Link to PR
+      uses: actions/github-script@v6
       with:
         script: |
           github.rest.issues.createComment({
