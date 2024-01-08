@@ -3,12 +3,16 @@ name: Java Build & Lint
 on: [pull_request]
 
 permissions:
+  contents: write
   pull-requests: write
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
     - uses: actions/checkout@v2
@@ -27,16 +31,11 @@ jobs:
           ${{ runner.os }}-gradle- 
     - name: Build with Gradle
       run: bash ./gradlew build --info
-    - name: Archive JAR file
-      id: artifact-upload-step
-      uses: actions/upload-artifact@v4
+    - uses: rymndhng/release-on-push-action@v0.28.0
       with:
-        name: built-jar-file
-        path: |
-          dist/libs/**
-        retention-days: 60
-    - name: Output artifact URL
-      run:  echo 'Artifact URL is ${{ steps.artifact-upload-step.outputs.artifact-url }}'
+        bump_version_scheme: minor
+        tag_prefix: "v"
+        release_name: "Release <RELEASE_VERSION>"
     - uses: actions/github-script@v6
       with:
         script: |
