@@ -27,6 +27,16 @@ jobs:
           ${{ runner.os }}-gradle- 
     - name: Build with Gradle
       run: bash ./gradlew build --info
+    - name: Archive JAR file
+      id: artifact-upload-step
+      uses: actions/upload-artifact@v4
+      with:
+        name: built-jar-file
+        path: |
+          dist/libs/**
+        retention-days: 60
+    - name: Output artifact URL
+      run:  echo 'Artifact URL is ${{ steps.artifact-upload-step.outputs.artifact-url }}'
     - uses: actions/github-script@v6
       with:
         script: |
@@ -34,5 +44,5 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: '👋 Thanks for reporting!'
+            body: 'The JAR file for this MR can be found here: ${{ steps.artifact-upload-step.outputs.artifact-url }}. It will expire in 60 days.'
           })
