@@ -53,7 +53,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
-        upload_url: "${{ ssteps.get-release.outputs.upload_url }}"
+        upload_url: "${{ steps.get-release.outputs.upload_url }}"
         asset_path: ./build/lib/CHAOS-Shared-Code.jar
         asset_name: "CHAOS-Shared-Code-${{ steps.release.outputs.version }}.jar"
         asset_content_type: application/zip
