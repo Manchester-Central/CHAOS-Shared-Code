@@ -83,7 +83,7 @@ jobs:
     - name: Send Jar Link to PR
       uses: actions/github-script@v6
       env:
-        JAR_URL: ${{ fromJSON(steps.upload-jar.outputs.assets)[0].browser_download_url }}
+        JAR_URL: ${{ steps.upload-jar.outputs.browser_download_url }}
       with:
         script: |
           github.rest.issues.createComment({
