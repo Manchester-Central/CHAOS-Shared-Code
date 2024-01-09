@@ -50,63 +50,19 @@ jobs:
         last_version=$(git tag -l "${{ env.release_major_version }}.${{ env.release_minor_version }}.*" --sort=v:refname | tail -1)
         last_patch=$(cut -d '.' -f 3 <<< "$last_version")
         new_patch="$(($last_patch + 1))" # TODO: Start from zero if not set
-        my_version="${{ env.release_major_version }}.${{ env.release_minor_version }}.$new_patch"
+        my_version="${{ env.release_major_version }}.${{ env.release_minor_version }}.$new_patch.beta-${{ env.GITHUB_RUN_ID }}"
         echo "Output [$my_version]"
         echo "version=$my_version" >> $GITHUB_OUTPUT
 
-    - name: Create tag
-      uses: actions/github-script@v6.3.3
+    - name: Publish with Gradle
+      run: bash ./gradlew publish --info
       env:
-        RELEASE_TAG: ${{ steps.release-info.outputs.version }}
-      with:
-        github-token: "${{ github.token }}"
-        script: |
-          github.rest.git.createRef({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            ref: `refs/tags/${process.env.RELEASE_TAG}`,
-            sha: context.sha
-          })
-
-    - name: "Create release"
-      id: release
-      uses: actions/github-script@v6.3.3
-      env:
-        RELEASE_TAG: ${{ steps.release-info.outputs.version }}
-      with:
-        github-token: "${{ github.token }}"
-        script: |
-          try {
-            const response = await github.rest.repos.createRelease({
-              draft: false,
-              generate_release_notes: true,
-              name: `BETA ${process.env.RELEASE_TAG}`,
-              owner: context.repo.owner,
-              prerelease: true,
-              repo: context.repo.repo,
-              tag_name: process.env.RELEASE_TAG,
-            });
-
-            core.setOutput('upload_url', response.data.upload_url);
-          } catch (error) {
-            core.setFailed(error.message);
-          }
-
-    - name: Upload Jar File
-      id: upload-jar
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-      with:
-        upload_url: "${{ steps.release.outputs.upload_url }}"
-        asset_path: ./build/libs/CHAOS-Shared-Code.jar
-        asset_name: "CHAOS-Shared-Code-${{ steps.release-info.outputs.version }}-beta.jar"
-        asset_content_type: application/zip
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RELEASE_VERSION: ${{ steps.release-info.outputs.version }}
 
     - name: Send Jar Link to PR
       uses: actions/github-script@v6
       env:
-        JAR_URL: ${{ steps.upload-jar.outputs.browser_download_url }}
         JAR_VERSION: ${{ steps.release-info.outputs.version }}
       with:
         script: |
@@ -114,11 +70,5 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: `The ${process.env.JAR_VERSION} JAR file for this MR can be found here: ${process.env.JAR_URL}`
+            body: `The ${process.env.JAR_VERSION} package for this MR can be found here: https://github.com/Manchester-Central/CHAOS-Shared-Code/packages/2033853`
           })
-    
-    - name: Publish with Gradle
-      run: bash ./gradlew publish --info
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        RELEASE_VERSION: ${{ steps.release-info.outputs.version }}
