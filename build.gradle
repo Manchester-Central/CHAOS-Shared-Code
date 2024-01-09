@@ -6,6 +6,11 @@ plugins {
 sourceCompatibility = JavaVersion.VERSION_17
 targetCompatibility = JavaVersion.VERSION_17
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 repositories {
     jcenter()
     maven {
@@ -25,11 +30,21 @@ dependencies {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            groupId = 'org.gradle.sample'
-            artifactId = 'library'
+            groupId = 'com.chaos131'
+            artifactId = 'shared'
             version = '1.1'
 
             from components.java
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = "https://maven.pkg.github.com/Manchester-Central/CHAOS-Shared-Code"
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
         }
     }
 }
