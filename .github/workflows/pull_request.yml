@@ -1,0 +1,91 @@
+name: Pull Request - Java Build & Lint & beta release
+
+on: [pull_request]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: '17.0.1'
+
+    - name: Run Linter
+      run: bash .githooks/pre-commit.sh
+
+    - name: Cache Gradle dependendies
+      uses: actions/cache@v1
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+ 
+    - name: Build with Gradle
+      run: bash ./gradlew build --info
+
+    - name: Load Release JSON Config
+      uses: rgarcia-phi/json-to-variables@v1.1.0
+      with:
+        filename: 'release-config.json'
+        prefix: release
+
+    - name: Show Release Version
+      id: release-info
+      run: |
+        echo "${{steps.changelog.outputs.changelog}}"
+        git fetch --tags
+        last_version=$(git tag -l "${{ env.release_major_version }}.${{ env.release_minor_version }}.*" --sort=v:refname | tail -1)
+        last_patch=$(cut -d '.' -f 3 <<< "$last_version")
+        new_patch="$(($last_patch + 1))" # TODO: Start from zero if not set
+        my_version="${{ env.release_major_version }}.${{ env.release_minor_version }}.$new_patch"
+        echo "Output [$my_version]"
+        echo "version=$my_version" >> $GITHUB_OUTPUT 
+
+    - name: Create Release
+      id: release
+      uses: avakar/tag-and-release@v1
+      with:
+        tag_name: "${{ steps.release-info.outputs.version }}"
+        release_name: "BETA ${{ steps.release-info.outputs.version }}"
+        body: "Pull Request: #${{ github.event.number }}"
+        prerelease: true
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+
+    - name: Upload Jar File
+      id: upload-jar
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: "${{ steps.release.outputs.upload_url }}"
+        asset_path: ./build/libs/CHAOS-Shared-Code.jar
+        asset_name: "CHAOS-Shared-Code-${{ steps.release-info.outputs.version }}-beta.jar"
+        asset_content_type: application/zip
+
+    - name: Send Jar Link to PR
+      uses: actions/github-script@v6
+      env:
+        JAR_URL: ${{ steps.upload-jar.outputs.browser_download_url }}
+        JAR_VERSION: ${{ steps.release-info.outputs.version }}
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `The ${process.env.JAR_VERSION} JAR file for this MR can be found here: ${process.env.JAR_URL}`
+          })
