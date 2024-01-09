@@ -117,10 +117,8 @@ jobs:
             body: `The ${process.env.JAR_VERSION} JAR file for this MR can be found here: ${process.env.JAR_URL}`
           })
     
-    - name: Publish package
-      uses: gradle/gradle-build-action@749f47bda3e44aa060e82d7b3ef7e40d953bd629
-      with:
-        arguments: publish
+    - name: Publish with Gradle
+      run: bash ./gradlew publish --info
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         RELEASE_VERSION: ${{ steps.release-info.outputs.version }}
