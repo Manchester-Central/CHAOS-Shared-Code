@@ -46,7 +46,7 @@ jobs:
     - name: Show Release Version
       id: release-info
       env:
-        RUN_ID: ${{ GITHUB_RUN_ID }}
+        RUN_ID: ${{ github.run_id }}
       run: |
         git fetch --tags
         last_version=$(git tag -l "${{ env.release_major_version }}.${{ env.release_minor_version }}.*" --sort=v:refname | tail -1)
@@ -72,5 +72,5 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: `The ${process.env.JAR_VERSION} package for this MR can be found here: https://github.com/Manchester-Central/CHAOS-Shared-Code/packages/2033853`
+            body: `The ${process.env.JAR_VERSION} package for this MR can be found here: https://github.com/Manchester-Central/CHAOS-Shared-Code/packages/2033853?version=${process.env.JAR_VERSION}`
           })
