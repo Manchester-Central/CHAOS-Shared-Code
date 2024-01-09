@@ -5,6 +5,7 @@ on: [pull_request]
 permissions:
   contents: write
   pull-requests: write
+  packages: write
 
 jobs:
   build:
@@ -115,3 +116,9 @@ jobs:
             repo: context.repo.repo,
             body: `The ${process.env.JAR_VERSION} JAR file for this MR can be found here: ${process.env.JAR_URL}`
           })
+    
+    - name: Publish with Gradle
+      run: bash ./gradlew publish --info
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RELEASE_VERSION: ${{ steps.release-info.outputs.version }}
