@@ -54,7 +54,7 @@ jobs:
         echo "version=$my_version" >> $GITHUB_OUTPUT
 
     - name: Create tag
-      uses: actions/github-script@@v6.3.3
+      uses: actions/github-script@v6.3.3
       env:
         RELEASE_TAG: ${{ steps.release-info.outputs.version }}
       with:
