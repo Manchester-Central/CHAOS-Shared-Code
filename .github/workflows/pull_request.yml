@@ -51,7 +51,7 @@ jobs:
     - name: Show Release Version
       id: release-info
       run: |
-        echo "${{steps.changelog.outputs.changelog}}""
+        echo "${{steps.changelog.outputs.changelog}}"
         git fetch --tags
         last_version=$(git tag -l "${{ env.release_major_version }}.${{ env.release_minor_version }}.*" --sort=v:refname | tail -1)
         last_patch=$(cut -d '.' -f 3 <<< "$last_version")
