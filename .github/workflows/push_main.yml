@@ -1,6 +1,9 @@
-name: Pull Request - Java Build & Lint & beta release
+name: Main - Java Build & Lint & release
 
-on: [pull_request]
+on:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -42,6 +45,12 @@ jobs:
         filename: 'release-config.json'
         prefix: release
 
+    - name: Build Changelog
+      id: changelog
+      uses: mikepenz/release-changelog-builder-action@v3
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+
     - name: Show Release Version
       id: release-info
       run: |
@@ -59,9 +68,9 @@ jobs:
       uses: avakar/tag-and-release@v1
       with:
         tag_name: "${{ steps.release-info.outputs.version }}"
-        release_name: "BETA ${{ steps.release-info.outputs.version }}"
-        body: "Pull Request: #${{ github.event.number }}"
-        prerelease: true
+        release_name: "${{ steps.release-info.outputs.version }}"
+        body: "${{steps.changelog.outputs.changelog}}"
+        prerelease: false
       env:
         GITHUB_TOKEN: ${{ github.token }}
 
@@ -73,19 +82,6 @@ jobs:
       with:
         upload_url: "${{ steps.release.outputs.upload_url }}"
         asset_path: ./build/libs/CHAOS-Shared-Code.jar
-        asset_name: "CHAOS-Shared-Code-${{ steps.release-info.outputs.version }}-beta.jar"
+        asset_name: "CHAOS-Shared-Code-${{ steps.release-info.outputs.version }}.jar"
         asset_content_type: application/zip
 
-    - name: Send Jar Link to PR
-      uses: actions/github-script@v6
-      env:
-        JAR_URL: ${{ steps.upload-jar.outputs.browser_download_url }}
-        JAR_VERSION: ${{ steps.release-info.outputs.version }}
-      with:
-        script: |
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: `The ${process.env.JAR_VERSION} JAR file for this MR can be found here: ${process.env.JAR_URL}`
-          })
