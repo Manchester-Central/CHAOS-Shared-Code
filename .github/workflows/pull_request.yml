@@ -51,9 +51,21 @@ jobs:
         new_patch="$(($last_patch + 1))" # TODO: Start from zero if not set
         my_version="${{ env.release_major_version }}.${{ env.release_minor_version }}.$new_patch"
         echo "Output [$my_version]"
-        echo "version=$my_version" >> $GITHUB_OUTPUT 
-        git tag -s "$my_version"
-        git push --tags
+        echo "version=$my_version" >> $GITHUB_OUTPUT
+
+    - name: Create tag
+      uses: actions/github-script@@v6.3.3
+      env:
+        RELEASE_TAG: ${{ steps.release-info.outputs.version }}
+      with:
+        github-token: "${{ github.token }}"
+        script: |
+          github.rest.git.createRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: `refs/tags/${process.env.RELEASE_TAG}`,
+            sha: context.sha
+          })
 
     # - name: Create Release
     #   id: release
@@ -68,7 +80,7 @@ jobs:
 
     - name: "Create release"
       id: release
-      uses: "actions/github-script@v6.3.3"
+      uses: actions/github-script@v6.3.3
       env:
         RELEASE_TAG: ${{ steps.release-info.outputs.version }}
       with:
