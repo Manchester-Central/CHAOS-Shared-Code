@@ -67,17 +67,6 @@ jobs:
             sha: context.sha
           })
 
-    # - name: Create Release
-    #   id: release
-    #   uses: avakar/tag-and-release@v1
-    #   with:
-    #     tag_name: "${{ steps.release-info.outputs.version }}"
-    #     release_name: "BETA ${{ steps.release-info.outputs.version }}"
-    #     body: "Pull Request: #${{ github.event.number }}"
-    #     prerelease: true
-    #   env:
-    #     GITHUB_TOKEN: ${{ github.token }}
-
     - name: "Create release"
       id: release
       uses: actions/github-script@v6.3.3
@@ -90,15 +79,14 @@ jobs:
             const response = await github.rest.repos.createRelease({
               draft: false,
               generate_release_notes: true,
-              name: process.env.RELEASE_TAG,
+              name: `BETA ${process.env.RELEASE_TAG}`,
               owner: context.repo.owner,
               prerelease: true,
               repo: context.repo.repo,
               tag_name: process.env.RELEASE_TAG,
             });
 
-            core.setOutput('RELEASE_ID', response.data.id);
-            core.setOutput('RELEASE_UPLOAD_URL', response.data.upload_url);
+            core.setOutput('upload_url', response.data.upload_url);
           } catch (error) {
             core.setFailed(error.message);
           }
@@ -109,7 +97,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
       with:
-        upload_url: "${{ steps.release.outputs.RELEASE_UPLOAD_URL }}"
+        upload_url: "${{ steps.release.outputs.upload_url }}"
         asset_path: ./build/libs/CHAOS-Shared-Code.jar
         asset_name: "CHAOS-Shared-Code-${{ steps.release-info.outputs.version }}-beta.jar"
         asset_content_type: application/zip
