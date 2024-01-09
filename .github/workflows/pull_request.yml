@@ -42,9 +42,16 @@ jobs:
         filename: 'release-config.json'
         prefix: release
 
+    - name: Build Changelog
+      id: changelog
+      uses: mikepenz/release-changelog-builder-action@v3
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+
     - name: Show Release Version
       id: release-info
       run: |
+        echo "${{steps.changelog.outputs.changelog}}""
         git fetch --tags
         last_version=$(git tag -l "${{ env.release_major_version }}.${{ env.release_minor_version }}.*" --sort=v:refname | tail -1)
         last_patch=$(cut -d '.' -f 3 <<< "$last_version")
@@ -59,6 +66,7 @@ jobs:
       with:
         tag_name: "${{ steps.release-info.outputs.version }}"
         release_name: "BETA ${{ steps.release-info.outputs.version }}"
+        body: "${{steps.changelog.outputs.changelog}}"
         prerelease: true
       env:
         GITHUB_TOKEN: ${{ github.token }}
