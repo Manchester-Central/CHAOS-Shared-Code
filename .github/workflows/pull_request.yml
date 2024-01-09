@@ -86,12 +86,6 @@ jobs:
       with:
         github-token: "${{ github.token }}"
         script: |
-          if (!process.env.RELEASE_TAG) {
-            core.setFailed("The environment variable RELEASE_TAG is not defined.")
-
-            return;
-          }
-
           try {
             const response = await github.rest.repos.createRelease({
               draft: false,
@@ -103,8 +97,8 @@ jobs:
               tag_name: process.env.RELEASE_TAG,
             });
 
-            core.exportVariable('RELEASE_ID', response.data.id);
-            core.exportVariable('RELEASE_UPLOAD_URL', response.data.upload_url);
+            core.setOutput('RELEASE_ID', response.data.id);
+            core.setOutput('RELEASE_UPLOAD_URL', response.data.upload_url);
           } catch (error) {
             core.setFailed(error.message);
           }
