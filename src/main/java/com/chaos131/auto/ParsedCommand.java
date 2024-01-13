@@ -9,7 +9,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 /**
- * Takes Value format commandName?arg1&arg2... and separates it. :)
+ * Takes Value format `commandName?arg1{@literal &}arg2...` and separates it. :)
  * 
  * Copied from 2020 code: 
  *   - https://github.com/Manchester-Central/2020-Infinite-Recharge/blob/master/src/main/java/frc/robot/auto/ParseCommand.java

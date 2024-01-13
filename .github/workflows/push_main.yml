@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  packages: write
 
 jobs:
   build:
@@ -111,4 +112,10 @@ jobs:
         asset_path: ./build/libs/CHAOS-Shared-Code.jar
         asset_name: "CHAOS-Shared-Code-${{ steps.release-info.outputs.version }}.jar"
         asset_content_type: application/zip
+
+    - name: Publish with Gradle
+      run: bash ./gradlew publish --info
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RELEASE_VERSION: ${{ steps.release-info.outputs.version }}
 
