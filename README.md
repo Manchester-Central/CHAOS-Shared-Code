@@ -12,42 +12,104 @@
 # CHAOS Shared Code
 This is code that our team uses for different projects.
 
-TODO: Add more details
-
+Example features: 
+* Special gamepad wrapper around `CommandXboxController` that adds deadband to axes and stick angles and magnitude.
+* Our Autobuilder system, used for defining auto commands and running our auto scripts
+* Logging to USB and NetworkTables
+* PID Tuners, used for tuning PIDs from the dashboard
+* Our base swerve code (pulled/modified from our 2023 code)
+* DashboardNumber, a tool for creating numbers that can be easily used in the code and also updated on a dashboard
 
 ## Setup 
-You can run this in the latest WPILib VSCode for java (last tested with 2022).
+You can run this in the latest WPILib VSCode for java (last tested with 2024).
 
-## Create a new release
-When making changes to this, make sure to create a new release. Add an updated tag number and include the exported jar file as an asset with the release.
+## Releases & Packages
+New releases and packages will be published automatically when changes are pushed to the `main` branch (if the build succeeds).
+
+Beta packages (but not releases) will be published when pushing changes to a Merge Request.
+
+All releases can be found here: https://github.com/Manchester-Central/CHAOS-Shared-Code/releases
+
+All package versions (official and beta) can be found here: https://github.com/Manchester-Central/CHAOS-Shared-Code/packages/2033853/versions
 
 
 ## Add to your project
 
-You can either add this to your project via jitpack or by manually including the jar
+You can either add this to your project via maven, manually importing a JAR file, or by locally including the unbuilt project.
 
-### Jit Pack
-Add these to the build gradle:
+### Maven (preferred)
 
-Into dependencies (change `1.4.0` with the latest release or another commit SHA)
+#### Secrets.json
+Create a file called `secrets.json` at the root level of your WPILib project and this text to it:
+```json
+{
+    "github_package_auth" : {
+        "username" : "my_username", 
+        "personal_access_token" : "github_pat_redacted"
+    }
+}
 ```
-implementation 'com.github.Manchester-Central:CHAOS-Shared-Code:1.4.0'
-```
+Replace `my_username` with your github username.
 
-And make sure to have this at the root:
-```
-repositories { 
-    jcenter() 
-    maven { url "https://jitpack.io" }
+Replace `github_pat_redacted` with your github personal access token with readonly permission to all public repos. See [this guide](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) for how to make one. 
+
+**IF ADDING THIS TO A NEW PROJECT, MAKE SURE TO ADD THE `secrets.json` FILE TO `.gitignore` SO YOUR TOKEN IS NOT PUBLISHED TO GITHUB.**
+
+If you are on a CHAOS shared computer, look at [this private discussion](https://github.com/orgs/Manchester-Central/discussions/1) for how to configure the shared token in your project. 
+
+#### build.gradle
+Add these to the `build.gradle` file:
+
+Make sure to add this above the dependencies sections:
+```groovy
+def secretsFile = file("secrets.json")
+def secrets = new groovy.json.JsonSlurper().parseText(secretsFile.text)
+
+repositories {
+    maven {
+        url = uri("https://maven.pkg.github.com/Manchester-Central/CHAOS-Shared-Code")
+        credentials {
+            username = secrets.github_package_auth.username
+            password = secrets.github_package_auth.personal_access_token
+        }
+    }
 }
 ```
 
-### Manually add
+Add this line inside the dependencies section (change `2024.0.15` with the latest package version)
+```groovy
+    implementation 'com.chaos131:shared:2024.0.15'
+```
 
-Download the shared code, run the "WPILib: Build Robot Code" task, and then run the "Java: Export Jar" task with all defaults. Copy the produced jar file into a libs folder in your target project.
+You can see a live example here:
+https://github.com/Manchester-Central/2024-Crescendo/blob/main/build.gradle
+
+### Manually add JAR
+
+Download (or clone) the shared code, run the "WPILib: Build Robot Code" task, and then run the "Java: Export Jar" task with all defaults. Copy the produced jar file into a libs folder in your target project.
 **You should also be able to grab the latest jar files from the Release section on github.**
 
-In your build.gradle, add this to your dependencies.
+In your build.gradle, add this to your dependencies (you might need to double check the file name matches).
 ```
 implementation files('libs/CHAOS-Shared-Code.jar')
 ```
+
+### Include project locally
+
+You can also manually add the CHAOS Shared Code project to yours, which is helpful when trying to make changes to the shared code project and quickly testing them.
+This expects you to put the shared project in the same parent folder as your target project (but doesn't need to be if you change the file path in `settings.gradle`)
+
+#### build.gradle
+
+Add this to the dependencies section of your `build.gradle` file:
+```groovy
+    implementation project(':chaos-shared-code') // Comment this out before committing - this can be used to load CHAOS-Shared-code locally if placed in the same parent folder as this project
+```
+
+#### settings.gradle
+Add this to the end of your `settings.gradle` file:
+```groovy
+include ':chaos-shared-code' 
+project(':chaos-shared-code').projectDir = new File("../CHAOS-Shared-Code")
+```
+
