@@ -139,7 +139,7 @@ public class BaseSwerveDrive extends SubsystemBase {
   }
 
   /** Moves the robot according to the NORMALIZED speeds (where 1.0 is max speed, and -1.0 is max speed in the other direction) 
-   * `TranslationSpeedModifier` & `RotationSpeedModifier` will be applied as [0.0, 1.0] multipliers
+   * `TranslationSpeedModifier` and `RotationSpeedModifier` will be applied as [0.0, 1.0] multipliers
    * @param chassisSpeeds the normalized speeds
   */
   public void move(ChassisSpeeds chassisSpeeds) {
@@ -199,17 +199,17 @@ public class BaseSwerveDrive extends SubsystemBase {
    * @param angle the angle on the field to target
    * @param magnitude how quickly to target the angle [0, 1.0]
    */
-  public void moveFieldRelativeAngle(double xMetersPerSecond, double yMetersPerSecond, Rotation2d angle, double magnitude){
+  public void moveFieldRelativeAngle(double xPercentSpeed, double yPercentSpeed, Rotation2d angle, double magnitude){
     double omega = 0;
     ChassisSpeeds speeds;
     if (Math.abs(magnitude) >= 0.2) {
       omega = m_AngleDegreesPid.calculate(getOdometryRotation().getDegrees(), angle.getDegrees()) * magnitude;
     }
     if(isDefaultAlliance()) {
-      speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xMetersPerSecond, yMetersPerSecond, omega, getOdometryRotation());
+      speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xPercentSpeed, yPercentSpeed, omega, getOdometryRotation());
     } else {
       // Rotate the direction if we're on the non default side (if 0,0 is on the blue side and we're red, we need to rotate our perspective)
-      speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xMetersPerSecond, yMetersPerSecond, omega, getOdometryRotation().minus(new Rotation2d(Math.PI)));
+      speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xPercentSpeed, yPercentSpeed, omega, getOdometryRotation().minus(new Rotation2d(Math.PI)));
     }
     move(speeds);
   } 
