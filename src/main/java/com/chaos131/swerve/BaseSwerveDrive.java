@@ -138,6 +138,10 @@ public class BaseSwerveDrive extends SubsystemBase {
     return mapModules((module) -> module.getModuleState()).toArray(SwerveModuleState[] ::new);
   }
 
+  /** Moves the robot according to the NORMALIZED speeds (where 1.0 is max speed, and -1.0 is max speed in the other direction) 
+   * `TranslationSpeedModifier` & `RotationSpeedModifier` will be applied as [0.0, 1.0] multipliers
+   * @param chassisSpeeds the normalized speeds
+  */
   public void move(ChassisSpeeds chassisSpeeds) {
     chassisSpeeds.vxMetersPerSecond = MathUtil.clamp(chassisSpeeds.vxMetersPerSecond, -1, 1) * m_swerveConfigs.maxRobotSpeed_mps() * TranslationSpeedModifier;
     chassisSpeeds.vyMetersPerSecond = MathUtil.clamp(chassisSpeeds.vyMetersPerSecond, -1, 1) * m_swerveConfigs.maxRobotSpeed_mps() * TranslationSpeedModifier;
@@ -161,40 +165,71 @@ public class BaseSwerveDrive extends SubsystemBase {
     forAllModules((module) -> module.setTarget(swerveModuleState));
   }
 
-  public void moveFieldRelativeForPID(double xMetersPerSecond, double yMetersPerSecond, double omegaRadianPerSecond){
-    ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xMetersPerSecond, yMetersPerSecond, omegaRadianPerSecond, getOdometryRotation());
+  /**
+   * Moves the robot on the field while driving to a position automatically
+   * @param xPercentSpeed speed percent [-1.0, 1.0] of max speed in the x direction
+   * @param yPercentSpeed speed percent [-1.0, 1.0] of max speed in the y direction
+   * @param omegaPercentSpeed speed percent [-1.0, 1.0] of max rotation speed in the CCW direction
+   */
+  public void moveFieldRelativeForPID(double xPercentSpeed, double yPercentSpeed, double omegaPercentSpeed){
+    ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xPercentSpeed, yPercentSpeed, omegaPercentSpeed, getOdometryRotation());
     move(speeds);
   }
 
-  public void moveFieldRelative(double xMetersPerSecond, double yMetersPerSecond, double omegaRadianPerSecond){
+  /**
+   * Moves the robot on the field from the perspective of the current driver station
+   * @param xPercentSpeed speed percent [-1.0, 1.0] of max speed in the x direction
+   * @param yPercentSpeed speed percent [-1.0, 1.0] of max speed in the y direction
+   * @param omegaPercentSpeed speed percent [-1.0, 1.0] of max rotation speed in the CCW direction
+   */
+  public void moveFieldRelative(double xPercentSpeed, double yPercentSpeed, double omegaPercentSpeed){
     ChassisSpeeds speeds;
-    if(DriverStation.getAlliance().orElse(DriverStation.Alliance.Red) == DriverStation.Alliance.Blue) {
-      speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xMetersPerSecond, yMetersPerSecond, omegaRadianPerSecond, getOdometryRotation().minus(new Rotation2d(Math.PI)));
+    if(isDefaultAlliance()) {
+      speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xPercentSpeed, yPercentSpeed, omegaPercentSpeed, getOdometryRotation());
     } else {
-      speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xMetersPerSecond, yMetersPerSecond, omegaRadianPerSecond, getOdometryRotation());
+      speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xPercentSpeed, yPercentSpeed, omegaPercentSpeed, getOdometryRotation().minus(new Rotation2d(Math.PI)));
     }
     move(speeds);
   }
 
+  /**
+   * Moves the robot on the field while driving to a position automatically
+   * @param xPercentSpeed speed percent [-1.0, 1.0] of max speed in the x direction
+   * @param yPercentSpeed speed percent [-1.0, 1.0] of max speed in the y direction
+   * @param angle the angle on the field to target
+   * @param magnitude how quickly to target the angle [0, 1.0]
+   */
   public void moveFieldRelativeAngle(double xMetersPerSecond, double yMetersPerSecond, Rotation2d angle, double magnitude){
     double omega = 0;
     ChassisSpeeds speeds;
     if (Math.abs(magnitude) >= 0.2) {
       omega = m_AngleDegreesPid.calculate(getOdometryRotation().getDegrees(), angle.getDegrees()) * magnitude;
     }
-    if(DriverStation.getAlliance().orElse(DriverStation.Alliance.Red) == DriverStation.Alliance.Blue) {
-      speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xMetersPerSecond, yMetersPerSecond, omega, getOdometryRotation().minus(new Rotation2d(Math.PI)));
-    } else {
+    if(isDefaultAlliance()) {
       speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xMetersPerSecond, yMetersPerSecond, omega, getOdometryRotation());
+    } else {
+      // Rotate the direction if we're on the non default side (if 0,0 is on the blue side and we're red, we need to rotate our perspective)
+      speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xMetersPerSecond, yMetersPerSecond, omega, getOdometryRotation().minus(new Rotation2d(Math.PI)));
     }
     move(speeds);
   } 
 
-  public void moveRobotRelative(double xForwardSpeedMetersPerSecond, double ySidewaySpeedMetersPerSecond,
-      double omegaRadianPerSecond) {
-    ChassisSpeeds speeds = new ChassisSpeeds(xForwardSpeedMetersPerSecond, ySidewaySpeedMetersPerSecond,
-        omegaRadianPerSecond);
+  /**
+   * Moves the robot relative to itself
+   * @param xPercentSpeed speed percent [-1.0, 1.0] of max speed in the x direction
+   * @param yPercentSpeed speed percent [-1.0, 1.0] of max speed in the y direction
+   * @param omegaPercentSpeed speed percent [-1.0, 1.0] of max rotation speed in the CCW direction
+   */
+  public void moveRobotRelative(double xPercentSpeed, double yPercentSpeed, double omegaPercentSpeed) {
+    ChassisSpeeds speeds = new ChassisSpeeds(xPercentSpeed, yPercentSpeed, omegaPercentSpeed);
     move(speeds);
+  }
+
+  /**
+   * Checks if we're currently running as what we consider the default alliance (2023 we went with red - 2024 we are going with blue)
+   */
+  private boolean isDefaultAlliance() {
+    return DriverStation.getAlliance().orElse(m_swerveConfigs.defaultAlliance()) == m_swerveConfigs.defaultAlliance();
   }
 
   public void resetPids() {
@@ -291,11 +326,11 @@ public class BaseSwerveDrive extends SubsystemBase {
   }
 
   private void updateVelocityPIDConstants(PIDFValue update) {
-    forAllModules((module) -> module.UpdateVelocityPIDConstants(update));
+    forAllModules((module) -> module.updateVelocityPIDConstants(update));
   }
 
   private void updateAnglePIDConstants(PIDFValue update) {
-    forAllModules((module) -> module.UpdateAnglePIDConstants(update));
+    forAllModules((module) -> module.updateAnglePIDConstants(update));
   }
 
   public void setDriveTranslationTolerance(double tolerance) {
