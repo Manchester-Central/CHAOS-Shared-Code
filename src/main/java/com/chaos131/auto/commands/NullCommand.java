@@ -32,5 +32,4 @@ public class NullCommand extends BaseAutoCommand {
 
     @Override
     protected void afterWorking() {}
-
 }

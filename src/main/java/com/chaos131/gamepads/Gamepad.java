@@ -4,13 +4,11 @@
 
 package com.chaos131.gamepads;
 
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.math.MathUtil;
-
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 /** A CHAOS Wrapper around `CommandXboxController` */
 public class Gamepad extends CommandXboxController {
-
 
     public Gamepad(int port) {
         super(port);
@@ -65,5 +63,4 @@ public class Gamepad extends CommandXboxController {
     public double getLeftMagnitude() {
         return Math.hypot(getLeftX(), getLeftY());
     }
-
 }

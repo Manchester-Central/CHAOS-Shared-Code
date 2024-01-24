@@ -4,13 +4,12 @@
 
 package com.chaos131.util;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** Add your docs here. */
 public class DashboardNumber {
@@ -21,14 +20,14 @@ public class DashboardNumber {
     private String m_name;
     private Consumer<Double> m_onUpdate;
     private boolean m_tuningEnabled;
-    
+
     public DashboardNumber(String name, double startValue, boolean tuningEnabled, Consumer<Double> onUpdate) {
         m_value = startValue;
         m_name = name;
         m_onUpdate = onUpdate;
         m_tuningEnabled = tuningEnabled;
         onUpdate.accept(m_value);
-        if(m_tuningEnabled) {
+        if (m_tuningEnabled) {
             SmartDashboard.putNumber(name, m_value);
         }
         AllUpdaters.add(this);
@@ -39,11 +38,11 @@ public class DashboardNumber {
     }
 
     private void checkValue() {
-        if(!m_tuningEnabled) {
+        if (!m_tuningEnabled) {
             return;
         }
         var newValue = SmartDashboard.getNumber(m_name, m_value);
-        if(newValue != m_value) {
+        if (newValue != m_value) {
             m_value = newValue;
             m_onUpdate.accept(m_value);
             ChangedValues.add(m_name);

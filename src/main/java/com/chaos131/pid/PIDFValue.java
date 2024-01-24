@@ -9,7 +9,7 @@ public class PIDFValue {
 
     public PIDFValue(double p, double i, double d, double f) {
         P = p;
-        I = i; 
+        I = i;
         D = d;
         F = f;
     }

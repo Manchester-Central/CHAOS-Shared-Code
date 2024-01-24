@@ -10,8 +10,8 @@ import java.util.TreeMap;
 
 /**
  * Takes Value format `commandName?arg1{@literal &}arg2...` and separates it. :)
- * 
- * Copied from 2020 code: 
+ *
+ * Copied from 2020 code:
  *   - https://github.com/Manchester-Central/2020-Infinite-Recharge/blob/master/src/main/java/frc/robot/auto/ParseCommand.java
  */
 public class ParsedCommand {
@@ -53,7 +53,6 @@ public class ParsedCommand {
             System.out.println("Arguments: " + splitArgs[0]);
             System.out.println(arguments.get(splitArgs[0]));
         }
-
     }
 
     /***
@@ -65,7 +64,6 @@ public class ParsedCommand {
     public String getArgument(String key) {
 
         return arguments.get(key);
-
     }
 
     public Set<String> getArgumentKeys() {
