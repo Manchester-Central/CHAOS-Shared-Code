@@ -44,13 +44,11 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
         throw new UnsupportedOperationException("Unimplemented method 'driveToPositionInit'");
     }
 
-    @Override
     public void UpdateVelocityPIDConstants(PIDFValue update) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'UpdateVelocityPIDConstants'");
     }
 
-    @Override
     public void UpdateAnglePIDConstants(PIDFValue update) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'UpdateAnglePIDConstants'");
@@ -115,5 +113,17 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'recalibrateWithFilteredAbsoluteAngle'");
     }
+
+	@Override
+	public void updateVelocityPIDConstants(PIDFValue update) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'updateVelocityPIDConstants'");
+	}
+
+	@Override
+	public void updateAnglePIDConstants(PIDFValue update) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'updateAnglePIDConstants'");
+	}
 
 }
