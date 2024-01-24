@@ -1,6 +1,7 @@
 plugins {
     id "java"
     id 'maven-publish'
+    id "edu.wpi.first.GradleRIO" version "2024.1.1"
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -19,12 +20,8 @@ repositories {
 }
 
 dependencies {
-    implementation group: 'edu.wpi.first.wpilibNewCommands', name: 'wpilibNewCommands-java', version: '2024.1.1'
-    implementation group: 'edu.wpi.first.wpilibj', name: 'wpilibj-java', version: '2024.1.1'
-    implementation group: 'edu.wpi.first.wpimath', name: 'wpimath-java', version: '2024.1.1'
-    implementation group: 'edu.wpi.first.wpiutil', name: 'wpiutil-java', version: '2024.1.1'
-    implementation group: 'edu.wpi.first.ntcore', name: 'ntcore-java', version: '2024.1.1'
-    implementation group: 'edu.wpi.first.wpiunits', name: 'wpiunits-java', version: '2024.1.1'
+    implementation wpi.java.deps.wpilib()
+    implementation wpi.java.vendor.java()
 }
 
 publishing {
