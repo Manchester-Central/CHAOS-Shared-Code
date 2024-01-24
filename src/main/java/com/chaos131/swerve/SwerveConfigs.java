@@ -4,6 +4,7 @@ import com.chaos131.pid.PIDFValue;
 import com.chaos131.pid.PIDValue;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class SwerveConfigs {
     
@@ -111,6 +112,17 @@ public class SwerveConfigs {
     }
     public SwerveConfigs setDefaultModuleAnglePIDValues(PIDValue defaultModuleAnglePIDValues) {
         m_defaultModuleAnglePIDValues = defaultModuleAnglePIDValues;
+        return this;
+    }
+
+    // Default color
+    private Alliance m_defaultAlliance = Alliance.Blue;
+    public Alliance defaultAlliance() {
+        return m_defaultAlliance;
+    }
+    /** Sets the default alliance for the coordinate system (which color is closest to 0,0) */
+    public SwerveConfigs setDefaultAlliance(Alliance alliance) {
+        m_defaultAlliance = alliance;
         return this;
     }
 }
