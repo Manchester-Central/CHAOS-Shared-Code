@@ -4,6 +4,10 @@
 
 package com.chaos131.logging;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,11 +15,6 @@ import java.util.Map;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 /** Manages the logs recorded into the .csv file, stored on a flash drive on the robot*/
 public class LogManager {
@@ -25,6 +24,7 @@ public class LogManager {
     private LoggingThread m_loggingThread;
 
     private static LogManager _instance = new LogManager();
+
     public static LogManager getInstance() {
         return _instance;
     }
@@ -35,8 +35,8 @@ public class LogManager {
         addNumber("timeMs", true, () -> getCurrentTimeMs());
     }
 
-    private static long getCurrentTimeMs(){
-      return RobotController.getFPGATime() / 1000;
+    private static long getCurrentTimeMs() {
+        return RobotController.getFPGATime() / 1000;
     }
 
     public void addBoolean(String title, boolean willLogShuffleboard, BooleanSupplier valueSupplier) {
@@ -74,9 +74,10 @@ public class LogManager {
     public void update() {
         try {
             if (m_loggingThread.getState() == Thread.State.NEW) {
-                // Robot's unix time might be 1970, start logging AFTER the driver station is attached to avoid that. :)))  
+                // Robot's unix time might be 1970, start logging AFTER the driver station is attached to avoid that.
+                // :)))
                 if (DriverStation.isDSAttached()) {
-                    m_loggingThread.start(); 
+                    m_loggingThread.start();
                 }
             } else {
                 StringBuilder sb = new StringBuilder();

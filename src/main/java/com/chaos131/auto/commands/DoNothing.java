@@ -33,5 +33,4 @@ public class DoNothing extends BaseAutoCommand {
 
     @Override
     protected void afterWorking() {}
-
 }

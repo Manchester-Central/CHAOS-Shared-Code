@@ -7,13 +7,12 @@
 
 package com.chaos131.auto.commands;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj2.command.CommandBase;
 import com.chaos131.auto.ParsedCommand;
 import com.chaos131.auto.conditions.IAutoCondition;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj2.command.CommandBase;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A class for handling the logic needed for our Auto commands
@@ -71,22 +70,22 @@ public abstract class BaseAutoCommand extends CommandBase {
     }
 
     /**
-     * Should be implemented by each command. 
+     * Should be implemented by each command.
      * Will record if the work for the command is done, but can be overridden by configured IAutoConditions
      * @return true if the command is finished
      */
     protected abstract boolean isWorkDone();
-    
+
     /**
      * Implement code here that should happen before the command starts
      */
     protected abstract void beforeWorking();
-    
+
     /**
      * Implement code here for what should happen during the command
      */
     protected abstract void work();
-    
+
     /**
      * Implement code here for what should happen after a command
      */

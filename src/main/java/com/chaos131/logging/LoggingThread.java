@@ -4,6 +4,7 @@
 
 package com.chaos131.logging;
 
+import edu.wpi.first.wpilibj.RobotBase;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,8 +15,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import edu.wpi.first.wpilibj.RobotBase;
 
 /** Add your docs here. */
 public class LoggingThread extends Thread {
@@ -28,7 +27,6 @@ public class LoggingThread extends Thread {
     public LoggingThread() {
         timestampNow();
         m_q = new ConcurrentLinkedQueue<String>();
-
     }
 
     public void enqueue(String s) {
@@ -80,7 +78,6 @@ public class LoggingThread extends Thread {
                 running = false; // TODO IS THIS RIGHT?
             }
         }
-
     }
 
     private void recordRow(String s) {

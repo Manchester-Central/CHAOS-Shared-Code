@@ -4,10 +4,9 @@
 
 package com.chaos131.pid;
 
-import java.util.function.Consumer;
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import java.util.function.Consumer;
 
 /** Helps tune a PID from the Dashboard */
 public class PIDTuner {
@@ -16,36 +15,36 @@ public class PIDTuner {
     private final Consumer<PIDFValue> m_pidfUpdater;
     private double m_p, m_i, m_d, m_f;
 
-    public PIDTuner(
-        String componentName,
-        boolean tuningEnabled,
-        PIDController pidController
-    ) {
-        this(componentName, tuningEnabled, pidController.getP(), pidController.getI(), pidController.getD(), (PIDFValue update) -> {
-            pidController.setPID(update.P, update.I, update.D);
-        });
+    public PIDTuner(String componentName, boolean tuningEnabled, PIDController pidController) {
+        this(
+                componentName,
+                tuningEnabled,
+                pidController.getP(),
+                pidController.getI(),
+                pidController.getD(),
+                (PIDFValue update) -> {
+                    pidController.setPID(update.P, update.I, update.D);
+                });
     }
 
     public PIDTuner(
-        String componentName,
-        boolean tuningEnabled,
-        double defaultP,
-        double defaultI,
-        double defaultD,
-        Consumer<PIDFValue> pidfUpdater
-    ) {
+            String componentName,
+            boolean tuningEnabled,
+            double defaultP,
+            double defaultI,
+            double defaultD,
+            Consumer<PIDFValue> pidfUpdater) {
         this(componentName, tuningEnabled, defaultP, defaultI, defaultD, 0.0, pidfUpdater);
     }
 
     public PIDTuner(
-        String componentName,
-        boolean tuningEnabled,
-        double defaultP,
-        double defaultI,
-        double defaultD,
-        double defaultF,
-        Consumer<PIDFValue> pidfUpdater
-    ) {
+            String componentName,
+            boolean tuningEnabled,
+            double defaultP,
+            double defaultI,
+            double defaultD,
+            double defaultF,
+            Consumer<PIDFValue> pidfUpdater) {
         m_componentName = componentName;
         m_tuningEnabled = tuningEnabled;
         m_p = defaultP;

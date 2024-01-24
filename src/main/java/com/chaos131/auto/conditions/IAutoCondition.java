@@ -15,5 +15,4 @@ public interface IAutoCondition {
     public void init();
 
     public boolean isDone();
-
 }
