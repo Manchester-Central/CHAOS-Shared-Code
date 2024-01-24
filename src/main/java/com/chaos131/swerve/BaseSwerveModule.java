@@ -38,8 +38,8 @@ public abstract class BaseSwerveModule {
   public abstract void addCoachTabDashboardValues(ShuffleboardTab coachTab);
   public abstract void driverModeInit();
   public abstract void driveToPositionInit();
-  public abstract void UpdateVelocityPIDConstants(PIDFValue update);
-  public abstract void UpdateAnglePIDConstants(PIDFValue update);
+  public abstract void updateVelocityPIDConstants(PIDFValue update);
+  public abstract void updateAnglePIDConstants(PIDFValue update);
 
   protected abstract double getEncoderDistance_m();
   protected abstract double getEncoderVelocity_mps();
