@@ -25,7 +25,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 /** Creates a Swerve Module using TalonFxs and a CANcoder (CHAOS's 2022 and 2024 bots used this configuration) */
 public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
 
-    public class SpeedControllerConfig {
+    public static class SpeedControllerConfig {
         public final int canId;
         public final InvertedValue motorDirection;
         public final double speedGearRatio;
@@ -44,7 +44,7 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
         }
     }
 
-    public class AngleControllerConfig {
+    public static class AngleControllerConfig {
         public final int canId;
         public final InvertedValue motorDirection;
         public final double angleGearRatio;
@@ -60,7 +60,7 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
         }
     }
 
-    public class AbsoluteEncoderConfig {
+    public static class AbsoluteEncoderConfig {
         public final int canId;
         public final SensorDirectionValue sensorDirection;
         public final Rotation2d absoluteAngleOffset;
@@ -76,7 +76,7 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
         }
     }
 
-    public class DriveConfig {
+    public static class DriveConfig {
         public final double driverModeClosedLoopRampRatePeriod;
         public final double driveToPositionClosedLoopRampRatePeriod;
         public final Rotation2d xModeAngle;
