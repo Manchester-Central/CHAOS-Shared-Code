@@ -48,7 +48,7 @@ public abstract class BaseSwerveModule {
   protected abstract void setTargetAngle(Rotation2d angle);
   protected abstract Rotation2d getAbsoluteAngle();
   protected abstract void stopAngleMotor();
-  protected abstract void stopVelocityMotor();
+  protected abstract void stopSpeedMotor();
   protected abstract void updateDashboard();
   protected abstract void recalibrateWithFilteredAbsoluteAngle(Rotation2d absoluteAngle);
 
@@ -79,7 +79,7 @@ public abstract class BaseSwerveModule {
 
   public void stop() {
     stopAngleMotor();
-    stopVelocityMotor();
+    stopSpeedMotor();
     m_targetState = new SwerveModuleState(0, getModuleState().angle); 
   }
 
