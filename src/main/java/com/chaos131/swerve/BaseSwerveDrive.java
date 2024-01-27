@@ -264,7 +264,7 @@ public class BaseSwerveDrive extends SubsystemBase {
     if (RobotBase.isSimulation()) {
       return m_simrotation;
     }
-    return m_getRotation.get().times(-1);
+    return m_getRotation.get();
   }
 
   public Pose2d getPose() {
