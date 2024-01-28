@@ -209,7 +209,7 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
         slot0Configs.kD = update.D;
         slot0Configs.kV = update.F;
         slot0Configs.kS = 0.05;
-
+        m_speedConfig.Slot0 = slot0Configs;
         m_speedController.getConfigurator().apply(slot0Configs);
 	}
 
@@ -220,20 +220,20 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
         slot0Configs.kI = update.I;
         slot0Configs.kD = update.D;
         slot0Configs.kV = update.F;
-
+        m_angleConfig.Slot0 = slot0Configs;
         m_angleController.getConfigurator().apply(slot0Configs);
 	}
 
     @Override
     public void driverModeInit() {
         m_speedConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = m_driveConfig.driverModeClosedLoopRampRatePeriod;
-        m_speedController.getConfigurator().apply(m_speedConfig);
+        m_speedController.getConfigurator().apply(m_speedConfig.ClosedLoopRamps);
     }
 
     @Override
     public void driveToPositionInit() {
         m_speedConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = m_driveConfig.driveToPositionClosedLoopRampRatePeriod;
-        m_speedController.getConfigurator().apply(m_speedConfig);
+        m_speedController.getConfigurator().apply(m_speedConfig.ClosedLoopRamps);
     }
 
     @Override
