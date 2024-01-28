@@ -1,11 +1,8 @@
 package com.chaos131.util;
 
-import edu.wpi.first.math.MatBuilder;
-import edu.wpi.first.math.Nat;
-import edu.wpi.first.math.controller.LinearPlantInversionFeedforward;
 import edu.wpi.first.math.controller.proto.ElevatorFeedforwardProto;
 import edu.wpi.first.math.controller.struct.ElevatorFeedforwardStruct;
-import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.util.protobuf.ProtobufSerializable;
 import edu.wpi.first.util.struct.StructSerializable;
 
@@ -15,16 +12,18 @@ import edu.wpi.first.util.struct.StructSerializable;
  */
 public class FullFeedForward implements ProtobufSerializable, StructSerializable {
 	/** The static gain. */
-	public final double ks;
+	public double ks;
 
 	/** The gravity gain. */
-	public final double kg;
+	public double kg;
 
 	/** The velocity gain. */
-	public final double kv;
+	public double kv;
 
 	/** The acceleration gain. */
-	public final double ka;
+	public double ka;
+
+	// TODO: This should probably evolve a bit, and have its own ProtoBufs
 
 	/** ElevatorFeedforward protobuf for serialization. */
 	public static final ElevatorFeedforwardProto proto = new ElevatorFeedforwardProto();
@@ -33,19 +32,36 @@ public class FullFeedForward implements ProtobufSerializable, StructSerializable
 	public static final ElevatorFeedforwardStruct struct = new ElevatorFeedforwardStruct();
 
 	/**
+	 * All calculations are done assuming the angles are done with respect to the horizon.
+	 * 
+	 * Therefore, full gravity with be with a pitch of 0 radians (sticking straight out),
+	 * and no gravity is treated as half-pi radians (90 degrees up).
+	 * Observe that a negative angle would produce the same result.
+	 */
+	public static final Rotation3d FULL_GRAVITY = new Rotation3d(0, 0, 0);
+	public static final Rotation3d NO_GRAVITY = new Rotation3d(0, Math.PI/2, 0);
+
+	/**
 	 * Velocity / Driving based Feed Forward calculator.
 	 * Useful for when you need to know the speed of the wheel.
 	 */
-	public class VelocityFeedForward extends FullFeedForward {
+	public static class VelocityFeedForward extends FullFeedForward {
 		public VelocityFeedForward(double ks, double kv, double ka) {
 			super(ks, kv, ka, 0);
 		}
 	}
+	/**
+	 * Useful for rotating mechanisms, like an arm.
+	 */
 	public class AngularFeedForward extends FullFeedForward {
 		public AngularFeedForward(double ks, double kv, double ka, double kg) {
 			super(ks, kv, ka, kg);
 		}
 	}
+	/**
+	 * Useful for when there's some external acceleration component.
+	 * Typically this is due to gravity, for things like elevators and claws.
+	 */
 	public class GravitationFeedForward extends FullFeedForward {
 		public GravitationFeedForward(double ks, double kv, double ka, double kg) {
 			super(ks, kv, ka, kg);
@@ -57,13 +73,13 @@ public class FullFeedForward implements ProtobufSerializable, StructSerializable
 	 * dictate units of the computed feedforward.
 	 *
 	 * @param ks The static gain.
-	 * @param kg The gravity gain.
 	 * @param kv The velocity gain.
 	 * @param ka The acceleration gain.
+	 * @param kg The gravity gain.
 	 * @throws IllegalArgumentException for kv &lt; zero.
 	 * @throws IllegalArgumentException for ka &lt; zero.
 	 */
-	public FullFeedForward(double ks, double kg, double kv, double ka) {
+	public FullFeedForward(double ks, double kv, double ka, double kg) {
 		this.ks = ks;
 		this.kg = kg;
 		this.kv = kv;
@@ -72,8 +88,15 @@ public class FullFeedForward implements ProtobufSerializable, StructSerializable
 			throw new IllegalArgumentException("kv must be a non-negative number, got " + kv + "!");
 		}
 		if (ka < 0.0) {
-			throw new IllegalArgumentException("ka must be a non-negative number, got " + kv + "!");
+			throw new IllegalArgumentException("ka must be a non-negative number, got " + ka + "!");
 		}
+	}
+
+	public void updateValues(double s, double v, double a, double g) {
+		ks = s;
+		kv = v;
+		ka = a;
+		kg = g;
 	}
 
 	/**
@@ -83,50 +106,11 @@ public class FullFeedForward implements ProtobufSerializable, StructSerializable
 	 * @param acceleration The acceleration setpoint.
 	 * @return The computed feedforward.
 	 */
-	public double calculate(double velocity, double acceleration) {
-		return ks * Math.signum(velocity) + kg + kv * velocity + ka * acceleration;
-	}
-
-	/**
-	 * Calculates the feedforward from the gains and setpoints.
-	 *
-	 * <p>Note this method is inaccurate when the velocity crosses 0.
-	 *
-	 * @param currentVelocity The current velocity setpoint.
-	 * @param nextVelocity The next velocity setpoint.
-	 * @param dtSeconds Time between velocity setpoints in seconds.
-	 * @return The computed feedforward.
-	 */
-	public double calculate(double currentVelocity, double nextVelocity, double dtSeconds) {
-		// Discretize the affine model.
-		//
-		//   dx/dt = Ax + Bu + c
-		//   dx/dt = Ax + B(u + B⁺c)
-		//   xₖ₊₁ = eᴬᵀxₖ + A⁻¹(eᴬᵀ - I)B(uₖ + B⁺cₖ)
-		//   xₖ₊₁ = A_d xₖ + B_d (uₖ + B⁺cₖ)
-		//   xₖ₊₁ = A_d xₖ + B_duₖ + B_d B⁺cₖ
-		//
-		// Solve for uₖ.
-		//
-		//   B_duₖ = xₖ₊₁ − A_d xₖ − B_d B⁺cₖ
-		//   uₖ = B_d⁺(xₖ₊₁ − A_d xₖ − B_d B⁺cₖ)
-		//   uₖ = B_d⁺(xₖ₊₁ − A_d xₖ) − B⁺cₖ
-		//
-		// For an elevator with the model
-		// dx/dt = -Kv/Ka x + 1/Ka u - Kg/Ka - Ks/Ka sgn(x),
-		// A = -Kv/Ka, B = 1/Ka, and c = -(Kg/Ka + Ks/Ka sgn(x)). Substitute in B
-		// assuming sgn(x) is a constant for the duration of the step.
-		//
-		//   uₖ = B_d⁺(xₖ₊₁ − A_d xₖ) − Ka(-(Kg/Ka + Ks/Ka sgn(x)))
-		//   uₖ = B_d⁺(xₖ₊₁ − A_d xₖ) + Ka(Kg/Ka + Ks/Ka sgn(x))
-		//   uₖ = B_d⁺(xₖ₊₁ − A_d xₖ) + Kg + Ks sgn(x)
-		var plant = LinearSystemId.identifyVelocitySystem(this.kv, this.ka);
-		var feedforward = new LinearPlantInversionFeedforward<>(plant, dtSeconds);
-
-		var r = MatBuilder.fill(Nat.N1(), Nat.N1(), currentVelocity);
-		var nextR = MatBuilder.fill(Nat.N1(), Nat.N1(), nextVelocity);
-
-		return kg + ks * Math.signum(currentVelocity) + feedforward.calculate(r, nextR).get(0, 0);
+	public double calculate(double velocity, double acceleration, Rotation3d rot) {
+		return ks * Math.signum(velocity) 
+			+ kg * Math.cos(rot.getY())
+			+ kv * velocity 
+			+ ka * acceleration;
 	}
 
 	/**
@@ -137,7 +121,7 @@ public class FullFeedForward implements ProtobufSerializable, StructSerializable
 	 * @return The computed feedforward.
 	 */
 	public double calculate(double velocity) {
-		return calculate(velocity, 0);
+		return calculate(velocity, 0, new Rotation3d());
 	}
 
 	// Rearranging the main equation from the calculate() method yields the
@@ -153,9 +137,9 @@ public class FullFeedForward implements ProtobufSerializable, StructSerializable
 	 * @param acceleration The acceleration of the elevator.
 	 * @return The maximum possible velocity at the given acceleration.
 	 */
-	public double maxAchievableVelocity(double maxVoltage, double acceleration) {
+	public double maxAchievableVelocity(double maxVoltage, double acceleration, Rotation3d rot) {
 		// Assume max velocity is positive
-		return (maxVoltage - ks - kg - acceleration * ka) / kv;
+		return (maxVoltage - ks - Math.cos(rot.getY()) * kg - acceleration * ka) / kv;
 	}
 
 	/**
@@ -168,9 +152,9 @@ public class FullFeedForward implements ProtobufSerializable, StructSerializable
 	 * @param acceleration The acceleration of the elevator.
 	 * @return The minimum possible velocity at the given acceleration.
 	 */
-	public double minAchievableVelocity(double maxVoltage, double acceleration) {
+	public double minAchievableVelocity(double maxVoltage, double acceleration, Rotation3d rot) {
 		// Assume min velocity is negative, ks flips sign
-		return (-maxVoltage + ks - kg - acceleration * ka) / kv;
+		return (-maxVoltage + ks - Math.cos(rot.getY()) * kg - acceleration * ka) / kv;
 	}
 
 	/**
@@ -183,8 +167,8 @@ public class FullFeedForward implements ProtobufSerializable, StructSerializable
 	 * @param velocity The velocity of the elevator.
 	 * @return The maximum possible acceleration at the given velocity.
 	 */
-	public double maxAchievableAcceleration(double maxVoltage, double velocity) {
-		return (maxVoltage - ks * Math.signum(velocity) - kg - velocity * kv) / ka;
+	public double maxAchievableAcceleration(double maxVoltage, double velocity, Rotation3d rot) {
+		return (maxVoltage - ks * Math.signum(velocity) - Math.cos(rot.getY()) * kg - velocity * kv) / ka;
 	}
 
 	/**
@@ -197,7 +181,7 @@ public class FullFeedForward implements ProtobufSerializable, StructSerializable
 	 * @param velocity The velocity of the elevator.
 	 * @return The minimum possible acceleration at the given velocity.
 	 */
-	public double minAchievableAcceleration(double maxVoltage, double velocity) {
-		return maxAchievableAcceleration(-maxVoltage, velocity);
+	public double minAchievableAcceleration(double maxVoltage, double velocity, Rotation3d rot) {
+		return maxAchievableAcceleration(-maxVoltage, velocity, rot);
 	}
 }
