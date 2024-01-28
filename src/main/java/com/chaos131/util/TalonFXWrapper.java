@@ -104,6 +104,7 @@ public class TalonFXWrapper extends TalonFX {
         getConfigurator().apply(m_config.Slot0);
     }
 
+    
     /**
      * I don't think this should ever change but here it is?
      * Updates the Feed Forward values for calculation using the baseline WPILib tools.
@@ -115,11 +116,11 @@ public class TalonFXWrapper extends TalonFX {
      * @param a - (volts * seconds^2 / distance) Acceleration of the robot.
      * @param g - (volts * seconds^2 / distance) Optional external acceleration component, typically due to gravity.
      */
-    public void updateSVA(double s, double v, double a) {
-        updateSVAG(s, v, a, 0);
-    }
     public void updateSVAG(double s, double v, double a, double g) {
         m_feedForward.updateValues(s, v, a, g);
+    }
+    public void updateSVA(double s, double v, double a) {
+        updateSVAG(s, v, a, 0);
     }
 
     /**
