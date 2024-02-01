@@ -1,5 +1,6 @@
 package com.chaos131.blas;
 
+import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.interpolation.Interpolatable;
@@ -10,6 +11,12 @@ import edu.wpi.first.math.interpolation.Interpolatable;
 public class Vector implements Interpolatable<Vector> {
 	// Variable sized native array. Assumed to be terms in the x, y, z, w ordering.
 	protected double[] m_values;
+
+	public static enum COORDS {
+		X, // robot's forward direction
+		Y, // robot's left direction
+		Z // upwards from the field
+	};
 
 	public Vector(Translation2d t) {
 		m_values = new double[]{t.getX(), t.getY()};
@@ -35,6 +42,26 @@ public class Vector implements Interpolatable<Vector> {
 		return new Translation2d(m_values[0], m_values[1]);
 	}
 
+	/**
+	 * Converts the Vector as a series of Euler Angles into a Quaternion.
+	 * 
+	 * @return
+	 */
+	public Quaternion toQuaternion() {
+		if (m_values.length == 3) {
+			double yaw = m_values[0];
+			double pitch = m_values[1];
+			double roll = m_values[2];
+			double qx = Math.sin(roll/2) * Math.cos(pitch/2) * Math.cos(yaw/2) - Math.cos(roll/2) * Math.sin(pitch/2) * Math.sin(yaw/2);
+			double qy = Math.cos(roll/2) * Math.sin(pitch/2) * Math.cos(yaw/2) + Math.sin(roll/2) * Math.cos(pitch/2) * Math.sin(yaw/2);
+			double qz = Math.cos(roll/2) * Math.cos(pitch/2) * Math.sin(yaw/2) - Math.sin(roll/2) * Math.sin(pitch/2) * Math.cos(yaw/2);
+			double qw = Math.cos(roll/2) * Math.cos(pitch/2) * Math.cos(yaw/2) + Math.sin(roll/2) * Math.sin(pitch/2) * Math.sin(yaw/2);
+
+			return new Quaternion(qx, qy, qz, qw);
+		}
+		return null;
+	}
+
 	public double[] getValues() {
 		return m_values;
 	}
@@ -53,7 +80,15 @@ public class Vector implements Interpolatable<Vector> {
 		m_values[idx] = val;
 	}
 
-	public double mag() {
+	public Vector abs() {
+		double[] new_vals = new double[m_values.length];
+		for (int i = 0; i < m_values.length; i++) {
+			new_vals[i] = Math.abs(new_vals[i]);
+		}
+		return new Vector(new_vals);
+	}
+
+	public double magnitude() {
 		double sum = 0;
 		for (int i = 0; i < m_values.length; i++) {
 			sum += m_values[i] * m_values[i];
@@ -106,6 +141,9 @@ public class Vector implements Interpolatable<Vector> {
 			return null;
 		}
 		double[] out = new double[3];
+		out[0] = m_values[1]*v.m_values[2] - m_values[2]*v.m_values[1];
+		out[1] = m_values[2]*v.m_values[0] - m_values[0]*v.m_values[2];
+		out[2] = m_values[0]*v.m_values[1] - m_values[1]*v.m_values[0];
 		return new Vector(out);
 	}
 

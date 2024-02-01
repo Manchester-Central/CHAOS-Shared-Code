@@ -1,5 +1,8 @@
 package com.chaos131.blas;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation3d;
+
 public class Trajectory {
 	/**
 	 * Calculates the location of a projectile over some amount of time.
@@ -19,13 +22,21 @@ public class Trajectory {
 	}
 
 	/**
+	 * Calculates where the ray would intersect the floor
+	 */
+	static public Translation3d traceToFloor(Vector ray, Pose3d location) {
+		double vertical_distance = location.getZ()/ray.m_values[2];
+		return new Translation3d(ray.m_values[0] * vertical_distance, ray.m_values[1] * vertical_distance, 0);
+	}
+
+	/**
 	 * Finds the point between the current place, and the target to launch the projectile.
 	 * 
-	 * @param p0
-	 * @param v0
-	 * @param target
-	 * @param acceleration
-	 * @return
+	 * @param p0 - Location of the launcher relative to the floor
+	 * @param v0 - velocity of the launched projectile
+	 * @param target - 3d location on the game field of the target spot, using blue alliance field coordinates
+	 * @param acceleration - acceleration in every component
+	 * @return 2 element launch point
 	 */
 	static public Vector findIdealLaunchPlace(Vector p0, Vector v0, Vector target, Vector acceleration, int idx) {
 		// ax^2 + bx + c = 0
@@ -50,8 +61,8 @@ public class Trajectory {
 		var plumb_distance = target.subtract(v0);	// subtract the location from the distance
 		plumb_distance.set(idx, 0);				// then zero out the vertical component
 
-		var plumb_dist_mag = plumb_distance.mag();
-		var velocity_mag = v0.mag();
+		var plumb_dist_mag = plumb_distance.magnitude();
+		var velocity_mag = v0.magnitude();
 
 		
 
