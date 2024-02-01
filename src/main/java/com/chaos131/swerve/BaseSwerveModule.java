@@ -38,8 +38,8 @@ public abstract class BaseSwerveModule {
   public abstract void addCoachTabDashboardValues(ShuffleboardTab coachTab);
   public abstract void driverModeInit();
   public abstract void driveToPositionInit();
-  public abstract void UpdateVelocityPIDConstants(PIDFValue update);
-  public abstract void UpdateAnglePIDConstants(PIDFValue update);
+  public abstract void updateVelocityPIDConstants(PIDFValue update);
+  public abstract void updateAnglePIDConstants(PIDFValue update);
 
   protected abstract double getEncoderDistance_m();
   protected abstract double getEncoderVelocity_mps();
@@ -48,7 +48,7 @@ public abstract class BaseSwerveModule {
   protected abstract void setTargetAngle(Rotation2d angle);
   protected abstract Rotation2d getAbsoluteAngle();
   protected abstract void stopAngleMotor();
-  protected abstract void stopVelocityMotor();
+  protected abstract void stopSpeedMotor();
   protected abstract void updateDashboard();
   protected abstract void recalibrateWithFilteredAbsoluteAngle(Rotation2d absoluteAngle);
 
@@ -79,7 +79,7 @@ public abstract class BaseSwerveModule {
 
   public void stop() {
     stopAngleMotor();
-    stopVelocityMotor();
+    stopSpeedMotor();
     m_targetState = new SwerveModuleState(0, getModuleState().angle); 
   }
 
