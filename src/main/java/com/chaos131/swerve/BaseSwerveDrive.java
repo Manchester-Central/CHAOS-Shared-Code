@@ -88,7 +88,7 @@ public class BaseSwerveDrive extends SubsystemBase {
     m_XPid.setTolerance(m_driveToTargetTolerance);
     m_YPid.setTolerance(m_driveToTargetTolerance);
 
-    var rotationPidValues = swerveConfigs.defaultTranslationPIDValues();
+    var rotationPidValues = swerveConfigs.defaultRotationPIDValues();
     m_AngleDegreesPid = new PIDController(rotationPidValues.P, rotationPidValues.I, rotationPidValues.D);
     m_AngleDegreesPid.enableContinuousInput(-180, 180);
     m_AngleDegreesPid.setTolerance(swerveConfigs.defaultRotationTolerance().getDegrees());
