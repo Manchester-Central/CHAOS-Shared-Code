@@ -346,5 +346,12 @@ public class BaseSwerveDrive extends SubsystemBase {
       m_odometry.addVisionMeasurement(measuredPose, Timer.getFPGATimestamp());
     }
   }
+
+  /**
+   * Determines how much odometry trusts the limelight's measurements
+   */
+  public void setVisionTrust(double xTrust, double yTrust, double omegaTrust) {
+    // Unimplemented
+  }
 }
 // "I love polyester." -Kenny
