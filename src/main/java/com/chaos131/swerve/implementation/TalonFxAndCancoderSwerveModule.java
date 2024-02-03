@@ -227,12 +227,14 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
     @Override
     public void driverModeInit() {
         m_speedConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = m_driveConfig.driverModeClosedLoopRampRatePeriod;
+        m_speedConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = m_driveConfig.driverModeClosedLoopRampRatePeriod;
         m_speedController.getConfigurator().apply(m_speedConfig.ClosedLoopRamps);
     }
 
     @Override
     public void driveToPositionInit() {
         m_speedConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = m_driveConfig.driveToPositionClosedLoopRampRatePeriod;
+        m_speedConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = m_driveConfig.driveToPositionClosedLoopRampRatePeriod;
         m_speedController.getConfigurator().apply(m_speedConfig.ClosedLoopRamps);
     }
 
