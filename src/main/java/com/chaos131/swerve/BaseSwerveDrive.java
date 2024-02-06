@@ -353,5 +353,9 @@ public class BaseSwerveDrive extends SubsystemBase {
   public void setVisionTrust(double xTrust, double yTrust, double omegaTrust) {
     // Unimplemented
   }
+
+  public void addVisionMeasurement(Pose2d measurePose, double cameraLatencySeconds) {
+    m_odometry.addVisionMeasurement(measurePose, cameraLatencySeconds);
+  }
 }
 // "I love polyester." -Kenny
