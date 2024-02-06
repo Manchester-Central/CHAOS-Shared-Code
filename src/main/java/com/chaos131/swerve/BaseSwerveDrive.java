@@ -346,5 +346,9 @@ public class BaseSwerveDrive extends SubsystemBase {
       m_odometry.addVisionMeasurement(measuredPose, Timer.getFPGATimestamp());
     }
   }
+
+  public void addVisionMeasurement(Pose2d measuredPose, double cameraLatencySeconds) {
+    m_odometry.addVisionMeasurement(measuredPose, Timer.getFPGATimestamp() - cameraLatencySeconds);
+  }
 }
 // "I love polyester." -Kenny
