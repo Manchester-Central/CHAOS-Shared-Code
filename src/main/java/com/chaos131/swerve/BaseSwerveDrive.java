@@ -347,7 +347,7 @@ public class BaseSwerveDrive extends SubsystemBase {
     }
   }
 
-  public void addVisionMeasurement(Pose2d measurePose, double cameraLatencySeconds) {
+  public void addVisionMeasurement(Pose2d measuredPose, double cameraLatencySeconds) {
     m_odometry.addVisionMeasurement(measurePose, Timer.getFPGATimestamp() - cameraLatencySeconds);
   }
 }
