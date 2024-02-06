@@ -347,13 +347,6 @@ public class BaseSwerveDrive extends SubsystemBase {
     }
   }
 
-  /**
-   * Determines how much odometry trusts the limelight's measurements
-   */
-  public void setVisionTrust(double xTrust, double yTrust, double omegaTrust) {
-    // Unimplemented
-  }
-
   public void addVisionMeasurement(Pose2d measurePose, double cameraLatencySeconds) {
     m_odometry.addVisionMeasurement(measurePose, cameraLatencySeconds);
   }
