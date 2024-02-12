@@ -23,11 +23,11 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
         public static final double FieldWidthMeters = 16.57;
         public static final Alliance DefaultAlliance = Alliance.Blue;
 
-        protected DrivePose2024(String name, Pose2d bluePose) {
+        public DrivePose2024(String name, Pose2d bluePose) {
             super(FieldWidthMeters, DefaultAlliance, name, bluePose);
         }
 
-        protected DrivePose2024(Pose2d bluePose) {
+        public DrivePose2024(Pose2d bluePose) {
             super(FieldWidthMeters, DefaultAlliance, null, bluePose);
         }
     }
