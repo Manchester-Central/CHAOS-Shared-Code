@@ -98,6 +98,20 @@ public abstract class MirroredDrivePose {
     }
 
     /**
+     * Calculates the distance from a specific spot on the field. Typically this is the robot's position.
+     * 
+     * @param robotpose
+     * @return double - the distance along the floor. Does not account for vertical component.
+     */
+    public double getDistanceFromLocation(Pose2d robotpose) {
+        if (getCurrentAlliance() == Alliance.Blue) {
+            return m_bluePose.getTranslation().getDistance(robotpose.getTranslation());
+        } else {
+            return m_redPose.getTranslation().getDistance(robotpose.getTranslation());
+        }
+    }
+
+    /**
      * Gets the appropriate pose for the current alliance color. 
      * (Override this when using unit testing since the call to DriverStation will throw an exception)
      */
