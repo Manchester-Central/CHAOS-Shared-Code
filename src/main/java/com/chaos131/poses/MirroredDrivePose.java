@@ -123,7 +123,10 @@ public abstract class MirroredDrivePose {
     }
 
     /**
-     * Mirrors a Pose2d on the field
+     * Mirrors a Pose2d on the field by flipping across a line across midfield.
+     * 
+     * <p>This changes both the translation and rotation components.
+     * 
      * @param fieldCenterPointMeters the center point to mirror on
      * @param pose the pose to mirror
      */

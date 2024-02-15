@@ -17,7 +17,9 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
-/** Manages the logs recorded into the .csv file, stored on a flash drive on the robot*/
+/**
+ * Manages the logs recorded into the .csv file, stored on a flash drive on the robot
+ */
 public class LogManager {
     private ShuffleboardTab m_shuffleboardTab;
     private List<String> m_headers = new ArrayList<String>();
