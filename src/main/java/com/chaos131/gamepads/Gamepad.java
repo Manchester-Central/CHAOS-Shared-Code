@@ -6,14 +6,21 @@ package com.chaos131.gamepads;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 
 
 /** A CHAOS Wrapper around `CommandXboxController` */
 public class Gamepad extends CommandXboxController {
 
+    
+    private SlewRateLimiter m_slewratelimiterX;
+    private SlewRateLimiter m_slewratelimiterY;
+   
 
-    public Gamepad(int port) {
+    public Gamepad(int port, double value) {
         super(port);
+        m_slewratelimiterX = new SlewRateLimiter(value);
+        m_slewratelimiterY = new SlewRateLimiter(value);
     }
 
     private double applyDeadband(double value) {
@@ -22,12 +29,14 @@ public class Gamepad extends CommandXboxController {
 
     @Override
     public double getLeftX() {
-        return applyDeadband(super.getLeftX());
+        double newLeftX = m_slewratelimiterX.calculate(super.getLeftX());
+        return applyDeadband(newLeftX);
     }
 
     @Override
     public double getLeftY() {
-        return applyDeadband(-super.getLeftY());
+        double newLeftY = m_slewratelimiterY.calculate(-super.getLeftY());
+        return applyDeadband(newLeftY);
     }
 
     @Override
