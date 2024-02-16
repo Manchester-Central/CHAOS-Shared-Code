@@ -17,12 +17,12 @@ public class Gamepad extends CommandXboxController {
     private SlewRateLimiter m_slewratelimiterRightY;
    
 
-    public Gamepad(int port, double value, double rotRate) {
+    public Gamepad(int port, double leftStickSlewRate, double rightStickSlewRate) {
         super(port);
-        m_slewratelimiterLeftX = new SlewRateLimiter(value);
-        m_slewratelimiterLeftY = new SlewRateLimiter(value);
-        m_slewratelimiterRightX = new SlewRateLimiter(rotRate);
-        m_slewratelimiterRightY = new SlewRateLimiter(rotRate);
+        m_slewratelimiterLeftX = new SlewRateLimiter(leftStickSlewRate);
+        m_slewratelimiterLeftY = new SlewRateLimiter(leftStickSlewRate);
+        m_slewratelimiterRightX = new SlewRateLimiter(rightStickSlewRate);
+        m_slewratelimiterRightY = new SlewRateLimiter(rightStickSlewRate);
     }
 
     public Gamepad(int port) {
