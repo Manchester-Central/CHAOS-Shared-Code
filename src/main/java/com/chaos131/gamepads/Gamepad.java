@@ -13,40 +13,71 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 public class Gamepad extends CommandXboxController {
 
     
-    private SlewRateLimiter m_slewratelimiterX;
-    private SlewRateLimiter m_slewratelimiterY;
+    private SlewRateLimiter m_slewratelimiterLeftX;
+    private SlewRateLimiter m_slewratelimiterLeftY;
+    private SlewRateLimiter m_slewratelimiterRightX;
+    private SlewRateLimiter m_slewratelimiterRightY;
    
 
-    public Gamepad(int port, double value) {
+    public Gamepad(int port, double value, double rotRate) {
         super(port);
-        m_slewratelimiterX = new SlewRateLimiter(value);
-        m_slewratelimiterY = new SlewRateLimiter(value);
+        m_slewratelimiterLeftX = new SlewRateLimiter(value);
+        m_slewratelimiterLeftY = new SlewRateLimiter(value);
+        m_slewratelimiterRightX = new SlewRateLimiter(rotRate);
+        m_slewratelimiterRightY = new SlewRateLimiter(rotRate);
     }
+
+    
 
     private double applyDeadband(double value) {
         return MathUtil.applyDeadband(value, 0.05);
     }
 
-    @Override
-    public double getLeftX() {
-        double newLeftX = m_slewratelimiterX.calculate(super.getLeftX());
+
+    public double getSlewLeftX() {
+        double newLeftX = m_slewratelimiterLeftX.calculate(super.getLeftX());
         return applyDeadband(newLeftX);
     }
 
-    @Override
-    public double getLeftY() {
-        double newLeftY = m_slewratelimiterY.calculate(-super.getLeftY());
+
+    public double getSlewLeftY() {
+        double newLeftY = m_slewratelimiterLeftY.calculate(-super.getLeftY());
         return applyDeadband(newLeftY);
     }
 
     @Override
+    public double getLeftX() {
+    m_slewratelimiterLeftX.calculate(super.getLeftX());
+    return applyDeadband(super.getLeftX());
+    }
+
+    @Override
+    public double getLeftY() {
+    m_slewratelimiterLeftY.calculate(-super.getLeftY());
+    return applyDeadband(-super.getLeftY());
+    }
+
+    @Override
     public double getRightX() {
+        m_slewratelimiterRightX.calculate(super.getRightX());
         return applyDeadband(super.getRightX());
     }
 
     @Override
     public double getRightY() {
+        m_slewratelimiterRightY.calculate(-super.getRightY());
         return applyDeadband(-super.getRightY());
+    }
+
+    public double getSlewRightX() {
+        double newSlewRightX = m_slewratelimiterRightX.calculate(super.getRightX());
+        return applyDeadband(newSlewRightX);
+    }
+
+
+    public double getSlewRightY() {
+        double newSlewRightY = m_slewratelimiterRightY.calculate(-super.getRightY());
+        return applyDeadband(newSlewRightY);
     }
 
     @Override
