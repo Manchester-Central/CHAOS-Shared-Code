@@ -12,7 +12,9 @@ import java.util.function.Consumer;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-/** Add your docs here. */
+/**
+ * A tool for creating numbers that can be easily used in the code and also updated on a dashboard
+ */
 public class DashboardNumber {
     private static Set<String> ChangedValues = new HashSet<>();
     private static List<DashboardNumber> AllUpdaters = new ArrayList<>();

@@ -16,6 +16,7 @@ import com.chaos131.pid.PIDFValue;
 import com.chaos131.pid.PIDTuner;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -26,6 +27,8 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
@@ -139,7 +142,8 @@ public class BaseSwerveDrive extends SubsystemBase {
   }
 
   /** Moves the robot according to the NORMALIZED speeds (where 1.0 is max speed, and -1.0 is max speed in the other direction) 
-   * `TranslationSpeedModifier` and `RotationSpeedModifier` will be applied as [0.0, 1.0] multipliers
+   * `TranslationSpeedModifier` and `RotationSpeedModifier` will be applied as [0.0, 1.0] multipliers.
+   * 
    * @param chassisSpeeds the normalized speeds
   */
   public void move(ChassisSpeeds chassisSpeeds) {
@@ -166,7 +170,8 @@ public class BaseSwerveDrive extends SubsystemBase {
   }
 
   /**
-   * Moves the robot on the field while driving to a position automatically
+   * Moves the robot on the field while driving to a position automatically.
+   * 
    * @param xPercentSpeed speed percent [-1.0, 1.0] of max speed in the x direction
    * @param yPercentSpeed speed percent [-1.0, 1.0] of max speed in the y direction
    * @param omegaPercentSpeed speed percent [-1.0, 1.0] of max rotation speed in the CCW direction
@@ -177,7 +182,8 @@ public class BaseSwerveDrive extends SubsystemBase {
   }
 
   /**
-   * Moves the robot on the field from the perspective of the current driver station
+   * Moves the robot on the field from the perspective of the current driver station.
+   * 
    * @param xPercentSpeed speed percent [-1.0, 1.0] of max speed in the x direction
    * @param yPercentSpeed speed percent [-1.0, 1.0] of max speed in the y direction
    * @param omegaPercentSpeed speed percent [-1.0, 1.0] of max rotation speed in the CCW direction
@@ -193,7 +199,8 @@ public class BaseSwerveDrive extends SubsystemBase {
   }
 
   /**
-   * Moves the robot on the field while driving to a position automatically
+   * Moves the robot on the field while driving to a position automatically.
+   * 
    * @param xPercentSpeed speed percent [-1.0, 1.0] of max speed in the x direction
    * @param yPercentSpeed speed percent [-1.0, 1.0] of max speed in the y direction
    * @param angle the angle on the field to target
@@ -215,7 +222,8 @@ public class BaseSwerveDrive extends SubsystemBase {
   } 
 
   /**
-   * Moves the robot relative to itself
+   * Moves the robot relative to itself.
+   * 
    * @param xPercentSpeed speed percent [-1.0, 1.0] of max speed in the x direction
    * @param yPercentSpeed speed percent [-1.0, 1.0] of max speed in the y direction
    * @param omegaPercentSpeed speed percent [-1.0, 1.0] of max rotation speed in the CCW direction
@@ -239,6 +247,11 @@ public class BaseSwerveDrive extends SubsystemBase {
     setDriveTranslationTolerance(m_swerveConfigs.defaultDriveToTargetTolerance());
   }
 
+  /**
+   * Returns true if the odometry thinks the robot is close enough to the target location.
+   * 
+   * @return
+   */
   public boolean atTarget() {
     boolean isXTolerable = Math.abs(getPose().getX() - m_XPid.getSetpoint()) <= m_driveToTargetTolerance;
     boolean isYTolerable = Math.abs(getPose().getY() - m_YPid.getSetpoint()) <= m_driveToTargetTolerance;
@@ -252,12 +265,48 @@ public class BaseSwerveDrive extends SubsystemBase {
     return isXTolerable && isYTolerable && m_AngleDegreesPid.atSetpoint();
   }
 
+  /**
+   * Sets the location for the swerve system to aim for.
+   * 
+   * @param x - Destination x coordinate, uses the choosen field coordinate system
+   * @param y - Destination y coordinate, uses the choosen field coordinate system
+   * @param angle - The angle or heading of the robot at the destination
+   */
   public void setTarget(double x, double y, Rotation2d angle) {
     m_XPid.setSetpoint(x);
     m_YPid.setSetpoint(y);
     m_AngleDegreesPid.setSetpoint(angle.getDegrees());
   }
 
+  /**
+   * Sets the location for the swerve system to aim for.
+   * 
+   * @param loc
+   * @param angle
+   */
+  public void setTarget(Transform2d loc, Rotation2d angle) {
+    m_XPid.setSetpoint(loc.getX());
+    m_YPid.setSetpoint(loc.getY());
+    m_AngleDegreesPid.setSetpoint(angle.getDegrees());
+  }
+
+  /**
+   * Sets the location for the swerve system to aim for.
+   * 
+   * @param pose - A Pose2d representing the target location and orientation
+   */
+  public void setTarget(Pose2d pose) {
+    m_XPid.setSetpoint(pose.getTranslation().getX());
+    m_YPid.setSetpoint(pose.getTranslation().getY());
+    m_AngleDegreesPid.setSetpoint(pose.getRotation().getDegrees());
+  }
+
+  /**
+   * Moves the robot to the target location and orientation at a percentage of the total speed.
+   * This relies on the moveFieldRelativeForPID functionality.
+   * 
+   * @param maxTranslationSpeedPercent
+   */
   public void moveToTarget(double maxTranslationSpeedPercent) {
     Pose2d pose = getPose();
     double x = MathUtil.clamp(m_XPid.calculate(pose.getX()), -maxTranslationSpeedPercent, maxTranslationSpeedPercent);
@@ -309,6 +358,14 @@ public class BaseSwerveDrive extends SubsystemBase {
     forAllModules((module) -> module.periodic());
   }
 
+  /**
+   * Resets the robot's position on the field.
+   * 
+   * <p>The gyroscope angle does not need to be reset in the user's robot code. The library
+   * automatically takes care of offsetting the gyro angle.
+   * 
+   * @param targetPose
+   */
   public void resetPose(Pose2d targetPose){
     if (RobotBase.isSimulation()) {
       m_simrotation = targetPose.getRotation();
@@ -316,6 +373,11 @@ public class BaseSwerveDrive extends SubsystemBase {
     m_odometry.resetPosition(getGyroRotation(), getModulePositions(), targetPose);
   }
 
+  /**
+   * Resets just the heading, not the entire pose. Passes off to resetPose().
+   * 
+   * @param targetHeading
+   */
   public void resetHeading(Rotation2d targetHeading) {
     var currentPose = getPose();
     var updatedPose = new Pose2d(currentPose.getX(), currentPose.getY(), targetHeading);
@@ -343,14 +405,50 @@ public class BaseSwerveDrive extends SubsystemBase {
     m_driveToTargetTolerance = tolerance;
   }
 
+  /**
+   * @deprecated A way to adjust the pose estimator. This is typically with a location on the field from a camera system.
+   * Uses the current rotation at this moment in time.
+   * 
+   * @param xMeters
+   * @param yMeters
+   */
   public void addVisionMeasurement(int xMeters, int yMeters) {
     addVisionMeasurement(new Pose2d(xMeters, yMeters, getOdometryRotation()));
   }
 
+  /**
+   * @deprecated A way to adjust the pose estimator. This is typically with a location on the field from a camera system.
+   * 
+   * @param measuredPose
+   */
   public void addVisionMeasurement(Pose2d measuredPose) {
     if (measuredPose != null) {
       m_odometry.addVisionMeasurement(measuredPose, Timer.getFPGATimestamp());
     }
   }
+
+  /**
+   * A better way of adding supplemental pose information into the pose estimator.
+   * 
+   * @param measuredPose
+   * @param cameraLatencySeconds the time in seconds since the source data was captured until now.
+   */
+  public void addVisionMeasurement(Pose2d measuredPose, double cameraLatencySeconds) {
+    m_odometry.addVisionMeasurement(measuredPose, Timer.getFPGATimestamp() - cameraLatencySeconds);
+  }
+
+  /**
+   * The preferred way of adding supplemental pose information into the pose estimator. 
+   * 
+   * Increase the values of the deviation to decrease the confidence in those values.
+   * 
+   * <p>This method is thread safe, as the wpilib overloaded addVisionMeasurement() is _not_ thread safe.
+   * 
+   * @param measuredPose
+   * @param cameraLatencySeconds The total latency from image capture, to appearing as a value (Limelights do most of the math for us)
+   * @param deviation 3x1 Matrix composed of [x, y, theta] representing the deviation in the robot x and y value, and the angular confidence.
+   */
+  public synchronized void addVisionMeasurement(Pose2d measuredPose, double cameraLatencySeconds, Matrix<N3, N1> deviation) {
+    m_odometry.addVisionMeasurement(measuredPose, cameraLatencySeconds, deviation);
+  }
 }
-// "I love polyester." -Kenny
