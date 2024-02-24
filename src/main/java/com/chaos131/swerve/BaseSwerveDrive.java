@@ -259,6 +259,12 @@ public class BaseSwerveDrive extends SubsystemBase {
 
   }
 
+  public boolean atTarget(double tolerance) {
+    boolean isXTolerable = Math.abs(getPose().getX() - m_XPid.getSetpoint()) <= tolerance;
+    boolean isYTolerable = Math.abs(getPose().getY() - m_YPid.getSetpoint()) <= tolerance;
+    return isXTolerable && isYTolerable && m_AngleDegreesPid.atSetpoint();
+  }
+
   /**
    * Sets the location for the swerve system to aim for.
    * 
