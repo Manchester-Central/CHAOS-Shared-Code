@@ -246,6 +246,12 @@ public class BaseSwerveDrive extends SubsystemBase {
 
   }
 
+  public boolean atTarget(double tolerance) {
+    boolean isXTolerable = Math.abs(getPose().getX() - m_XPid.getSetpoint()) <= tolerance;
+    boolean isYTolerable = Math.abs(getPose().getY() - m_YPid.getSetpoint()) <= tolerance;
+    return isXTolerable && isYTolerable && m_AngleDegreesPid.atSetpoint();
+  }
+
   public void setTarget(double x, double y, Rotation2d angle) {
     m_XPid.setSetpoint(x);
     m_YPid.setSetpoint(y);
