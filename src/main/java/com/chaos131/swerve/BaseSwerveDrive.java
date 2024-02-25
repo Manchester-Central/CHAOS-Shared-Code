@@ -11,6 +11,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
+
 import com.chaos131.logging.LogManager;
 import com.chaos131.pid.PIDFValue;
 import com.chaos131.pid.PIDTuner;
@@ -39,25 +41,31 @@ public class BaseSwerveDrive extends SubsystemBase {
   public static double TranslationSpeedModifier = 1.0;
   public static double RotationSpeedModifier = 1.0;
 
-  private List<BaseSwerveModule> m_swerveModules;
-  private Supplier<Rotation2d> m_getRotation;
+  protected List<BaseSwerveModule> m_swerveModules;
+  protected Supplier<Rotation2d> m_getRotation;
 
-  private SwerveDriveKinematics m_kinematics;
-  private SwerveDrivePoseEstimator m_odometry;
-  private Field2d m_field;
-  private Rotation2d m_simrotation = new Rotation2d();
+  protected SwerveDriveKinematics m_kinematics;
+  protected SwerveDrivePoseEstimator m_odometry;
+  protected Field2d m_field;
+  protected Rotation2d m_simrotation = new Rotation2d();
 
-  private PIDController m_XPid;
-  private PIDController m_YPid;
-  private PIDController m_AngleDegreesPid;
-  private PIDTuner m_XPidTuner;
-  private PIDTuner m_YPidTuner;
-  private PIDTuner m_AnglePidTuner;
-  private PIDTuner m_moduleVelocityPIDTuner;
-  private PIDTuner m_moduleAnglePIDTuner;
-  private double m_driveToTargetTolerance;
-  private LogManager m_logger = LogManager.getInstance();
-  private SwerveConfigs m_swerveConfigs;
+  protected PIDController m_XPid;
+  protected PIDController m_YPid;
+  protected PIDController m_AngleDegreesPid;
+  protected PIDTuner m_XPidTuner;
+  protected PIDTuner m_YPidTuner;
+  protected PIDTuner m_AnglePidTuner;
+  protected PIDTuner m_moduleVelocityPIDTuner;
+  protected PIDTuner m_moduleAnglePIDTuner;
+  protected double m_driveToTargetTolerance;
+  protected LogManager m_logger = LogManager.getInstance();
+  protected SwerveConfigs m_swerveConfigs;
+
+  // AdvantageKit
+  protected LoggedDashboardNumber m_XLog;
+  protected LoggedDashboardNumber m_YLog;
+  protected LoggedDashboardNumber m_RotationDeg;
+  protected LoggedDashboardNumber m_GyroDeg;
 
   /** Creates a new SwerveDrive. */
   public BaseSwerveDrive(BaseSwerveModule[] swerveModules, SwerveConfigs swerveConfigs, Supplier<Rotation2d> getRotation) {
@@ -104,6 +112,10 @@ public class BaseSwerveDrive extends SubsystemBase {
     m_logger.addNumber("SwerveDrive/Rotation_deg", isDebugMode, () -> getOdometryRotation().getDegrees());
     m_logger.addNumber("SwerveDrive/Gyro_angle_deg", isDebugMode, () -> getGyroRotation().getDegrees());
 
+    m_XLog = new LoggedDashboardNumber("SwerveDrive/X_m", getPose().getX());
+    m_YLog = new LoggedDashboardNumber("SwerveDrive/Y_m", getPose().getY());
+    m_RotationDeg = new LoggedDashboardNumber("SwerveDrive/Rotation_deg", getOdometryRotation().getDegrees());
+    m_GyroDeg = new LoggedDashboardNumber("SwerveDrive/Gyro_angle_deg", getGyroRotation().getDegrees());
   }
 
   public void forAllModules(Consumer<BaseSwerveModule> lambdaFunction) {
@@ -347,6 +359,11 @@ public class BaseSwerveDrive extends SubsystemBase {
     m_moduleVelocityPIDTuner.tune();
     m_moduleAnglePIDTuner.tune();
     forAllModules((module) -> module.periodic());
+    // AdvantageKit Logging
+    m_XLog.set(getPose().getX());
+    m_YLog.set(getPose().getY());
+    m_RotationDeg.set(getOdometryRotation().getDegrees());
+    m_GyroDeg.set(getGyroRotation().getDegrees());
   }
 
   /**

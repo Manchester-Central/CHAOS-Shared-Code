@@ -6,6 +6,8 @@ package com.chaos131.pid;
 
 import java.util.function.Consumer;
 
+import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -14,7 +16,7 @@ public class PIDTuner {
     private final String m_componentName;
     private final boolean m_tuningEnabled;
     private final Consumer<PIDFValue> m_pidfUpdater;
-    private double m_p, m_i, m_d, m_f;
+    private LoggedDashboardNumber m_p, m_i, m_d, m_f;
 
     public PIDTuner(
         String componentName,
@@ -48,10 +50,10 @@ public class PIDTuner {
     ) {
         m_componentName = componentName;
         m_tuningEnabled = tuningEnabled;
-        m_p = defaultP;
-        m_i = defaultI;
-        m_d = defaultD;
-        m_f = defaultF;
+        m_p = new LoggedDashboardNumber(getDSKey("P"), defaultP);
+        m_i = new LoggedDashboardNumber(getDSKey("I"), defaultI);
+        m_d = new LoggedDashboardNumber(getDSKey("D"), defaultD);
+        m_f = new LoggedDashboardNumber(getDSKey("F"), defaultF);
         m_pidfUpdater = pidfUpdater;
 
         if (m_tuningEnabled) {
@@ -72,21 +74,21 @@ public class PIDTuner {
             return;
         }
 
-        double newP = SmartDashboard.getNumber(getDSKey("P"), m_p);
-        double newI = SmartDashboard.getNumber(getDSKey("I"), m_i);
-        double newD = SmartDashboard.getNumber(getDSKey("D"), m_d);
-        double newF = SmartDashboard.getNumber(getDSKey("F"), m_f);
+        double newP = SmartDashboard.getNumber(getDSKey("P"), m_p.get());
+        double newI = SmartDashboard.getNumber(getDSKey("I"), m_i.get());
+        double newD = SmartDashboard.getNumber(getDSKey("D"), m_d.get());
+        double newF = SmartDashboard.getNumber(getDSKey("F"), m_f.get());
 
-        if (newP != m_p || newI != m_i || newD != m_d || newF != m_f) {
-            m_p = newP;
-            m_i = newI;
-            m_d = newD;
-            m_f = newF;
+        if (newP != m_p.get() || newI != m_i.get() || newD != m_d.get() || newF != m_f.get()) {
+            m_p.set(newP);
+            m_i.set(newI);
+            m_d.set(newD);
+            m_f.set(newF);
             update();
         }
     }
 
     private void update() {
-        m_pidfUpdater.accept(new PIDFValue(m_p, m_i, m_d, m_f));
+        m_pidfUpdater.accept(new PIDFValue(m_p.get(), m_i.get(), m_d.get(), m_f.get()));
     }
 }

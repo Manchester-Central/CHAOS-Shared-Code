@@ -5,16 +5,25 @@
 package com.chaos131.gamepads;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+
+import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 
 
 /** A CHAOS Wrapper around `CommandXboxController` */
 public class Gamepad extends CommandXboxController {
-    private SlewRateLimiter m_slewratelimiterLeftX;
-    private SlewRateLimiter m_slewratelimiterLeftY;
-    private SlewRateLimiter m_slewratelimiterRightX;
-    private SlewRateLimiter m_slewratelimiterRightY;
+    // AdvantageKit Logging
+    protected LoggedDashboardNumber m_leftJoystickX;
+    protected LoggedDashboardNumber m_leftJoystickY;
+    protected LoggedDashboardNumber m_rightJoystickX;
+    protected LoggedDashboardNumber m_rightJoystickY;
+    // SlewRate calculations for managing rapid value changes
+    protected SlewRateLimiter m_slewratelimiterLeftX;
+    protected SlewRateLimiter m_slewratelimiterLeftY;
+    protected SlewRateLimiter m_slewratelimiterRightX;
+    protected SlewRateLimiter m_slewratelimiterRightY;
    
 
     public Gamepad(int port, double leftStickSlewRate, double rightStickSlewRate) {
@@ -27,6 +36,13 @@ public class Gamepad extends CommandXboxController {
 
     public Gamepad(int port) {
         super(port);
+    }
+
+    public void periodic() {
+        m_leftJoystickX.set(super.getLeftX());
+        m_leftJoystickY.set(super.getLeftY());
+        m_rightJoystickX.set(super.getRightX());
+        m_rightJoystickY.set(super.getRightY());
     }
 
     private double applyDeadband(double value) {
