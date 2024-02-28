@@ -42,25 +42,25 @@ public class BaseSwerveDrive extends SubsystemBase {
   public static double TranslationSpeedModifier = 1.0;
   public static double RotationSpeedModifier = 1.0;
 
-  private List<BaseSwerveModule> m_swerveModules;
-  private Supplier<Rotation2d> m_getRotation;
+  protected List<BaseSwerveModule> m_swerveModules;
+  protected Supplier<Rotation2d> m_getRotation;
 
-  private SwerveDriveKinematics m_kinematics;
-  private SwerveDrivePoseEstimator m_odometry;
-  private Field2d m_field;
-  private Rotation2d m_simrotation = new Rotation2d();
+  protected SwerveDriveKinematics m_kinematics;
+  protected SwerveDrivePoseEstimator m_odometry;
+  protected Field2d m_field;
+  protected Rotation2d m_simrotation = new Rotation2d();
 
-  private PIDController m_XPid;
-  private PIDController m_YPid;
-  private PIDController m_AngleDegreesPid;
-  private PIDTuner m_XPidTuner;
-  private PIDTuner m_YPidTuner;
-  private PIDTuner m_AnglePidTuner;
-  private PIDTuner m_moduleVelocityPIDTuner;
-  private PIDTuner m_moduleAnglePIDTuner;
-  private double m_driveToTargetTolerance;
-  private LogManager m_logger = LogManager.getInstance();
-  private SwerveConfigs m_swerveConfigs;
+  protected PIDController m_XPid;
+  protected PIDController m_YPid;
+  protected PIDController m_AngleDegreesPid;
+  protected PIDTuner m_XPidTuner;
+  protected PIDTuner m_YPidTuner;
+  protected PIDTuner m_AnglePidTuner;
+  protected PIDTuner m_moduleVelocityPIDTuner;
+  protected PIDTuner m_moduleAnglePIDTuner;
+  protected double m_driveToTargetTolerance;
+  protected LogManager m_logger = LogManager.getInstance();
+  protected SwerveConfigs m_swerveConfigs;
 
   /** Creates a new SwerveDrive. */
   public BaseSwerveDrive(BaseSwerveModule[] swerveModules, SwerveConfigs swerveConfigs, Supplier<Rotation2d> getRotation) {
