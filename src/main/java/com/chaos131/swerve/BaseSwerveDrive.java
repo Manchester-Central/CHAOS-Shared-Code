@@ -129,15 +129,15 @@ public class BaseSwerveDrive extends SubsystemBase {
     forAllModules((module) -> module.driveToPositionInit());
   }
 
-  private SwerveModulePosition[] getModulePositions() {
+  protected SwerveModulePosition[] getModulePositions() {
     return mapModules((module) -> module.getPosition()).toArray(SwerveModulePosition[] ::new);
   }
 
-  private Translation2d[] getModuleTranslations() {
+  protected Translation2d[] getModuleTranslations() {
     return mapModules((module) -> module.getTranslation()).toArray(Translation2d[] ::new);
   }
 
-  private SwerveModuleState[] getModuleStates() {
+  protected SwerveModuleState[] getModuleStates() {
     return mapModules((module) -> module.getModuleState()).toArray(SwerveModuleState[] ::new);
   }
 
@@ -236,7 +236,7 @@ public class BaseSwerveDrive extends SubsystemBase {
   /**
    * Checks if we're currently running as what we consider the default alliance (2023 we went with red - 2024 we are going with blue)
    */
-  private boolean isDefaultAlliance() {
+  protected boolean isDefaultAlliance() {
     return DriverStation.getAlliance().orElse(m_swerveConfigs.defaultAlliance()) == m_swerveConfigs.defaultAlliance();
   }
 
@@ -393,11 +393,11 @@ public class BaseSwerveDrive extends SubsystemBase {
     m_field.getObject(swerveModule.getName()).setPose(swerveModulePose);
   }
 
-  private void updateVelocityPIDConstants(PIDFValue update) {
+  protected void updateVelocityPIDConstants(PIDFValue update) {
     forAllModules((module) -> module.updateVelocityPIDConstants(update));
   }
 
-  private void updateAnglePIDConstants(PIDFValue update) {
+  protected void updateAnglePIDConstants(PIDFValue update) {
     forAllModules((module) -> module.updateAnglePIDConstants(update));
   }
 
