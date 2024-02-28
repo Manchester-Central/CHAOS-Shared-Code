@@ -25,13 +25,33 @@ public class SwerveConfigs {
         return this;
     }
 
-    // Default translation PID values
-    private PIDValue m_defaultTranslationPIDValues = new PIDValue(0.6, 0.05, 0.1);
-    public PIDValue defaultTranslationPIDValues() {
-        return m_defaultTranslationPIDValues;
+    // // Default translation PID values
+    // private PIDValue m_defaultTranslationPIDValues = new PIDValue(0.6, 0.05, 0.1);
+    // public PIDValue defaultTranslationPIDValues() {
+    //     return m_defaultTranslationPIDValues;
+    // }
+    // public SwerveConfigs setDefaultTranslationPIDValues(PIDValue defaultTranslationPIDValues) {
+    //     m_defaultTranslationPIDValues = defaultTranslationPIDValues;
+    //     return this;
+    // }
+
+    // Default track PID values
+    private PIDValue m_defaultTrackPIDValues = new PIDValue(0.6, 0.05, 0.1);
+    public PIDValue defaultTrackPIDValues() {
+        return m_defaultTrackPIDValues;
     }
-    public SwerveConfigs setDefaultTranslationPIDValues(PIDValue defaultTranslationPIDValues) {
-        m_defaultTranslationPIDValues = defaultTranslationPIDValues;
+    public SwerveConfigs setDefaultTrackPIDValues(PIDValue defaultTrackPIDValues) {
+        m_defaultTrackPIDValues = defaultTrackPIDValues;
+        return this;
+    }
+
+    // Default cross track PID values
+    private PIDValue m_defaultCrossTrackPIDValues = new PIDValue(0.6, 0.05, 0.1);
+    public PIDValue defaultCrossTrackPIDValues() {
+        return m_defaultCrossTrackPIDValues;
+    }
+    public SwerveConfigs setDefaultCrossTrackPIDValues(PIDValue defaultCrossTrackPIDValues) {
+        m_defaultCrossTrackPIDValues = defaultCrossTrackPIDValues;
         return this;
     }
 

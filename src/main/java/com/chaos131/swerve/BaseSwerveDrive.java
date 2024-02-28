@@ -50,11 +50,19 @@ public class BaseSwerveDrive extends SubsystemBase {
   private Field2d m_field;
   private Rotation2d m_simrotation = new Rotation2d();
 
-  private PIDController m_XPid;
-  private PIDController m_YPid;
+  private Pose2d m_targetPose = new Pose2d();
+  private double m_trackSlope = 0;
+  private double m_trackOffset = 0;
+
+  // private PIDController m_XPid;
+  // private PIDController m_YPid;
+  private PIDController m_trackPID;
+  private PIDController m_crossTrackPID;
   private PIDController m_AngleDegreesPid;
-  private PIDTuner m_XPidTuner;
-  private PIDTuner m_YPidTuner;
+  // private PIDTuner m_XPidTuner;
+  // private PIDTuner m_YPidTuner;
+  private PIDTuner m_trackPIDTuner;
+  private PIDTuner m_crossTrackPIDTuner;
   private PIDTuner m_AnglePidTuner;
   private PIDTuner m_moduleVelocityPIDTuner;
   private PIDTuner m_moduleAnglePIDTuner;
@@ -83,13 +91,20 @@ public class BaseSwerveDrive extends SubsystemBase {
     m_field = new Field2d();
     SmartDashboard.putData("SwerveDrive", m_field);
 
-    var translationPidValues = swerveConfigs.defaultTranslationPIDValues();
-    m_XPid = new PIDController(translationPidValues.P, translationPidValues.I, translationPidValues.D);
-    m_YPid = new PIDController(translationPidValues.P, translationPidValues.I, translationPidValues.D);
-    m_XPidTuner = new PIDTuner("SwerveDrive/X_PID_Tuner", isDebugMode, m_XPid);
-    m_YPidTuner = new PIDTuner("SwerveDrive/Y_PID_Tuner", isDebugMode, m_YPid);
-    m_XPid.setTolerance(m_driveToTargetTolerance);
-    m_YPid.setTolerance(m_driveToTargetTolerance);
+    // var translationPidValues = swerveConfigs.defaultTranslationPIDValues();
+    // m_XPid = new PIDController(translationPidValues.P, translationPidValues.I, translationPidValues.D);
+    // m_YPid = new PIDController(translationPidValues.P, translationPidValues.I, translationPidValues.D);
+    // m_XPidTuner = new PIDTuner("SwerveDrive/X_PID_Tuner", isDebugMode, m_XPid);
+    // m_YPidTuner = new PIDTuner("SwerveDrive/Y_PID_Tuner", isDebugMode, m_YPid);
+    // m_XPid.setTolerance(m_driveToTargetTolerance);
+    // m_YPid.setTolerance(m_driveToTargetTolerance);
+
+    var trackPIDValues = swerveConfigs.defaultTrackPIDValues();
+    var crosstrackPIDValues = swerveConfigs.defaultCrossTrackPIDValues();
+    m_trackPID = new PIDController(trackPIDValues.P, trackPIDValues.I, trackPIDValues.D);
+    m_crossTrackPID = new PIDController(crosstrackPIDValues.P, crosstrackPIDValues.I, crosstrackPIDValues.D);
+    m_trackPIDTuner = new PIDTuner("SwerveDrive/track PID Tuner", isDebugMode, m_trackPID);
+    m_crossTrackPIDTuner = new PIDTuner("SwerveDrive/cross track PID Tuner", isDebugMode, m_trackPID);
 
     var rotationPidValues = swerveConfigs.defaultRotationPIDValues();
     m_AngleDegreesPid = new PIDController(rotationPidValues.P, rotationPidValues.I, rotationPidValues.D);
@@ -241,8 +256,10 @@ public class BaseSwerveDrive extends SubsystemBase {
   }
 
   public void resetPids() {
-    m_XPid.reset();
-    m_YPid.reset();
+    // m_XPid.reset();
+    // m_YPid.reset();
+    m_trackPID.reset();
+    m_crossTrackPID.reset();
     m_AngleDegreesPid.reset();
     setDriveTranslationTolerance(m_swerveConfigs.defaultDriveToTargetTolerance());
   }
@@ -253,15 +270,14 @@ public class BaseSwerveDrive extends SubsystemBase {
    * @return
    */
   public boolean atTarget() {
-    boolean isXTolerable = Math.abs(getPose().getX() - m_XPid.getSetpoint()) <= m_driveToTargetTolerance;
-    boolean isYTolerable = Math.abs(getPose().getY() - m_YPid.getSetpoint()) <= m_driveToTargetTolerance;
-    return isXTolerable && isYTolerable && m_AngleDegreesPid.atSetpoint();
-
+    return atTarget(m_driveToTargetTolerance);
   }
 
   public boolean atTarget(double tolerance) {
-    boolean isXTolerable = Math.abs(getPose().getX() - m_XPid.getSetpoint()) <= tolerance;
-    boolean isYTolerable = Math.abs(getPose().getY() - m_YPid.getSetpoint()) <= tolerance;
+    // boolean isXTolerable = Math.abs(getPose().getX() - m_XPid.getSetpoint()) <= tolerance;
+    // boolean isYTolerable = Math.abs(getPose().getY() - m_YPid.getSetpoint()) <= tolerance;
+    boolean isXTolerable = Math.abs(getPose().getX() - m_targetPose.getX()) <= tolerance;
+    boolean isYTolerable = Math.abs(getPose().getY() - m_targetPose.getY()) <= tolerance;
     return isXTolerable && isYTolerable && m_AngleDegreesPid.atSetpoint();
   }
 
@@ -273,9 +289,11 @@ public class BaseSwerveDrive extends SubsystemBase {
    * @param angle - The angle or heading of the robot at the destination
    */
   public void setTarget(double x, double y, Rotation2d angle) {
-    m_XPid.setSetpoint(x);
-    m_YPid.setSetpoint(y);
-    m_AngleDegreesPid.setSetpoint(angle.getDegrees());
+    // m_XPid.setSetpoint(x);
+    // m_YPid.setSetpoint(y);
+  //   m_targetPose = new Pose2d(x, y, angle);
+  //   m_AngleDegreesPid.setSetpoint(angle.getDegrees());
+    setTarget(new Pose2d(x, y, angle));
   }
 
   /**
@@ -285,20 +303,25 @@ public class BaseSwerveDrive extends SubsystemBase {
    * @param angle
    */
   public void setTarget(Transform2d loc, Rotation2d angle) {
-    m_XPid.setSetpoint(loc.getX());
-    m_YPid.setSetpoint(loc.getY());
-    m_AngleDegreesPid.setSetpoint(angle.getDegrees());
+    // m_XPid.setSetpoint(loc.getX());
+    // m_YPid.setSetpoint(loc.getY());
+    // m_AngleDegreesPid.setSetpoint(angle.getDegrees());
+    setTarget(new Pose2d(loc.getX(), loc.getY(), angle));
   }
 
   /**
    * Sets the location for the swerve system to aim for.
    * 
-   * @param pose - A Pose2d representing the target location and orientation
+   * @param targetPose - A Pose2d representing the target location and orientation
    */
-  public void setTarget(Pose2d pose) {
-    m_XPid.setSetpoint(pose.getTranslation().getX());
-    m_YPid.setSetpoint(pose.getTranslation().getY());
-    m_AngleDegreesPid.setSetpoint(pose.getRotation().getDegrees());
+  public void setTarget(Pose2d targetPose) {
+    // m_XPid.setSetpoint(pose.getTranslation().getX());
+    // m_YPid.setSetpoint(pose.getTranslation().getY());
+    m_AngleDegreesPid.setSetpoint(targetPose.getRotation().getDegrees());
+    m_targetPose = targetPose;
+    var translation = targetPose.getTranslation().minus(getPose().getTranslation());
+    m_trackSlope = translation.getY()/ translation.getX();
+    // TODO: Figure out tracking vector
   }
 
   /**
@@ -350,8 +373,10 @@ public class BaseSwerveDrive extends SubsystemBase {
     
     m_field.setRobotPose(robotPose);
     forAllModules((module) -> updateModuleOnField(module, robotPose));
-    m_XPidTuner.tune();
-    m_YPidTuner.tune();
+    // m_XPidTuner.tune();
+    // m_YPidTuner.tune();
+    m_trackPIDTuner.tune();
+    m_crossTrackPIDTuner.tune();
     m_AnglePidTuner.tune();
     m_moduleVelocityPIDTuner.tune();
     m_moduleAnglePIDTuner.tune();
