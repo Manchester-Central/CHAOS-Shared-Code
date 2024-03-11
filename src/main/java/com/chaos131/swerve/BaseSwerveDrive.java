@@ -323,7 +323,10 @@ public class BaseSwerveDrive extends SubsystemBase {
   }
 
   public Pose2d getPose() {
-    return m_odometry.getEstimatedPosition();
+    synchronized(m_odometry) {
+      return m_odometry.getEstimatedPosition();
+    }
+    
   }
 
   public Rotation2d getOdometryRotation() {
@@ -346,7 +349,11 @@ public class BaseSwerveDrive extends SubsystemBase {
       double radians = speeds.omegaRadiansPerSecond / m_swerveConfigs.updateFrequency_hz();
       m_simrotation = m_simrotation.plus(Rotation2d.fromRadians(radians));
     }
-    Pose2d robotPose = m_odometry.update(getGyroRotation(), getModulePositions());
+    final Pose2d robotPose;
+    synchronized(m_odometry) {
+      robotPose = m_odometry.update(getGyroRotation(), getModulePositions());
+    }
+    
     
     m_field.setRobotPose(robotPose);
     forAllModules((module) -> updateModuleOnField(module, robotPose));
@@ -370,7 +377,10 @@ public class BaseSwerveDrive extends SubsystemBase {
     if (RobotBase.isSimulation()) {
       m_simrotation = targetPose.getRotation();
     }
-    m_odometry.resetPosition(getGyroRotation(), getModulePositions(), targetPose);
+    synchronized(m_odometry) {
+      m_odometry.resetPosition(getGyroRotation(), getModulePositions(), targetPose);
+    }
+    
   }
 
   /**
@@ -406,35 +416,15 @@ public class BaseSwerveDrive extends SubsystemBase {
   }
 
   /**
-   * @deprecated A way to adjust the pose estimator. This is typically with a location on the field from a camera system.
-   * Uses the current rotation at this moment in time.
-   * 
-   * @param xMeters
-   * @param yMeters
-   */
-  public void addVisionMeasurement(int xMeters, int yMeters) {
-    addVisionMeasurement(new Pose2d(xMeters, yMeters, getOdometryRotation()));
-  }
-
-  /**
-   * @deprecated A way to adjust the pose estimator. This is typically with a location on the field from a camera system.
-   * 
-   * @param measuredPose
-   */
-  public void addVisionMeasurement(Pose2d measuredPose) {
-    if (measuredPose != null) {
-      m_odometry.addVisionMeasurement(measuredPose, Timer.getFPGATimestamp());
-    }
-  }
-
-  /**
    * A better way of adding supplemental pose information into the pose estimator.
    * 
    * @param measuredPose
    * @param cameraLatencySeconds the time in seconds since the source data was captured until now.
    */
   public void addVisionMeasurement(Pose2d measuredPose, double cameraLatencySeconds) {
-    m_odometry.addVisionMeasurement(measuredPose, Timer.getFPGATimestamp() - cameraLatencySeconds);
+    synchronized(m_odometry) {
+      m_odometry.addVisionMeasurement(measuredPose, Timer.getFPGATimestamp() - cameraLatencySeconds);
+    }
   }
 
   /**
@@ -448,7 +438,9 @@ public class BaseSwerveDrive extends SubsystemBase {
    * @param cameraLatencySeconds The total latency from image capture, to appearing as a value (Limelights do most of the math for us)
    * @param deviation 3x1 Matrix composed of [x, y, theta] representing the deviation in the robot x and y value, and the angular confidence.
    */
-  public synchronized void addVisionMeasurement(Pose2d measuredPose, double cameraLatencySeconds, Matrix<N3, N1> deviation) {
-    m_odometry.addVisionMeasurement(measuredPose, cameraLatencySeconds, deviation);
+  public void addVisionMeasurement(Pose2d measuredPose, double cameraLatencySeconds, Matrix<N3, N1> deviation) {
+    synchronized(m_odometry) {
+      m_odometry.addVisionMeasurement(measuredPose, cameraLatencySeconds, deviation);
+    }
   }
 }
