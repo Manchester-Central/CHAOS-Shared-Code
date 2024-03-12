@@ -421,9 +421,9 @@ public class BaseSwerveDrive extends SubsystemBase {
    * @param measuredPose
    * @param cameraLatencySeconds the time in seconds since the source data was captured until now.
    */
-  public void addVisionMeasurement(Pose2d measuredPose, double cameraLatencySeconds) {
+  public void addVisionMeasurement(Pose2d measuredPose, double imageTimestamp) {
     synchronized(m_odometry) {
-      m_odometry.addVisionMeasurement(measuredPose, Timer.getFPGATimestamp() - cameraLatencySeconds);
+      m_odometry.addVisionMeasurement(measuredPose, imageTimestamp);
     }
   }
 
@@ -438,9 +438,9 @@ public class BaseSwerveDrive extends SubsystemBase {
    * @param cameraLatencySeconds The total latency from image capture, to appearing as a value (Limelights do most of the math for us)
    * @param deviation 3x1 Matrix composed of [x, y, theta] representing the deviation in the robot x and y value, and the angular confidence.
    */
-  public void addVisionMeasurement(Pose2d measuredPose, double cameraLatencySeconds, Matrix<N3, N1> deviation) {
+  public void addVisionMeasurement(Pose2d measuredPose, double imageTimestamp, Matrix<N3, N1> deviation) {
     synchronized(m_odometry) {
-      m_odometry.addVisionMeasurement(measuredPose, cameraLatencySeconds, deviation);
+      m_odometry.addVisionMeasurement(measuredPose, imageTimestamp, deviation);
     }
   }
 }
