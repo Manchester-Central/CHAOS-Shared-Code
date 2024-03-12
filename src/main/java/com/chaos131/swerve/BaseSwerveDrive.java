@@ -419,7 +419,7 @@ public class BaseSwerveDrive extends SubsystemBase {
    * A better way of adding supplemental pose information into the pose estimator.
    * 
    * @param measuredPose
-   * @param cameraLatencySeconds the time in seconds since the source data was captured until now.
+   * @param imageTimestamp the time in seconds since the source data was captured until now.
    */
   public void addVisionMeasurement(Pose2d measuredPose, double imageTimestamp) {
     synchronized(m_odometry) {
@@ -435,7 +435,7 @@ public class BaseSwerveDrive extends SubsystemBase {
    * <p>This method is thread safe, as the wpilib overloaded addVisionMeasurement() is _not_ thread safe.
    * 
    * @param measuredPose
-   * @param cameraLatencySeconds The total latency from image capture, to appearing as a value (Limelights do most of the math for us)
+   * @param imageTimestamp The total latency from image capture, to appearing as a value (Limelights do most of the math for us)
    * @param deviation 3x1 Matrix composed of [x, y, theta] representing the deviation in the robot x and y value, and the angular confidence.
    */
   public void addVisionMeasurement(Pose2d measuredPose, double imageTimestamp, Matrix<N3, N1> deviation) {
