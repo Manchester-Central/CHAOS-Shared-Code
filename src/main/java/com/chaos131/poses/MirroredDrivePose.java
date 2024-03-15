@@ -8,10 +8,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.wpi.first.hal.HALUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 
 /**
  * A class for managing drive poses and mirroring (x and angle flipped, but y is the same) them for different sides of the field.
@@ -116,6 +118,20 @@ public abstract class MirroredDrivePose {
      * (Override this when using unit testing since the call to DriverStation will throw an exception)
      */
     protected Alliance getCurrentAlliance() {
+        // A mostly OSX specific bugfix that lets the field pose flip based on what
+        // the simulation interface says the robot is a team member of
+        if (HALUtil.getHALRuntimeType() == HALUtil.RUNTIME_SIMULATION) {
+            var station = DriverStationSim.getAllianceStationId();
+            switch (station) {
+            case Red1:
+            case Red2:
+            case Red3:
+                return Alliance.Red;
+            default:
+                return Alliance.Blue;
+            }
+        }
+        // normal behavior
         return DriverStation.getAlliance().orElse(m_defaultAlliance);
     }
 
