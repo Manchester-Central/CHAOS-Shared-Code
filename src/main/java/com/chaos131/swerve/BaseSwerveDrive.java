@@ -221,6 +221,24 @@ public class BaseSwerveDrive extends SubsystemBase {
     move(speeds);
   } 
 
+    /**
+   * Moves robot relative mode while maintaining field relative angle.
+   * 
+   * @param xPercentSpeed speed percent [-1.0, 1.0] of max speed in the x direction
+   * @param yPercentSpeed speed percent [-1.0, 1.0] of max speed in the y direction
+   * @param angle the angle on the field to target
+   * @param magnitude how quickly to target the angle [0, 1.0]
+   */
+  public void moveRobotRelativeAngle(double xPercentSpeed, double yPercentSpeed, Rotation2d angle, double magnitude){
+    double omega = 0;
+    if (Math.abs(magnitude) >= 0.2) {
+      omega = m_AngleDegreesPid.calculate(getOdometryRotation().getDegrees(), angle.getDegrees()) * magnitude;
+    } 
+
+    ChassisSpeeds speeds = new ChassisSpeeds(xPercentSpeed, yPercentSpeed, omega);
+    move(speeds);
+  } 
+
   /**
    * Moves the robot relative to itself.
    * 
