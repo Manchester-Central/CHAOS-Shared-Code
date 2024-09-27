@@ -8,8 +8,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N4;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
@@ -112,6 +115,15 @@ public abstract class MirroredDrivePose {
     }
 
     /**
+     * @param robotpose The robots position on the field.
+     * @return Rotation2d - the field coordinate angle relative to field angle 0.
+     */
+    public Rotation2d angleFrom(Pose2d robotPose) {
+        // TODO: Implement Me! 
+        return null;
+    }
+
+    /**
      * Gets the appropriate pose for the current alliance color. 
      * (Override this when using unit testing since the call to DriverStation will throw an exception)
      */
@@ -150,5 +162,10 @@ public abstract class MirroredDrivePose {
         var newY = pose.getY();
         var newAngle = Rotation2d.fromDegrees(180).minus(pose.getRotation());
         return new Pose2d(newX, newY, newAngle);
+    }
+
+    public static Matrix<N4, N1> convertCenteredPoseToWPIBluePose(Matrix<N4, N1> pt) {
+        // TODO: Implement Me! 
+        return null;
     }
 }

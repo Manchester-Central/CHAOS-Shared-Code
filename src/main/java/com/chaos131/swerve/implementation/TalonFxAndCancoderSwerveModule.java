@@ -170,6 +170,10 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
         m_speedController.setControl(m_velocityVoltageMps.withVelocity(velocity_mps));
     }
 
+	public void setPercentSpeed(double percentSpeed) {
+        m_speedController.set(percentSpeed);
+    }
+
     @Override
     protected Rotation2d getEncoderAngle() {
         return Rotation2d.fromRotations(m_angleController.getPosition().getValueAsDouble());

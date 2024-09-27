@@ -11,14 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
+
 import com.chaos131.auto.ParsedCommand;
 import com.chaos131.auto.conditions.IAutoCondition;
 
 /**
  * A class for handling the logic needed for our Auto commands
  */
-public abstract class BaseAutoCommand extends CommandBase {
+public abstract class BaseAutoCommand extends Command {
 
     // a list (advanced array) of called conditions
     // the conditions in this list will depend on the parameters set in "value" of SmartDashboard

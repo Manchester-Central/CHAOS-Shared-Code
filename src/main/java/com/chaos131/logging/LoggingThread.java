@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj.RobotBase;
 
 /** Add your docs here. */
 public class LoggingThread extends Thread {
-    private static final double FLUSH_THRESHOLD = 200;
     private Date m_timestamp;
     private FileWriter m_fileWriter;
     private PrintWriter m_PrintWriter;
@@ -40,7 +39,6 @@ public class LoggingThread extends Thread {
     }
 
     public void run() {
-        int unflushed = 0;
         timestampNow();
         try {
             var simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss.SSSZ");
@@ -86,9 +84,5 @@ public class LoggingThread extends Thread {
     private void recordRow(String s) {
         m_PrintWriter.println(s);
         m_PrintWriter.flush();
-    }
-
-    private void flush() {
-        // TODO ?
     }
 }
