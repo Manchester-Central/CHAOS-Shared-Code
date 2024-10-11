@@ -170,7 +170,7 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
         m_speedController.setControl(m_velocityVoltageMps.withVelocity(velocity_mps));
     }
 
-	public void setPercentSpeed(double percentSpeed) {
+    public void setPercentSpeed(double percentSpeed) {
         m_speedController.set(percentSpeed);
     }
 
@@ -205,8 +205,8 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
         m_angleController.setPosition(absoluteAngle.getRotations());
     }
 
-	@Override
-	public void updateVelocityPIDConstants(PIDFValue update) {
+    @Override
+    public void updateVelocityPIDConstants(PIDFValue update) {
         Slot0Configs slot0Configs = new Slot0Configs();
         slot0Configs.kP = update.P;
         slot0Configs.kI = update.I;
@@ -215,10 +215,10 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
         slot0Configs.kS = 0.05;
         m_speedConfig.Slot0 = slot0Configs;
         m_speedController.getConfigurator().apply(slot0Configs);
-	}
+    }
 
-	@Override
-	public void updateAnglePIDConstants(PIDFValue update) {
+    @Override
+    public void updateAnglePIDConstants(PIDFValue update) {
         Slot0Configs slot0Configs = new Slot0Configs();
         slot0Configs.kP = update.P;
         slot0Configs.kI = update.I;
@@ -226,7 +226,7 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
         slot0Configs.kV = update.F;
         m_angleConfig.Slot0 = slot0Configs;
         m_angleController.getConfigurator().apply(slot0Configs);
-	}
+    }
 
     @Override
     public void driverModeInit() {

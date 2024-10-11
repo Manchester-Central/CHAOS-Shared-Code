@@ -11,6 +11,7 @@ import java.util.Map;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N4;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -36,7 +37,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
     }
  </pre>
  */
-public abstract class MirroredDrivePose {
+public class MirroredDrivePose {
 
     /**
      * A list of all the registed drive poses. This lets you create commands for driving to all known poses or specifying drive poses in auto scripts
@@ -115,10 +116,10 @@ public abstract class MirroredDrivePose {
     }
 
     /**
-     * @param robotpose The robots position on the field.
+     * @param robotpose
      * @return Rotation2d - the field coordinate angle relative to field angle 0.
      */
-    public Rotation2d angleFrom(Pose2d robotPose) {
+    public Rotation2d angleFrom(Translation2d robotpose) {
         // TODO: Implement Me! 
         return null;
     }
@@ -164,8 +165,15 @@ public abstract class MirroredDrivePose {
         return new Pose2d(newX, newY, newAngle);
     }
 
-    public static Matrix<N4, N1> convertCenteredPoseToWPIBluePose(Matrix<N4, N1> pt) {
-        // TODO: Implement Me! 
+    /**
+     * Creates a MirroredDrivePose from 
+     * 
+     * @param pt - The point in 4 part vector form (x, y, z, w)
+     * @return
+     */
+    public static MirroredDrivePose makeWPIBluePoseFromCenteredPose(Matrix<N4, N1> pt,
+            double fieldWidthMeters, double fieldHeightMeters, Alliance defaultAlliance, String name) {
+        // TODO: Implement me!
         return null;
     }
 }

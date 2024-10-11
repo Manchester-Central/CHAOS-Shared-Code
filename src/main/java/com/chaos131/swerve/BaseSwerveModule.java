@@ -26,15 +26,22 @@ public abstract class BaseSwerveModule {
   private LinearFilter m_absoluteAngleDegreesRollingAverage = LinearFilter.movingAverage(100);
   protected double m_absoluteAngleDegreesRollingAverageValue = 0;
 
-  /** Creates a new SwerveModule. */
+  /**
+   * Creates a new SwerveModule
+   * 
+   * @param name - Name of the module used for Driver Station and Dashboard
+   * @param translation - Cartesian position relative to robot origin
+   * @param xModeAngle - Unnecessary angle of the module
+   */
   public BaseSwerveModule(String name, Translation2d translation, Rotation2d xModeAngle) {
     m_name = name;
     m_translation = translation;
+    // TODO: Calculate this from the translation!
     m_xModeAngle = xModeAngle;
     m_simdistance = 0;
     m_targetState = new SwerveModuleState(0, Rotation2d.fromDegrees(0));
   }
-    
+
   public abstract void addCoachTabDashboardValues(ShuffleboardTab coachTab);
   public abstract void driverModeInit();
   public abstract void driveToPositionInit();
@@ -47,15 +54,25 @@ public abstract class BaseSwerveModule {
   protected abstract Rotation2d getEncoderAngle();
   protected abstract void setTargetAngle(Rotation2d angle);
   protected abstract Rotation2d getAbsoluteAngle();
+  // Stops the motor controlling the swerve angle
   protected abstract void stopAngleMotor();
+  // Stops the motor controlling the driving speed / translation
   protected abstract void stopSpeedMotor();
+  // Sends data to the Dashboard
   protected abstract void updateDashboard();
   protected abstract void recalibrateWithFilteredAbsoluteAngle(Rotation2d absoluteAngle);
 
+  /**
+   * @return returns the name of the Swerve Module
+   */
   public String getName() {
     return m_name;
   }
 
+  /**
+   * @param field
+   * @return Returns the name of the Driver Station key for the given field
+   */
   protected String getDSKey(String field) {
     return "Swerve Module " + m_name + "/" + field;
   }
@@ -64,6 +81,9 @@ public abstract class BaseSwerveModule {
     m_updateFrequency_hz = updateFrequency_hz;
   }
 
+  /**
+   * @param state the state to set this swerve module's rotation angles and velocity values
+   */
   public void setTarget(SwerveModuleState state) {
     state = SwerveModuleState.optimize(state, getModuleState().angle);
     var targetAngle = Rotation2d.fromDegrees(closestTarget(getModuleState().angle.getDegrees(), state.angle.getDegrees()));
@@ -73,16 +93,25 @@ public abstract class BaseSwerveModule {
     m_targetState = state;
   }
 
+  /**
+   * Puts the robot into X mode to lock in place
+   */
   public void setXMode() {
     setTarget(new SwerveModuleState(0, m_xModeAngle));
   }
 
+  /**
+   * Stops all motors and resets the target state
+   */
   public void stop() {
     stopAngleMotor();
     stopSpeedMotor();
     m_targetState = new SwerveModuleState(0, getModuleState().angle); 
   }
 
+  /**
+   * @return Returns the current velocity and angle on a live robot, otherwise the target state while in simulation
+   */
   public SwerveModuleState getModuleState() {
     if (RobotBase.isSimulation()) {
       return m_targetState;
@@ -102,6 +131,10 @@ public abstract class BaseSwerveModule {
     return new SwerveModulePosition(getEncoderDistance_m(), getEncoderAngle());
   }
 
+  /**
+   * Unlike WPILib Subsystems, this does not get triggered periodically on its own. An owning thread or data
+   * structure must call this periodic function.
+   */
   public void periodic() {
     m_absoluteAngleDegreesRollingAverageValue = m_absoluteAngleDegreesRollingAverage.calculate(getAbsoluteAngle().getDegrees());
     updateDashboard();
@@ -125,8 +158,6 @@ public abstract class BaseSwerveModule {
     Rotation2d targetAngle = Rotation2d.fromDegrees(targetAngle_deg);
     Rotation2d angleDifference = currentModuleAngle.minus(targetAngle);
     return currentModuleAngle_deg - angleDifference.getDegrees();
-  } 
-
-
+  }
 }
 //"If you don’t agree to focus, you’re going to the business team." -Josh 2/21/2023

@@ -6,11 +6,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import edu.wpi.first.math.MatBuilder;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N4;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class MirroredDrivePoseTests {
+    private final double epsilon = 0.001;
 
     /** 
      * This is an example of a DrivePose class that can be implemented in your robot code
@@ -87,5 +94,52 @@ public class MirroredDrivePoseTests {
         assertEquals(DrivePoseImpl.getClosestKnownPose(new Pose2d(0, 0, Rotation2d.fromDegrees(180))), pose1.getBluePose());
         assertEquals(DrivePoseImpl.getClosestKnownPose(new Pose2d(5, 7, Rotation2d.fromDegrees(180))), pose2.getBluePose());
         assertEquals(DrivePoseImpl.getClosestKnownPose(new Pose2d(8, 0, Rotation2d.fromDegrees(180))), pose3.getBluePose());
+    }
+
+    @Test
+    public void testAngleFrom() {
+        var pose1 = new DrivePoseImpl(new Pose2d());
+        var angle = pose1.angleFrom(new Translation2d(4, 0));
+        assertEquals(angle.getRadians(), 0, epsilon);
+        angle = pose1.angleFrom(new Translation2d(0, 5));
+        assertEquals(angle.getRadians(), Math.PI/2, epsilon);
+
+        var pose2 = new DrivePoseImpl(new Pose2d(2, 2, new Rotation2d()));
+        angle = pose2.angleFrom(new Translation2d(4, 0));
+        assertEquals(angle.getRadians(), -Math.PI/4, epsilon);
+        angle = pose2.angleFrom(new Translation2d(3, 1));
+        assertEquals(angle.getRadians(), -Math.PI/4, epsilon);
+        angle = pose2.angleFrom(new Translation2d(3, 0.5));
+        assertEquals(angle.getRadians(), 0.982794, epsilon);
+    }
+
+    @Test
+    public void testMakeWPIBluePose() {
+        double field_width = 16;
+        double field_height = 8;
+
+        Matrix<N4, N1> coord = MatBuilder.fill(Nat.N4(), Nat.N1(), new double[] {
+            0,0,0,0
+        });
+        var newpose = DrivePoseImpl.makeWPIBluePoseFromCenteredPose(coord,
+            field_width, field_height, Alliance.Blue, "TestPose1");
+        assertEquals(newpose.getBluePose().getTranslation().getX(), field_width/2, epsilon);
+        assertEquals(newpose.getBluePose().getTranslation().getY(), field_height/2, epsilon);
+
+        coord = MatBuilder.fill(Nat.N4(), Nat.N1(), new double[] {
+            8,0,0,0
+        });
+        newpose = DrivePoseImpl.makeWPIBluePoseFromCenteredPose(coord,
+            field_width, field_height, Alliance.Blue, "TestPose2");
+        assertEquals(newpose.getBluePose().getTranslation().getX(), 8+field_width/2, epsilon);
+        assertEquals(newpose.getBluePose().getTranslation().getY(), field_height/2, epsilon);
+
+        coord = MatBuilder.fill(Nat.N4(), Nat.N1(), new double[] {
+            2,2,0,0
+        });
+        newpose = DrivePoseImpl.makeWPIBluePoseFromCenteredPose(coord,
+            field_width, field_height, Alliance.Blue, "TestPose3");
+        assertEquals(newpose.getBluePose().getTranslation().getX(), 10, epsilon);
+        assertEquals(newpose.getBluePose().getTranslation().getY(), 6, epsilon);
     }
 }
