@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import com.chaos131.logging.LogManager;
 import com.chaos131.pid.PIDFValue;
 import com.chaos131.pid.PIDTuner;
+import com.chaos131.vision.VisionData;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
@@ -46,6 +47,7 @@ public class BaseSwerveDrive extends SubsystemBase {
 
     protected SwerveDriveKinematics m_kinematics;
     protected SwerveDrivePoseEstimator m_odometry;
+    protected boolean m_acceptVisionUpdates;
     protected Field2d m_field;
     protected Rotation2d m_simrotation = new Rotation2d();
 
@@ -78,6 +80,7 @@ public class BaseSwerveDrive extends SubsystemBase {
             m_kinematics, getGyroRotation(),
             getModulePositions(),
             initialPoseMeters);
+        m_acceptVisionUpdates = true;
         resetPose(initialPoseMeters);
         m_field = new Field2d();
         SmartDashboard.putData("SwerveDrive", m_field);
@@ -105,7 +108,10 @@ public class BaseSwerveDrive extends SubsystemBase {
         m_logger.addNumber("SwerveDrive/Y_m", isDebugMode, () -> getPose().getY());
         m_logger.addNumber("SwerveDrive/Rotation_deg", isDebugMode, () -> getOdometryRotation().getDegrees());
         m_logger.addNumber("SwerveDrive/Gyro_angle_deg", isDebugMode, () -> getGyroRotation().getDegrees());
+    }
 
+    public void setOdometryAcceptVisionData(boolean state) {
+        m_acceptVisionUpdates = state;
     }
 
     public void forAllModules(Consumer<BaseSwerveModule> lambdaFunction) {
@@ -489,18 +495,6 @@ public class BaseSwerveDrive extends SubsystemBase {
     }
 
     /**
-     * A better way of adding supplemental pose information into the pose estimator.
-     * 
-     * @param measuredPose
-     * @param imageTimestamp the time in seconds since the source data was captured until now.
-     */
-    public void addVisionMeasurement(Pose2d measuredPose, double imageTimestamp) {
-        synchronized(m_odometry) {
-            m_odometry.addVisionMeasurement(measuredPose, imageTimestamp);
-        }
-    }
-
-    /**
      * The preferred way of adding supplemental pose information into the pose estimator. 
      * 
      * Increase the values of the deviation to decrease the confidence in those values.
@@ -511,9 +505,10 @@ public class BaseSwerveDrive extends SubsystemBase {
      * @param imageTimestamp The total latency from image capture, to appearing as a value (Limelights do most of the math for us)
      * @param deviation 3x1 Matrix composed of [x, y, theta] representing the deviation in the robot x and y value, and the angular confidence.
      */
-    public void addVisionMeasurement(Pose2d measuredPose, double imageTimestamp, Matrix<N3, N1> deviation) {
+    public void addVisionMeasurement(VisionData data) {
+        if (!m_acceptVisionUpdates) return;
         synchronized(m_odometry) {
-            m_odometry.addVisionMeasurement(measuredPose, imageTimestamp, deviation);
+            m_odometry.addVisionMeasurement(data.getPose2d(), data.getTimestampSeconds(), data.getDeviation());
         }
     }
 }
