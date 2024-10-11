@@ -2,6 +2,7 @@ plugins {
     id "java"
     id 'maven-publish'
     id "edu.wpi.first.GradleRIO" version "2024.3.2"
+    id "com.peterabeles.gversion" version "1.10.3"
 }
 
 sourceCompatibility = JavaVersion.VERSION_17
@@ -54,3 +55,14 @@ test {
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
 }
 wpi.java.configureTestTasks(test)
+
+project.compileJava.dependsOn(createVersionFile)
+gversion {
+    srcDir       = "src/main/java/"
+    classPackage = "com.chaos131"
+    className    = "SharedCodeBuildConstants"
+    dateFormat   = "yyyy-MM-dd HH:mm:ss z"
+    timeZone     = "America/New_York" // Use preferred time zone
+    language     = "java"
+    indent       = "    "
+}
