@@ -96,9 +96,9 @@ public class LimelightCamera extends Camera {
             return;
         }
 
-        var poseRotation = new Rotation3d(    data[idxRoll] * Math.PI / 180, 
-                                            data[idxPitch] * Math.PI / 180,
-                                            data[idxYaw]  * Math.PI / 180);
+        var poseRotation = new Rotation3d(data[idxRoll]  * Math.PI / 180, 
+                                          data[idxPitch] * Math.PI / 180,
+                                          data[idxYaw]   * Math.PI / 180);
 
         var visionPose = new Pose3d(data[idxX], data[idxY], data[idxZ], poseRotation);
 
