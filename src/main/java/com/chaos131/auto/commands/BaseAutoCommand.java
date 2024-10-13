@@ -26,12 +26,19 @@ public abstract class BaseAutoCommand extends Command {
     private List<IAutoCondition> m_conditions = new ArrayList<IAutoCondition>();
     private long m_startTimeMs;
 
+    /** Parsed command that this command is built from */
     protected ParsedCommand m_parsedCommand;
 
+    /**
+     * @param parsedCommand the original parsed command
+     */
     public BaseAutoCommand(ParsedCommand parsedCommand) {
         m_parsedCommand = parsedCommand;
     }
 
+    /**
+     * @param condition the condition to trigger from
+     */
     public void addCondition(IAutoCondition condition) {
         m_conditions.add(condition);
     }

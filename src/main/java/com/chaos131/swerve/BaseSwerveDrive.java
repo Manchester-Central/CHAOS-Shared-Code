@@ -17,7 +17,6 @@ import com.chaos131.pid.PIDTuner;
 import com.chaos131.vision.VisionData;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -28,8 +27,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -37,33 +34,98 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+/**
+ * The larger SwerveDrive subsystem that manages each swerve module.
+ */
 public class BaseSwerveDrive extends SubsystemBase {
-
+    /**
+     * Unused modifier to robot speed, for calibration and debugging purposes
+     */
     public static double TranslationSpeedModifier = 1.0;
+    /**
+     * Unused modifier to robot rotation, for calibration and debugging purposes
+     */
     public static double RotationSpeedModifier = 1.0;
 
+    /**
+     * List of swerve modules
+     */
     protected List<BaseSwerveModule> m_swerveModules;
+    /**
+     * Supplier that returns the current rotation of the robot, from a gyro
+     */
     protected Supplier<Rotation2d> m_getRotation;
 
+    /**
+     * Structure that converts between individual swerve modules, and the overall swerve system
+     */
     protected SwerveDriveKinematics m_kinematics;
+    /**
+     * Structure that estimates the robot's location in the field using motor encoder values,
+     * and updates from the camera system
+     */
     protected SwerveDrivePoseEstimator m_odometry;
+
+    /**
+     * Determines if the entire swerve subsystem and pose estimator will accept updates from any vision system
+     */
     protected boolean m_acceptVisionUpdates;
+    /**
+     * Represents the robot's 2d location on the field, updated from the pose estimator in periodic()
+     */
     protected Field2d m_field;
+    /**
+     * Structure to approximate rotation while simulating the robot
+     */
     protected Rotation2d m_simrotation = new Rotation2d();
 
+    /**
+     * PID controller defining the location
+     */
     protected PIDController m_XPid;
+    /**
+     * PID controller defining the location
+     */
     protected PIDController m_YPid;
+    /**
+     * PID Controller to manage the robot angle, since there is error stackup with many swerve modules in motion
+     */
     protected PIDController m_AngleDegreesPid;
+    /**
+     * Tuner for the XPid
+     */
     protected PIDTuner m_XPidTuner;
+    /**
+     * Tuner for the YPid
+     */
     protected PIDTuner m_YPidTuner;
+    /**
+     * Tuner for the swerve and robot angle
+     */
     protected PIDTuner m_AnglePidTuner;
+    /**
+     * Manages the robot speed, to account for error in the floor quality
+     */
     protected PIDTuner m_moduleVelocityPIDTuner;
+    /**
+     * Manages the robot angle, to account for error in the field quality
+     */
     protected PIDTuner m_moduleAnglePIDTuner;
+    /**
+     * Default tolerance used by the X and Y location PID controller
+     */
     protected double m_driveToTargetTolerance;
-    protected LogManager m_logger = LogManager.getInstance();
+    /**
+     * Config structure for the overall swerve system
+     */
     protected SwerveConfigs m_swerveConfigs;
 
-    /** Creates a new SwerveDrive. */
+    /**
+     * Creates a new SwerveDrive subsystem
+     * @param swerveModules native array of SwerveDrive modules that make the robot move
+     * @param swerveConfigs configuration structure that defines the broader swerve behavior
+     * @param getRotation supplier that loads gyro data
+     */
     public BaseSwerveDrive(BaseSwerveModule[] swerveModules, SwerveConfigs swerveConfigs, Supplier<Rotation2d> getRotation) {
         m_swerveModules = Arrays.asList(swerveModules);
         m_swerveConfigs = swerveConfigs;
@@ -71,7 +133,7 @@ public class BaseSwerveDrive extends SubsystemBase {
         var isDebugMode = swerveConfigs.IsDebugMode();
         m_driveToTargetTolerance = swerveConfigs.defaultDriveToTargetTolerance();
 
-        forAllModules(module -> module.setSimUpdateFrequency_hz(m_swerveConfigs.updateFrequency_hz()));
+        forAllModules(module -> module.setSimUpdatePeriod(m_swerveConfigs.updateFrequency_hz()));
 
         m_kinematics = new SwerveDriveKinematics(
             getModuleTranslations());
@@ -104,44 +166,80 @@ public class BaseSwerveDrive extends SubsystemBase {
         var moduleAnglePID = m_swerveConfigs.defaultModuleAnglePIDValues();
         m_moduleAnglePIDTuner = new PIDTuner("SwerveDrive/ModuleAngle_PID_Tuner", isDebugMode, moduleAnglePID.P, moduleAnglePID.I, moduleAnglePID.D, this::updateAnglePIDConstants);
 
-        m_logger.addNumber("SwerveDrive/X_m", isDebugMode, () -> getPose().getX());
-        m_logger.addNumber("SwerveDrive/Y_m", isDebugMode, () -> getPose().getY());
-        m_logger.addNumber("SwerveDrive/Rotation_deg", isDebugMode, () -> getOdometryRotation().getDegrees());
-        m_logger.addNumber("SwerveDrive/Gyro_angle_deg", isDebugMode, () -> getGyroRotation().getDegrees());
+        // m_logger.addNumber("SwerveDrive/X_m", isDebugMode, () -> getPose().getX());
+        // m_logger.addNumber("SwerveDrive/Y_m", isDebugMode, () -> getPose().getY());
+        // m_logger.addNumber("SwerveDrive/Rotation_deg", isDebugMode, () -> getOdometryRotation().getDegrees());
+        // m_logger.addNumber("SwerveDrive/Gyro_angle_deg", isDebugMode, () -> getGyroRotation().getDegrees());
     }
 
+    /**
+     * Sets wether or not the swerve drive's odometry will accept vision updates, on a global level.
+     * @param state true = yes
+     */
     public void setOdometryAcceptVisionData(boolean state) {
         m_acceptVisionUpdates = state;
     }
 
+    /**
+     * Applies some function across each swerve module, but doesn't return any values.
+     * @param lambdaFunction the function
+     */
     public void forAllModules(Consumer<BaseSwerveModule> lambdaFunction) {
         m_swerveModules.forEach(lambdaFunction);
     }
 
+    /**
+     * Applies some function to the list of modules. Similar to forAllModules() but also returns some values.
+     * @param <T> The return type
+     * @param lambdaFunction the function used
+     * @return a list of values, one for each module
+     */
     public <T> List<T> mapModules(Function<BaseSwerveModule, T> lambdaFunction) {
         return m_swerveModules.stream().map(lambdaFunction).collect(Collectors.toList());
     }
-        
+
+    /**
+     * I have no idea.
+     * @param coachTab I really don't.
+     */
     public void addCoachTabDashboardValues(ShuffleboardTab coachTab) {
         forAllModules((module) -> module.addCoachTabDashboardValues(coachTab));
     }
 
+    /**
+     * Sets up each module for driving, per the module implementation.
+     */
     public void driverModeInit() {
         forAllModules((module) -> module.driverModeInit());
     }
 
+    /**
+     * Sets up each module for driving to specific locations.
+     */
     public void driveToPositionInit() {
         forAllModules((module) -> module.driveToPositionInit());
     }
 
+    /**
+     * Collects module position data for each module
+     * @return the swerve module position for each module
+     */
     protected SwerveModulePosition[] getModulePositions() {
         return mapModules((module) -> module.getPosition()).toArray(SwerveModulePosition[] ::new);
     }
 
+    /**
+     * Returns the list of module offsets for each module.
+     * @return that list
+     */
     protected Translation2d[] getModuleTranslations() {
         return mapModules((module) -> module.getTranslation()).toArray(Translation2d[] ::new);
     }
 
+    /**
+     * Returns the list of module states for each module.
+     * @return that list
+     */
     protected SwerveModuleState[] getModuleStates() {
         return mapModules((module) -> module.getModuleState()).toArray(SwerveModuleState[] ::new);
     }
@@ -166,10 +264,19 @@ public class BaseSwerveDrive extends SubsystemBase {
         }
     }
 
+    /**
+     * Puts the swerve drive system into "X" mode. This locks the robot in place
+     * by turning each module parallel to the offset. Effectively no wheel can
+     * move without another wheel creating significant drag.
+     */
     public void setXMode() {
         forAllModules((module) -> module.setXMode());
     }
 
+    /**
+     * TODO Fill this out
+     * @param swerveModuleState seriously I don't remember
+     */
     public void debug_setSwerveModule(SwerveModuleState swerveModuleState) {
         forAllModules((module) -> module.setTarget(swerveModuleState));
     }
@@ -258,11 +365,15 @@ public class BaseSwerveDrive extends SubsystemBase {
 
     /**
      * Checks if we're currently running as what we consider the default alliance (2023 we went with red - 2024 we are going with blue)
+     * @return true if we are the default, per community documentation blue is the default from 2024 onward
      */
     protected boolean isDefaultAlliance() {
         return DriverStation.getAlliance().orElse(m_swerveConfigs.defaultAlliance()) == m_swerveConfigs.defaultAlliance();
     }
 
+    /**
+     * Resets the PID controllers for X, Y, and Rotation.
+     */
     public void resetPids() {
         m_XPid.reset();
         m_YPid.reset();
@@ -271,17 +382,17 @@ public class BaseSwerveDrive extends SubsystemBase {
     }
 
     /**
-     * Returns true if the odometry thinks the robot is close enough to the target location.
-     * 
-     * @return
+     * @return true if the odometry thinks the robot is close enough to the target location.
      */
     public boolean atTarget() {
-        boolean isXTolerable = Math.abs(getPose().getX() - m_XPid.getSetpoint()) <= m_driveToTargetTolerance;
-        boolean isYTolerable = Math.abs(getPose().getY() - m_YPid.getSetpoint()) <= m_driveToTargetTolerance;
-        return isXTolerable && isYTolerable && m_AngleDegreesPid.atSetpoint();
-
+        return atTarget(m_driveToTargetTolerance);
     }
 
+    /**
+     * TODO: Fix me to use the pose estimator!
+     * @param tolerance floor distance in field units to be "close enough"
+     * @return true if in range
+     */
     public boolean atTarget(double tolerance) {
         boolean isXTolerable = Math.abs(getPose().getX() - m_XPid.getSetpoint()) <= tolerance;
         boolean isYTolerable = Math.abs(getPose().getY() - m_YPid.getSetpoint()) <= tolerance;
@@ -303,9 +414,8 @@ public class BaseSwerveDrive extends SubsystemBase {
 
     /**
      * Sets the location for the swerve system to aim for.
-     * 
-     * @param loc
-     * @param angle
+     * @param loc the target location as understood by the PIDs
+     * @param angle the desired location as understood by the PIDs
      */
     public void setTarget(Transform2d loc, Rotation2d angle) {
         m_XPid.setSetpoint(loc.getX());
@@ -328,16 +438,34 @@ public class BaseSwerveDrive extends SubsystemBase {
      * Moves the robot to the target location and orientation at a percentage of the total speed.
      * This relies on the moveFieldRelativeForPID functionality.
      * 
-     * @param maxTranslationSpeedPercent
+     * @param maxTranslationSpeedPercent a value in the range of [0, 1]
      */
     public void moveToTarget(double maxTranslationSpeedPercent) {
         Pose2d pose = getPose();
-        double x = MathUtil.clamp(m_XPid.calculate(pose.getX()), -maxTranslationSpeedPercent, maxTranslationSpeedPercent);
-        double y = MathUtil.clamp(m_YPid.calculate(pose.getY()), -maxTranslationSpeedPercent, maxTranslationSpeedPercent);
+
+        Translation2d difference = pose.getTranslation().minus(
+            new Translation2d(m_XPid.getSetpoint(), m_YPid.getSetpoint())
+        );
+
+        var normalizedDifference = difference.div(difference.getNorm());
+
+        double x =
+          MathUtil.clamp(
+              m_XPid.calculate(pose.getX()),
+              -(maxTranslationSpeedPercent*normalizedDifference.getX()),
+               (maxTranslationSpeedPercent*normalizedDifference.getX()));
+        double y =
+          MathUtil.clamp(
+              m_YPid.calculate(pose.getY()),
+              -(maxTranslationSpeedPercent*normalizedDifference.getY()),
+               (maxTranslationSpeedPercent*normalizedDifference.getY()));
         double angle = m_AngleDegreesPid.calculate(pose.getRotation().getDegrees());
         moveFieldRelativeForPID(x, y, angle);
     }
 
+    /**
+     * @return the robot's rotation determined from the gyro (or simulated rotation)
+     */
     public Rotation2d getGyroRotation() {
         if (RobotBase.isSimulation()) {
             return m_simrotation;
@@ -345,20 +473,32 @@ public class BaseSwerveDrive extends SubsystemBase {
         return m_getRotation.get();
     }
 
+    /**
+     * @return the floor pose of the robot from the pose estimator
+     */
     public Pose2d getPose() {
         synchronized(m_odometry) {
             return m_odometry.getEstimatedPosition();
         }
     }
 
+    /**
+     * @return the rotation of the robot from the pose estimator
+     */
     public Rotation2d getOdometryRotation() {
         return getPose().getRotation();
     }
 
+    /**
+     * Tells each swerve module to run their recalibration method
+     */
     public void recalibrateModules(){
         forAllModules((module) -> module.recalibrate());
     }
 
+    /**
+     * Tells each swerve module to run their stop method
+     */
     public void stop() {
         forAllModules((module) -> module.stop());
     }
@@ -375,8 +515,7 @@ public class BaseSwerveDrive extends SubsystemBase {
         synchronized(m_odometry) {
             robotPose = m_odometry.update(getGyroRotation(), getModulePositions());
         }
-        
-        
+
         m_field.setRobotPose(robotPose);
         forAllModules((module) -> updateModuleOnField(module, robotPose));
         m_XPidTuner.tune();
@@ -393,7 +532,7 @@ public class BaseSwerveDrive extends SubsystemBase {
      * <p>The gyroscope angle does not need to be reset in the user's robot code. The library
      * automatically takes care of offsetting the gyro angle.
      * 
-     * @param targetPose
+     * @param targetPose the pose to set to
      */
     public void resetPose(Pose2d targetPose){
         if (RobotBase.isSimulation()) {
@@ -408,7 +547,7 @@ public class BaseSwerveDrive extends SubsystemBase {
     /**
      * Resets just the heading, not the entire pose. Passes off to resetPose().
      * 
-     * @param targetHeading
+     * @param targetHeading the angle to use
      */
     public void resetHeading(Rotation2d targetHeading) {
         var currentPose = getPose();
@@ -416,6 +555,11 @@ public class BaseSwerveDrive extends SubsystemBase {
         resetPose(updatedPose);
     }
 
+    /**
+     * Updates a specific swervemodule based on the robot pose in the field.
+     * @param swerveModule the module
+     * @param robotPose the current robot pose
+     */
     public void updateModuleOnField(BaseSwerveModule swerveModule, Pose2d robotPose) {
         if (!m_swerveConfigs.IsDebugMode()) {
             return;
@@ -425,28 +569,47 @@ public class BaseSwerveDrive extends SubsystemBase {
         m_field.getObject(swerveModule.getName()).setPose(swerveModulePose);
     }
 
+    /**
+     * Applies the PID values to every module in the swerve system
+     * @param update the 4 PIDF values
+     */
     protected void updateVelocityPIDConstants(PIDFValue update) {
         forAllModules((module) -> module.updateVelocityPIDConstants(update));
     }
 
+    /**
+     * Applies the values to every module in the swerve system
+     * @param update the 4 PIDF vlues
+     */
     protected void updateAnglePIDConstants(PIDFValue update) {
         forAllModules((module) -> module.updateAnglePIDConstants(update));
     }
 
+    /**
+     * Applies the translation tolerance to atTarget() and the individual XPid and YPid controllers
+     * @param tolerance value in field units
+     */
     public void setDriveTranslationTolerance(double tolerance) {
         m_driveToTargetTolerance = tolerance;
+        m_XPid.setTolerance(m_driveToTargetTolerance);
+        m_YPid.setTolerance(m_driveToTargetTolerance);
     }
 
+    /**
+     * @return robot's movement speed in field units per second
+     */
     public ChassisSpeeds getRobotRelativeSpeeds() {
         return m_kinematics.toChassisSpeeds(getModuleStates());
     }
 
     /**
-     * Gets the robot translation speed (in any direction) in meters per second
+     * @return the robot translation speed (in any direction) in meters per second
      */
     public double getRobotSpeedMps() {
-        // TODO: Implement me!
-        return 0;
+        var robotSpeeds = getRobotRelativeSpeeds();
+        var xMetersPerSecond = robotSpeeds.vxMetersPerSecond;
+        var yMetersPerSecond = robotSpeeds.vyMetersPerSecond;
+        return Math.sqrt(Math.pow(xMetersPerSecond, 2) + Math.pow(yMetersPerSecond, 2));
     }
 
     /**
@@ -456,21 +619,26 @@ public class BaseSwerveDrive extends SubsystemBase {
         return getRobotRelativeSpeeds().omegaRadiansPerSecond;
     }
 
-	/**
-	 * 
-	 * @param chassisSpeeds
-	 */
+    /**
+     * Sets the module PID targets based on the chassis speeds, for use with path planner
+     * @param chassisSpeeds those chassis speeds
+     */
     public void pathPlannerRobotRelative(ChassisSpeeds chassisSpeeds) {
-        // TODO: Implement me!
+        SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
+        // SwerveDriveKinematics.desaturateWheelSpeeds(states, m_swerveConfigs.maxRobotSpeed_mps());
+        for (var i = 0; i < states.length; i++) {
+            m_swerveModules.get(i).setTarget(states[i]);
+        }
     }
 
     /**
      * Translates the robot's current pose with forward moving in the direction of the current angle and left moving orthogonal to the current angle
      * @param robotForwardMeters the meters to move forward (or backwards if negative) in relation to the current pose and direction
      * @param robotLeftMeters the meters to move left (or right if negative) in relation to the current pose and direction
+     * @return the new pose
      */
     public Pose2d getTranslatedPose(double robotForwardMeters, double robotLeftMeters) {
-		// TODO: Implement me!
+        // TODO: Implement me!
         return null;
     }
 
@@ -501,9 +669,7 @@ public class BaseSwerveDrive extends SubsystemBase {
      * 
      * <p>This method is thread safe, as the wpilib overloaded addVisionMeasurement() is _not_ thread safe.
      * 
-     * @param measuredPose
-     * @param imageTimestamp The total latency from image capture, to appearing as a value (Limelights do most of the math for us)
-     * @param deviation 3x1 Matrix composed of [x, y, theta] representing the deviation in the robot x and y value, and the angular confidence.
+     * @param data data from the camera system
      */
     public void addVisionMeasurement(VisionData data) {
         if (!m_acceptVisionUpdates) return;

@@ -8,6 +8,10 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+/**
+ * Class that manages addressable LEDs.
+ * Does not do any patterns, sets all LEDs to the same color.
+ */
 public class LightStrip extends SubsystemBase {
     private AddressableLED m_leds;
     private AddressableLEDBuffer m_buffer;

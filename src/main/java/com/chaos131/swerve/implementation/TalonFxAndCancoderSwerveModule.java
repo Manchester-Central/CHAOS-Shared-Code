@@ -22,7 +22,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
-/** Creates a Swerve Module using TalonFxs and a CANcoder (CHAOS's 2022 and 2024 bots used this configuration) */
+/**
+ * Creates a Swerve Module using TalonFxs and a CANcoder (CHAOS's 2022 and 2024 bots used this configuration)
+ */
 public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
 
     public static class SpeedControllerConfig {
@@ -79,19 +81,16 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
     public static class DriveConfig {
         public final double driverModeClosedLoopRampRatePeriod;
         public final double driveToPositionClosedLoopRampRatePeriod;
-        public final Rotation2d xModeAngle;
 
         public DriveConfig(
             double driverModeClosedLoopRampRatePeriod,
-            double driveToPositionClosedLoopRampRatePeriod,
-            Rotation2d xModeAngle
+            double driveToPositionClosedLoopRampRatePeriod
         ) {
             this.driverModeClosedLoopRampRatePeriod = driverModeClosedLoopRampRatePeriod;
             this.driveToPositionClosedLoopRampRatePeriod = driveToPositionClosedLoopRampRatePeriod;
-            this.xModeAngle = xModeAngle;
         }
     }
-    
+
     protected CANcoder m_absoluteEncoder;
     protected TalonFX m_speedController;
     protected TalonFX m_angleController;
@@ -122,7 +121,7 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
         AbsoluteEncoderConfig absoluteEncoderConfig,
         DriveConfig driveConfig
     ) {
-        super(name, translation, driveConfig.xModeAngle);
+        super(name, translation);
 
         // initialize member variables
         m_speedController = new TalonFX(speedControllerConfig.canId);
