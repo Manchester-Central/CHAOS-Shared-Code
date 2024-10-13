@@ -28,6 +28,9 @@ public class AutoBuilder {
     private Map<String, Function<ParsedCommand, Command>> m_knownCommands = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private Map<String, Function<String, IAutoCondition>> m_knownConditions = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
+    /**
+     * Standard Constructor
+     */
     public AutoBuilder() {
         var defaultAuto = new String[] { "No Auto Selected" };
         SmartDashboard.setPersistent(k_KeyName);
@@ -40,16 +43,34 @@ public class AutoBuilder {
         registerCondition(TimeAutoCondition.CONDITION_NAME, (String timeMs) -> new TimeAutoCondition(Integer.parseInt(timeMs)));
     }
 
+    /**
+     * Chain-able initialization method to add commands with a specific key/name.
+     * Replaces any commands if the key already exists.
+     * @param commandName name of the command
+     * @param commandGetter the function to store
+     * @return The autobuilder object, for chaining
+     */
     public AutoBuilder registerCommand(String commandName, Function<ParsedCommand, Command> commandGetter) {
         m_knownCommands.put(commandName, commandGetter);
         return this;
     }
 
+    /**
+     * Chain-able initialization method to add event conditions with a specific key/name.
+     * Replaces any events if the key already exists.
+     * @param conditionName name of the condition
+     * @param conditionGetter the function to store
+     * @return The autobuilder object, for chaining
+     */
     public AutoBuilder registerCondition(String conditionName, Function<String, IAutoCondition> conditionGetter) {
         m_knownConditions.put(conditionName, conditionGetter);
         return this;
     }
 
+    /**
+     * Creates a sequential command group to build off of.
+     * @return the command
+     */
     public Command createAutoCommand() {
         m_commandList = new SequentialCommandGroup();
         var steps = SmartDashboard.getStringArray(k_KeyName, new String[]{});
@@ -63,7 +84,11 @@ public class AutoBuilder {
         return m_commandList;
     }
 
-    // depending on the arguments, creates new command
+    /**
+     * Depending on the arguments, creates new command
+     * @param parsedCommand a parsed command to convert
+     * @return the command
+     */
     private Command getCommand(ParsedCommand parsedCommand) {
         try {
             if (m_knownCommands.containsKey(parsedCommand.commandName)) {

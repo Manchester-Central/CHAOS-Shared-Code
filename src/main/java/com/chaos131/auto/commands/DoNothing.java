@@ -14,8 +14,13 @@ import com.chaos131.auto.ParsedCommand;
  */
 public class DoNothing extends BaseAutoCommand {
 
+    /** Empty command name */
     public static final String COMMAND_NAME = "wait";
 
+    /**
+     * Does nothing, really.
+     * @param parsedCommand doesn't even matter
+     */
     public DoNothing(ParsedCommand parsedCommand) {
         super(parsedCommand);
     }
