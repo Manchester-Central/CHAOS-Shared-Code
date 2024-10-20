@@ -11,9 +11,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /** Helps tune a PID from the Dashboard */
 public class PIDTuner {
-    private final String m_componentName;
-    private final boolean m_tuningEnabled;
-    private final Consumer<PIDFValue> m_pidfUpdater;
+    protected final String m_componentName;
+    protected final boolean m_tuningEnabled;
+    protected final Consumer<PIDFValue> m_pidfUpdater;
     private double m_p, m_i, m_d, m_f;
 
     public PIDTuner(
@@ -54,12 +54,7 @@ public class PIDTuner {
         m_f = defaultF;
         m_pidfUpdater = pidfUpdater;
 
-        if (m_tuningEnabled) {
-            SmartDashboard.putNumber(getDSKey("P"), defaultP);
-            SmartDashboard.putNumber(getDSKey("I"), defaultI);
-            SmartDashboard.putNumber(getDSKey("D"), defaultD);
-            SmartDashboard.putNumber(getDSKey("F"), defaultF);
-        }
+        setDefaults(defaultP, defaultI, defaultD, defaultF);
         update();
     }
 
@@ -72,21 +67,42 @@ public class PIDTuner {
             return;
         }
 
+        if (updateValues()) {
+            update();
+        }
+    }
+
+    protected void setDefaults(double defaultP, double defaultI, double defaultD, double defaultF) {
+        if (m_tuningEnabled) {
+            SmartDashboard.putNumber(getDSKey("P"), defaultP);
+            SmartDashboard.putNumber(getDSKey("I"), defaultI);
+            SmartDashboard.putNumber(getDSKey("D"), defaultD);
+            SmartDashboard.putNumber(getDSKey("F"), defaultF);
+        }
+    }
+
+    protected boolean updateValues() {
         double newP = SmartDashboard.getNumber(getDSKey("P"), m_p);
         double newI = SmartDashboard.getNumber(getDSKey("I"), m_i);
         double newD = SmartDashboard.getNumber(getDSKey("D"), m_d);
         double newF = SmartDashboard.getNumber(getDSKey("F"), m_f);
 
+        boolean changes = false;
         if (newP != m_p || newI != m_i || newD != m_d || newF != m_f) {
+            changes = true;
             m_p = newP;
             m_i = newI;
             m_d = newD;
             m_f = newF;
-            update();
         }
+        return changes;
     }
 
-    private void update() {
-        m_pidfUpdater.accept(new PIDFValue(m_p, m_i, m_d, m_f));
+    protected PIDFValue toPIDFValue() {
+        return new PIDFValue(m_p, m_i, m_d, m_f);
+    }
+
+    protected void update() {
+        m_pidfUpdater.accept(toPIDFValue());
     }
 }

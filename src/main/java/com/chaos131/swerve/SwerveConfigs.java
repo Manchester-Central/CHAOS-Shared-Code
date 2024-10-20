@@ -6,16 +6,16 @@ import com.chaos131.pid.PIDValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
+/**
+ * Configuration container that holds debug states, PID values, tolerance values, and any other Swerve Tuning values.
+ */
 public class SwerveConfigs {
-    
     /**
      * These configs should be created and configured before creating the swerve drive class
      */
-    public SwerveConfigs() {
+    public SwerveConfigs() {}
 
-    }
-
-    // Debug mode
+    /** Debug mode */
     private boolean m_isDebugMode = false;
     public boolean IsDebugMode() {
         return m_isDebugMode;
@@ -25,7 +25,7 @@ public class SwerveConfigs {
         return this;
     }
 
-    // Default translation PID values
+    /** Default translation PID values */
     private PIDValue m_defaultTranslationPIDValues = new PIDValue(0.6, 0.05, 0.1);
     public PIDValue defaultTranslationPIDValues() {
         return m_defaultTranslationPIDValues;
@@ -35,7 +35,7 @@ public class SwerveConfigs {
         return this;
     }
 
-    // Default DriveToTargetTolerance
+    /** Default DriveToTargetTolerance */
     private double m_defaultDriveToTargetTolerance = 0.03;
     public double defaultDriveToTargetTolerance() {
         return m_defaultDriveToTargetTolerance;
@@ -45,7 +45,7 @@ public class SwerveConfigs {
         return this;
     }
 
-    // Default rotation PID values
+    /** Default rotation PID values */
     private PIDValue m_defaultRotationPIDValues = new PIDValue(0.01, 0.0001, 0.00);
     public PIDValue defaultRotationPIDValues() {
         return m_defaultRotationPIDValues;
@@ -55,7 +55,7 @@ public class SwerveConfigs {
         return this;
     }
 
-    // Default DriveToTargetTolerance
+    /** Default DriveToTargetTolerance */
     private Rotation2d m_defaultRotationTolerance = Rotation2d.fromDegrees(3.0);
     public Rotation2d defaultRotationTolerance() {
         return m_defaultRotationTolerance;
@@ -65,7 +65,7 @@ public class SwerveConfigs {
         return this;
     }
 
-    // MaxRobotSpeed_mps
+    /** MaxRobotSpeed_mps */
     private double m_maxRobotSpeed_mps = 4.0;
     public double maxRobotSpeed_mps() {
         return m_maxRobotSpeed_mps;
@@ -75,7 +75,7 @@ public class SwerveConfigs {
         return this;
     }
 
-    // MaxRobotRotation_radps
+    /** MaxRobotRotation_radps */
     private double m_maxRobotRotation_radps = 3;
     public double maxRobotRotation_radps() {
         return m_maxRobotRotation_radps;
@@ -85,7 +85,7 @@ public class SwerveConfigs {
         return this;
     }
 
-    // UpdateFrequency_Hz
+    /** UpdateFrequency_Hz */
     private double m_updateFrequency_hz = 50;
     public double updateFrequency_hz() {
         return m_updateFrequency_hz;
@@ -95,7 +95,7 @@ public class SwerveConfigs {
         return this;
     }
 
-    // defaultModuleVelocityPIDFValues
+    /** defaultModuleVelocityPIDFValues */
     private PIDFValue m_defaultModuleVelocityPIDFValues = new PIDFValue(0.0375, 0.0, 0.0, 0.054);
     public PIDFValue defaultModuleVelocityPIDFValues() {
         return m_defaultModuleVelocityPIDFValues;
@@ -105,22 +105,37 @@ public class SwerveConfigs {
         return this;
     }
 
-    // ModuleAngle_PID_Tuner
+    /** ModuleAngle_PID_Tuner */
     private PIDValue m_defaultModuleAnglePIDValues = new PIDValue(0.01, 0.0001, 0.00);
+    /**
+     * @return the angle pid structure
+     */
     public PIDValue defaultModuleAnglePIDValues() {
         return m_defaultModuleAnglePIDValues;
     }
+    /**
+     * @param defaultModuleAnglePIDValues pid structure
+     * @return this object for member chaining
+     */
     public SwerveConfigs setDefaultModuleAnglePIDValues(PIDValue defaultModuleAnglePIDValues) {
         m_defaultModuleAnglePIDValues = defaultModuleAnglePIDValues;
         return this;
     }
 
-    // Default color
+    /** Default alliance */
     private Alliance m_defaultAlliance = Alliance.Blue;
+    /**
+     * @return default alliance
+     */
     public Alliance defaultAlliance() {
         return m_defaultAlliance;
     }
-    /** Sets the default alliance for the coordinate system (which color is closest to 0,0) */
+
+    /**
+     * Sets the default alliance for the coordinate system (which color is closest to 0,0)
+     * @param alliance being set
+     * @return this object for member chaining
+     */
     public SwerveConfigs setDefaultAlliance(Alliance alliance) {
         m_defaultAlliance = alliance;
         return this;

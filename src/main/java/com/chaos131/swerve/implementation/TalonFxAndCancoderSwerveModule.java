@@ -22,7 +22,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
-/** Creates a Swerve Module using TalonFxs and a CANcoder (CHAOS's 2022 and 2024 bots used this configuration) */
+/**
+ * Creates a Swerve Module using TalonFxs and a CANcoder (CHAOS's 2022 and 2024 bots used this configuration)
+ */
 public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
 
     public static class SpeedControllerConfig {
@@ -79,19 +81,16 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
     public static class DriveConfig {
         public final double driverModeClosedLoopRampRatePeriod;
         public final double driveToPositionClosedLoopRampRatePeriod;
-        public final Rotation2d xModeAngle;
 
         public DriveConfig(
             double driverModeClosedLoopRampRatePeriod,
-            double driveToPositionClosedLoopRampRatePeriod,
-            Rotation2d xModeAngle
+            double driveToPositionClosedLoopRampRatePeriod
         ) {
             this.driverModeClosedLoopRampRatePeriod = driverModeClosedLoopRampRatePeriod;
             this.driveToPositionClosedLoopRampRatePeriod = driveToPositionClosedLoopRampRatePeriod;
-            this.xModeAngle = xModeAngle;
         }
     }
-    
+
     protected CANcoder m_absoluteEncoder;
     protected TalonFX m_speedController;
     protected TalonFX m_angleController;
@@ -122,7 +121,7 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
         AbsoluteEncoderConfig absoluteEncoderConfig,
         DriveConfig driveConfig
     ) {
-        super(name, translation, driveConfig.xModeAngle);
+        super(name, translation);
 
         // initialize member variables
         m_speedController = new TalonFX(speedControllerConfig.canId);
@@ -170,6 +169,10 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
         m_speedController.setControl(m_velocityVoltageMps.withVelocity(velocity_mps));
     }
 
+    public void setPercentSpeed(double percentSpeed) {
+        m_speedController.set(percentSpeed);
+    }
+
     @Override
     protected Rotation2d getEncoderAngle() {
         return Rotation2d.fromRotations(m_angleController.getPosition().getValueAsDouble());
@@ -201,8 +204,8 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
         m_angleController.setPosition(absoluteAngle.getRotations());
     }
 
-	@Override
-	public void updateVelocityPIDConstants(PIDFValue update) {
+    @Override
+    public void updateVelocityPIDConstants(PIDFValue update) {
         Slot0Configs slot0Configs = new Slot0Configs();
         slot0Configs.kP = update.P;
         slot0Configs.kI = update.I;
@@ -211,10 +214,10 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
         slot0Configs.kS = 0.05;
         m_speedConfig.Slot0 = slot0Configs;
         m_speedController.getConfigurator().apply(slot0Configs);
-	}
+    }
 
-	@Override
-	public void updateAnglePIDConstants(PIDFValue update) {
+    @Override
+    public void updateAnglePIDConstants(PIDFValue update) {
         Slot0Configs slot0Configs = new Slot0Configs();
         slot0Configs.kP = update.P;
         slot0Configs.kI = update.I;
@@ -222,7 +225,7 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
         slot0Configs.kV = update.F;
         m_angleConfig.Slot0 = slot0Configs;
         m_angleController.getConfigurator().apply(slot0Configs);
-	}
+    }
 
     @Override
     public void driverModeInit() {
