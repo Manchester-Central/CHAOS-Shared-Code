@@ -155,24 +155,16 @@ public class ChaosRobot extends LoggedRobot {
     }
 
     /**
-     * Probably don't have to override this method. Sets up the...
-     * File writer
-     * NetworkTables
-     * Calls another method setupRobotPowerLogging()
+     * Highly encouraged to override this method with robot specific setups, and to call super()
+     * at the start of the method.
+     * 
+     * <p>Sets up the...
+     * <p>File writer
+     * <p>NetworkTables
      */
     protected void setupLoggerRealMode() {
         Logger.addDataReceiver(new WPILOGWriter());
         Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-        setupRobotPowerLogging();
-    }
-
-    /**
-     * Highly encouraged to replace this method with any robot specific setups. Things that would have a robot
-     * specific CAN id, for instance the PDH with it's specific PDH port ID. Called during robotInit().
-     */
-    protected void setupRobotPowerLogging() {
-        // Something like...
-        // new PowerDistribution(1, ModuleType.kRev); // Enables power distribution logging
     }
 
     /**

@@ -7,19 +7,23 @@ import java.util.ArrayList;
  */
 public class FieldData {
     /**
+     * UNIMPLEMENTED - For Students to complete!
+     * 
      * @param fmap_path typically just the filename, since it should read from the deploy folder by default
      * @return the list of every April Tag in the fmap
      */
     public static ArrayList<Quad> LoadTagLocations(String fmap_path) {
-        // TODO: Implement me!
-        return null;
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'LoadTagLocations'");
     }
 
     /**
+     * UNIMPLEMENTED - For Students to complete!
+     * 
      * @return all the found april tags from a loaded file, null if no file has been loaded yet
      */
     public static ArrayList<Quad> getAllAprilTags() {
-        // TODO: Implement me?
-        return null;
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAllAprilTags'");
     }
 }

@@ -11,6 +11,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.littletonrobotics.junction.AutoLog;
+
 import com.chaos131.pid.PIDFValue;
 import com.chaos131.pid.PIDTuner;
 import com.chaos131.vision.VisionData;
@@ -37,6 +39,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  * The larger SwerveDrive subsystem that manages each swerve module.
  */
 public class BaseSwerveDrive extends SubsystemBase {
+    /**
+     * Tracks the state of the swerve system in AdvantageKit
+     */
+    @AutoLog
+    public static class SwerveState {
+        /** The velocity of the entire robot */
+        public double velocity;
+        /** The angle of the robot */
+        public Rotation2d gyro;
+    }
+
     /**
      * Unused modifier to robot speed, for calibration and debugging purposes
      */
@@ -164,11 +177,6 @@ public class BaseSwerveDrive extends SubsystemBase {
         m_moduleVelocityPIDTuner = new PIDTuner("SwerveDrive/ModuleVelocity_PID_Tuner", isDebugMode, moduleVelocityPIDF.P, moduleVelocityPIDF.I, moduleVelocityPIDF.D, moduleVelocityPIDF.F, this::updateVelocityPIDConstants);
         var moduleAnglePID = m_swerveConfigs.defaultModuleAnglePIDValues();
         m_moduleAnglePIDTuner = new PIDTuner("SwerveDrive/ModuleAngle_PID_Tuner", isDebugMode, moduleAnglePID.P, moduleAnglePID.I, moduleAnglePID.D, this::updateAnglePIDConstants);
-
-        // m_logger.addNumber("SwerveDrive/X_m", isDebugMode, () -> getPose().getX());
-        // m_logger.addNumber("SwerveDrive/Y_m", isDebugMode, () -> getPose().getY());
-        // m_logger.addNumber("SwerveDrive/Rotation_deg", isDebugMode, () -> getOdometryRotation().getDegrees());
-        // m_logger.addNumber("SwerveDrive/Gyro_angle_deg", isDebugMode, () -> getGyroRotation().getDegrees());
     }
 
     /**
@@ -631,14 +639,16 @@ public class BaseSwerveDrive extends SubsystemBase {
     }
 
     /**
+     * UNIMPLEMENTED - For Students to complete!
+     * 
      * Translates the robot's current pose with forward moving in the direction of the current angle and left moving orthogonal to the current angle
      * @param robotForwardMeters the meters to move forward (or backwards if negative) in relation to the current pose and direction
      * @param robotLeftMeters the meters to move left (or right if negative) in relation to the current pose and direction
      * @return the new pose
      */
     public Pose2d getTranslatedPose(double robotForwardMeters, double robotLeftMeters) {
-        // TODO: Implement me!
-        return null;
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getTranslatedPose'");
     }
 
     /**
@@ -673,7 +683,7 @@ public class BaseSwerveDrive extends SubsystemBase {
     public void addVisionMeasurement(VisionData data) {
         if (!m_acceptVisionUpdates) return;
         synchronized(m_odometry) {
-            m_odometry.addVisionMeasurement(data.getPose2d(), data.getTimestampSeconds(), data.getDeviation());
+            m_odometry.addVisionMeasurement(data.getPose2d(), data.getTimestampSeconds(), data.getDeviationMatrix());
         }
     }
 }

@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 /**
- * A base Swerve module that 
+ * An individual swerve module that composes the swerve drive system. There are typically 4 modules on a robot.
  */
 public abstract class BaseSwerveModule {
     /**
@@ -233,7 +233,7 @@ public abstract class BaseSwerveModule {
 
     /**
      * This function takes in the current angle read by the encoder and a target angle for the robot to move to.
-     * The target angle will be between -PI and PI, but this function will scale it up so it is an equivalent
+     * The target angle will be between -180 and 180, but this function will scale it up so it is an equivalent
      * angle that is closer to the current encoder angle. It will return this "optimized" angle to avoid
      * the wheels overspinning. 
      * @param currentModuleAngle_deg - The current swerve module's angle in degrees

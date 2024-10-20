@@ -1,16 +1,12 @@
 package com.chaos131.vision;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import edu.wpi.first.math.MatBuilder;
-import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.wpilibj.Timer;
 
 /**
  * Implements a Camera behavior for the
@@ -32,7 +28,7 @@ public class LimelightCamera extends Camera {
     /**
      * Version of the limelight instance
      */
-    private LimelightVersion m_limeLightVersion;
+    protected LimelightVersion m_limeLightVersion;
 
     /**
      * Represents which mode the robot is in.
@@ -64,6 +60,10 @@ public class LimelightCamera extends Camera {
         }
     }
 
+    /**
+     * Network Table Indices for Limelight OS 2024.4
+     */
+
     /** NT Entry ID - Pose X */
     private final int idxX = 0;
     /** NT Entry ID - Pose Y */
@@ -87,47 +87,32 @@ public class LimelightCamera extends Camera {
     /** NT Entry ID - Tag Area */
     private final int idxTagArea = 10;
 
-    @Override
-    public void recordMeasuredData() {
-        var data = m_botpose.getValue().getDoubleArray();
-        double timestampSeconds = Timer.getFPGATimestamp() - data[idxLatency] / 1000;
-        if (data == null || data[idxX] < EPSILON) {
-            m_mostRecentData = Optional.empty();
-            return;
-        }
-
-        var poseRotation = new Rotation3d(data[idxRoll]  * Math.PI / 180, 
-                                          data[idxPitch] * Math.PI / 180,
-                                          data[idxYaw]   * Math.PI / 180);
-
-        var visionPose = new Pose3d(data[idxX], data[idxY], data[idxZ], poseRotation);
-
-        if (m_offset != null) {
-            var cameraOffset = m_offset.get();
-            cameraOffset = cameraOffset.rotateBy(new Rotation3d(0, 0, data[idxYaw] * Math.PI / 180));
-            visionPose = new Pose3d(
-                new Translation3d(visionPose.getX() - cameraOffset.getX(),
-                                visionPose.getY() - cameraOffset.getY(),
-                                visionPose.getZ() - cameraOffset.getZ()),
-                new Rotation3d(0,//poseRotation.getX() - cameraOffset.getRotation().getX(),
-                                0,//poseRotation.getY() - cameraOffset.getRotation().getY(),
-                                poseRotation.getZ())//- cameraOffset.getRotation().getZ())
-            );
-        }
-
-        var deviation = calculateTranslationalDeviations(data[idxTagDistance], data[idxTagCount]);
-        var trackXYZ = MatBuilder.fill(Nat.N3(), Nat.N1(), new double[]{ deviation, deviation, 1 });
-
-        var conf = calculateConfidence(visionPose, (int)data[idxTagCount], data[idxTagDistance], deviation);
-        if (conf < m_specs.confidence_requirement) {
-            m_mostRecentData = Optional.empty();
-            return;
-        }
-
-        m_mostRecentData = Optional.of(new VisionData(visionPose, timestampSeconds, trackXYZ));
-        if (m_poseUpdator != null && m_useForOdometry) {
-            m_poseUpdator.accept(m_mostRecentData.get());
-        }
+    /**
+     * Constructs a limelight camera.
+     * @param name of the limelight as seen on network tables
+     * @param limelightVersion for pulling calibration values
+     * @param specs of the camera
+     * @param poseSupplier supplies the current pose to the limelight
+     * @param poseConsumer sends pose updates to another system, typically pose estimator in the swerve module
+     * @param robotSpeedSupplier supplies the speed of the robot at that moment
+     * @param robotRotationSpeedSupplier supplies the rotation rate of the robot at that moment
+     */
+    public LimelightCamera(String name, LimelightVersion limelightVersion, CameraSpecs specs,
+                            Supplier<Pose2d> poseSupplier, Consumer<VisionData> poseConsumer,
+                            Supplier<Double> robotSpeedSupplier, Supplier<Double> robotRotationSpeedSupplier) {
+        super(name);
+        m_limeLightVersion = limelightVersion;
+        setSpecs(specs);
+        setPosePipeline("botpose_wpiblue");
+        setGetCameraPipeline("getpipe");
+        setTargetElevationPipeline("tx");
+        setTargetAzimuthPipeline("ty");
+        setSimPoseSupplier(poseSupplier);
+        setPoseUpdator(poseConsumer);
+        setRobotSpeedSupplier(robotRotationSpeedSupplier);
+        setRobotRotationSupplier(robotRotationSpeedSupplier);
+        setPriorityIDPipeline("priorityid");
+        setTargetIDPipeline("tv");
     }
 
     private double calculateTranslationalDeviations(double distance, double tagCount) {
@@ -139,47 +124,11 @@ public class LimelightCamera extends Camera {
     }
 
     @Override
-    public void setOffsetHandler(Supplier<Pose3d> offsetHandler) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setOffsetHandler'");
-    }
-
-    @Override
-    public void setPoseUpdator(Consumer<VisionData> poseConsumer) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setPoseUpdator'");
-    }
-
-    @Override
-    public void setSimPoseSupplier(Supplier<Pose2d> poseSupplier) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setSimPoseSupplier'");
-    }
-
-    @Override
-    public void setRobotSpeedSupplier(Supplier<Pose2d> speedSupplier) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setRobotSpeedSupplier'");
-    }
-
-    @Override
-    public void setRobotRotationSupplier(Supplier<Pose2d> rotationSupplier) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setRobotRotationSupplier'");
-    }
-
-    @Override
-    public Pose2d getMostRecentPose() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getMostRecentPose'");
-    }
-
-    @Override
     public double calculateConfidence(Pose3d pose, int tagCount, double distance, double deviation) {
         var rotationSpeed = Math.abs(m_robotRotationSpeedSupplier.get());
-        var isMovingTooFast = m_limeLightVersion == LimelightVersion.LL3G ? false : m_specs.max_speed_acceptable < m_robotSpeedSupplier.get();
-        var isRotatingTooFast = rotationSpeed > m_specs.max_rotation_acceptable;
-        var isTooFar =  m_limeLightVersion == LimelightVersion.LL3G ? distance > 4: m_specs.max_distance_acceptable < distance;
+        var isMovingTooFast = m_specs.max_speed_acceptable < m_robotSpeedSupplier.get();
+        var isRotatingTooFast = m_specs.max_rotation_acceptable < rotationSpeed;
+        var isTooFar = m_specs.max_distance_acceptable < distance;
         if (isTooFar || isMovingTooFast || isRotatingTooFast) {
             return 0;
         }
@@ -256,5 +205,46 @@ public class LimelightCamera extends Camera {
     public void resetCrop() {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'resetCrop'");
+    }
+
+    @Override
+    public VisionData processMeasuredData(long timestamp, long serverTime, double[] data) {
+        double timestampSeconds = timestamp/1000000.0 - data[idxLatency] / 1000.0;
+        if (data == null || data[idxX] < EPSILON) {
+            return null;
+        }
+
+        var poseRotation = new Rotation3d(data[idxRoll]  * Math.PI / 180, 
+                                          data[idxPitch] * Math.PI / 180,
+                                          data[idxYaw]   * Math.PI / 180);
+
+        var visionPose = new Pose3d(data[idxX], data[idxY], data[idxZ], poseRotation);
+
+        if (m_offset != null) {
+            var cameraOffset = m_offset.get();
+            cameraOffset = cameraOffset.rotateBy(new Rotation3d(0, 0, data[idxYaw] * Math.PI / 180));
+            visionPose = new Pose3d(
+                new Translation3d(visionPose.getX() - cameraOffset.getX(),
+                                visionPose.getY() - cameraOffset.getY(),
+                                visionPose.getZ() - cameraOffset.getZ()),
+                new Rotation3d(0,//poseRotation.getX() - cameraOffset.getRotation().getX(),
+                                0,//poseRotation.getY() - cameraOffset.getRotation().getY(),
+                                poseRotation.getZ())//- cameraOffset.getRotation().getZ())
+            );
+        }
+
+        var deviation = calculateTranslationalDeviations(data[idxTagDistance], data[idxTagCount]);
+        var trackXYZ = new double[]{deviation, deviation, 1 };
+        var conf = calculateConfidence(visionPose, (int)data[idxTagCount], data[idxTagDistance], deviation);
+
+        var vision_data = new VisionData();
+        vision_data.setData(visionPose, timestampSeconds, trackXYZ, conf);
+        return vision_data;
+    }
+
+    @Override
+    public void updateCropFromSpan() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateCropFromSpan'");
     }
 }

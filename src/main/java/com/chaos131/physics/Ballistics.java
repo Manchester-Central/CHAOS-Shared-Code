@@ -9,6 +9,8 @@ import edu.wpi.first.math.numbers.N3;
  */
 public class Ballistics {
     /**
+     * UNIMPLEMENTED - For Students to complete!
+     * 
      * Calculates a release vector when trying to launch a game piece up into the air.
      * It solves the equation ignoring air resistance, and uses the target_speed as the
      * upwards speed at the moment the game piece reaches the target position. All points
@@ -29,10 +31,13 @@ public class Ballistics {
                                                               Vector<N3> target_position,
                                                               Vector<N3> robot_velocity,
                                                               double target_speed) {
-        return null;
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'CalculateReleaseForUpwardsTarget'");
     }
 
     /**
+     * UNIMPLEMENTED - For Students to complete!
+     * 
      * Calculates a release vector when trying to lob a game piece into a specific spot
      * on the ground. It solves the equation ignoring air resistance, and uses the desired
      * angle to determine the resulting velocity that will meet that landing spot.
@@ -55,10 +60,13 @@ public class Ballistics {
                                                             Vector<N3> target_position,
                                                             Vector<N3> robot_velocity,
                                                             double desired_angle) {
-        return null;
-    }
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'CalculateReleaseForLandingSpot'");
+	}
 
     /**
+     * UNIMPLEMENTED - For Students to complete!
+     * 
      * Iterates the current release vector to move closer to the target state
      * @param current_release_vector the current release vector to iterate off of
      * @param release_position the coordinate of the release point, not the robot pose
@@ -74,6 +82,7 @@ public class Ballistics {
                                                            Vector<N3> robot_velocity,
                                                            double target_speed,
                                                            double step_size) {
-        return null;
-    }
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'IterateReleaseGradiantDescent'");
+	}
 }

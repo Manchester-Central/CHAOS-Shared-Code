@@ -2,7 +2,7 @@ package com.chaos131.util;
 
 /** Colors stored in RGB format */
 public enum Color {
-    /** Ref */
+    /** Red */
     RED (255, 0, 0),
     /** Green */
     GREEN (0, 255, 0),
