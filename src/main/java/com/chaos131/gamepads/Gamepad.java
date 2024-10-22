@@ -15,22 +15,42 @@ public class Gamepad extends CommandXboxController {
     private SlewRateLimiter m_slewratelimiterLeftY;
     private SlewRateLimiter m_slewratelimiterRightX;
     private SlewRateLimiter m_slewratelimiterRightY;
-   
+    private double m_deadbandRange;
 
+    /**
+     * @param port ID of the controller, typically 0 is driver, 1 is operator, etc
+     * @param leftStickSlewRate number in the range [0,100]
+     * @param rightStickSlewRate number in the range [0,100]
+     */
     public Gamepad(int port, double leftStickSlewRate, double rightStickSlewRate) {
         super(port);
         m_slewratelimiterLeftX = new SlewRateLimiter(leftStickSlewRate);
         m_slewratelimiterLeftY = new SlewRateLimiter(leftStickSlewRate);
         m_slewratelimiterRightX = new SlewRateLimiter(rightStickSlewRate);
         m_slewratelimiterRightY = new SlewRateLimiter(rightStickSlewRate);
+        m_deadbandRange = 0.05;
     }
 
+    /**
+     * @param port ID of the controller, typically 0 is driver, 1 is operator, etc
+     */
     public Gamepad(int port) {
-        super(port);
+        this(port, 100.0, 100.0);
     }
 
+    /**
+     * @param value the value coming out of the controller
+     * @return 0 if the value is in the deadband range
+     */
     private double applyDeadband(double value) {
-        return MathUtil.applyDeadband(value, 0.05);
+        return MathUtil.applyDeadband(value, m_deadbandRange);
+    }
+
+    /**
+     * @param value to set the deadband to, in the range of [0,1]
+     */
+    public void setDeadband(double value) {
+        m_deadbandRange = value;
     }
 
     /**
@@ -123,20 +143,31 @@ public class Gamepad extends CommandXboxController {
         return applyDeadband(super.getRightTriggerAxis());
     }
 
+    /**
+     * @return the angle of the left joystick, 0 degrees is straight right
+     */
     public double getLeftAngle() {
         return Math.atan2(getLeftY(), getLeftX());
     }
 
+    /**
+     * @return the angle of the right joystick, 0 degrees is straight right
+     */
     public double getRightAngle() {
         return Math.atan2(getRightY(), getRightX());
     }
 
+    /**
+     * @return the magnitude of the joystick tilt, using euclidean distance of the joystick values
+     */
     public double getRightMagnitude() {
         return Math.hypot(getRightX(), getRightY());
     }
 
+    /**
+     * @return the magnitude of the joystick tilt, using euclidean distance of the joystick values
+     */
     public double getLeftMagnitude() {
         return Math.hypot(getLeftX(), getLeftY());
     }
-
 }
