@@ -1,7 +1,5 @@
 package com.chaos131.vision;
 
-import org.littletonrobotics.junction.AutoLog;
-
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,7 +10,6 @@ import edu.wpi.first.math.numbers.N3;
 /**
  * A data structure containing the calculated pose, timestamp, and deviation data
  */
-@AutoLog
 public class VisionData {
     /** 3d Pose, we store 3d because we can always convert down to 2d later */
     public Pose3d m_pose;

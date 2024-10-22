@@ -228,7 +228,7 @@ public class ChaosRobot extends LoggedRobot {
         var m_autoCmd = m_robotContainer.getAutonomousCommand();
         Logger.recordOutput("Received Auto Cmd", m_autoCmd.getName());
         if (m_autoCmd != null) {
-          m_autoCmd.schedule();
+            m_autoCmd.schedule();
         }
     }
 

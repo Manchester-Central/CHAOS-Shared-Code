@@ -178,6 +178,12 @@ public class LimelightCamera extends Camera {
     }
 
     @Override
+    public void updateCropFromSpan() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'updateCropFromSpan'");
+    }
+
+    @Override
     public void setMode(CameraMode mode) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'setMode'");
@@ -208,7 +214,7 @@ public class LimelightCamera extends Camera {
     }
 
     @Override
-    public VisionData processMeasuredData(long timestamp, long serverTime, double[] data) {
+    public VisionData processMeasuredData(long timestamp, double[] data) {
         double timestampSeconds = timestamp/1000000.0 - data[idxLatency] / 1000.0;
         if (data == null || data[idxX] < EPSILON) {
             return null;
@@ -240,11 +246,5 @@ public class LimelightCamera extends Camera {
         var vision_data = new VisionData();
         vision_data.setData(visionPose, timestampSeconds, trackXYZ, conf);
         return vision_data;
-    }
-
-    @Override
-    public void updateCropFromSpan() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateCropFromSpan'");
     }
 }
