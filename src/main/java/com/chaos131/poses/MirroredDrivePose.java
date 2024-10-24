@@ -130,14 +130,12 @@ public abstract class MirroredDrivePose {
     }
 
     /**
-     * UNIMPLEMENTED - For Students to complete!
      * 
      * @param robotpose to calculate from
      * @return Rotation2d - the field coordinate angle relative to field angle 0.
      */
     public Rotation2d angleFrom(Translation2d robotpose) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'angleFrom'");
+        return getCurrentAlliancePose().getTranslation().minus(robotpose).getAngle();
     }
 
     /**
