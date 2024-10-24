@@ -41,7 +41,9 @@ public class Quad {
      */
     public Quad(Vector<N3> _ll, Vector<N3> _lr, Vector<N3> _ur, Vector<N3> _ul) {
         ll = VecBuilder.fill(_ll.get(0),_ll.get(1),_ll.get(2), 1);
-        // Implement the rest
+        lr = VecBuilder.fill(_lr.get(0),_lr.get(1),_lr.get(2), 1);
+        ul = VecBuilder.fill(_ul.get(0),_ul.get(1),_ul.get(2), 1);
+        ur = VecBuilder.fill(_ur.get(0),_ur.get(1),_ur.get(2), 1);
     }
 
     /**
@@ -50,8 +52,10 @@ public class Quad {
     public ArrayList<Vector<N4>> getPoints() {
         ArrayList<Vector<N4>> points = new ArrayList<>();
         points.add(ll);
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTranslatedPose'");
+        points.add(lr);
+        points.add(ul);
+        points.add(ur);
+        return points;
     }
 
     /**
