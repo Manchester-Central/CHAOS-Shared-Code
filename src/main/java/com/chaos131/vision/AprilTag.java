@@ -1,6 +1,9 @@
 package com.chaos131.vision;
 
+import com.chaos131.util.Quad;
+
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.numbers.N4;
 
 /**
@@ -8,7 +11,7 @@ import edu.wpi.first.math.numbers.N4;
  * 
  * Really just used for vision systems.
  */
-public class AprilTag /* Does this extend anything? */ {
+public class AprilTag extends Quad {
     
     /**
      * The ID number for the April Tag
@@ -36,7 +39,11 @@ public class AprilTag /* Does this extend anything? */ {
      * @param transform column major matrix with a homogenous coordinate, same coordinate system as Limelights
      * @param sizeInMeters used to define the distances to the corners from the center of the tag, assumed to be a square tag
      */
-    public AprilTag(int tag_id, String tag_family, Matrix<N4, N4> transform, double sizeInMeters) {
+     public AprilTag(int tag_id, String tag_family, Matrix<N4, N4> transform, double sizeInMeters) {
+        super(VecBuilder.fill(sizeInMeters/-2,0,sizeInMeters/-2), 
+              VecBuilder.fill(sizeInMeters/2,0,sizeInMeters/-2),
+              VecBuilder.fill(sizeInMeters/2,0,sizeInMeters/2),
+              VecBuilder.fill(sizeInMeters/-2,0,sizeInMeters/2));
         id = tag_id;
         family = tag_family;
         // Implement what's needed below
