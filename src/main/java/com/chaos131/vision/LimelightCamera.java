@@ -112,7 +112,7 @@ public class LimelightCamera extends Camera {
         setRobotSpeedSupplier(robotRotationSpeedSupplier);
         setRobotRotationSupplier(robotRotationSpeedSupplier);
         setPriorityIDPipeline("priorityid");
-        setTargetIDPipeline("tv");
+        setHasTargetPipeline("tv");
     }
 
     private double calculateTranslationalDeviations(double distance, double tagCount) {
@@ -137,20 +137,23 @@ public class LimelightCamera extends Camera {
 
     @Override
     public boolean hasTarget() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'hasTarget'");
+        return m_hasTarget.getInteger(0) != 0;
     }
 
     @Override
     public double getTargetAzimuth(boolean cameraRelative) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTargetAzimuth'");
+        if(!cameraRelative) {
+            throw new UnsupportedOperationException("'cameraRelative: false' is not implemented!");
+        }
+        return m_targetAzimuth.getDouble(Double.NaN);
     }
 
     @Override
     public double getTargetElevation(boolean cameraRelative) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTargetElevation'");
+        if(!cameraRelative) {
+            throw new UnsupportedOperationException("'cameraRelative: false' is not implemented!");
+        }
+        return m_targetElevation.getDouble(Double.NaN);
     }
 
     @Override

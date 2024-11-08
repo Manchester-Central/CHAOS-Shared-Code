@@ -103,7 +103,7 @@ public abstract class Camera extends SubsystemBase {
      */
     protected NetworkTableEntry m_targetElevation;
     /** If the target has a specific ID, it would be found in this network table entry */
-    protected NetworkTableEntry m_targetID;
+    protected NetworkTableEntry m_hasTarget;
     /** If there's a priority id, it would be found in this network table entry */
     protected NetworkTableEntry m_priorityid;
 
@@ -199,8 +199,8 @@ public abstract class Camera extends SubsystemBase {
      * @param name of the current target id pipeline topic
      * @return itself
      */
-    protected Camera setTargetIDPipeline(String name) {
-        m_targetID = m_visionTable.getEntry(name);
+    protected Camera setHasTargetPipeline(String name) {
+        m_hasTarget = m_visionTable.getEntry(name);
         return this;
     }
     /**
