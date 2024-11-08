@@ -246,8 +246,6 @@ public class LimelightCamera extends Camera {
         var trackXYZ = new double[]{deviation, deviation, 1 };
         var conf = calculateConfidence(visionPose, (int)data[idxTagCount], data[idxTagDistance], deviation);
 
-        var vision_data = new VisionData();
-        vision_data.setData(visionPose, timestampSeconds, trackXYZ, conf);
-        return vision_data;
+        return new VisionData(visionPose, timestampSeconds, trackXYZ, conf);
     }
 }

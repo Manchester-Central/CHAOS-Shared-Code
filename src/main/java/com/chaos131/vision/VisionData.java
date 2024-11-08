@@ -26,7 +26,7 @@ public class VisionData {
      * @param deviation for confidence
      * @param confidence for confidence
      */
-    public void setData(Pose3d pose, double timestamp, double deviation[], double confidence) {
+    public VisionData(Pose3d pose, double timestamp, double deviation[], double confidence) {
         m_pose = pose;
         m_time = timestamp;
         m_deviation = deviation;
