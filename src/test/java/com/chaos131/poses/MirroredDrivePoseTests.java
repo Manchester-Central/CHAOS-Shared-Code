@@ -6,19 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import edu.wpi.first.math.MatBuilder;
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N4;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class MirroredDrivePoseTests {
-    private final double epsilon = 0.001;
-
     /** 
      * This is an example of a DrivePose class that can be implemented in your robot code
      */

@@ -31,7 +31,7 @@ public abstract class Camera extends SubsystemBase {
      * The individual pose data arrays can be arbitrarily sized to fit whatever
      * Camera type is being used (Limelight, Photon, Whatever).
      */
-    class NetworkVisionData implements LoggableInputs {
+    class NetworkPoseData implements LoggableInputs {
         /** Timestamps from NetworkTables, in microseconds */
         public long[] timestamps = new long[] {};
         /** Values from the NetworkTables topic setup from setPosePipeline() */
@@ -88,7 +88,8 @@ public abstract class Camera extends SubsystemBase {
     protected NetworkTableEntry m_botpose;
     /** Subscriber that loads in poses */
     private DoubleArraySubscriber m_observationSubscriber;
-    private NetworkVisionData m_visionData = new NetworkVisionData();
+    /** A data structure used by AdvantageKit to record and replay data */
+    private NetworkPoseData m_visionData = new NetworkPoseData();
     /** NetworkTable entry that defines what state or processing pipeline the camera is currently in */
     protected NetworkTableEntry m_pipelineID;
 
@@ -104,11 +105,13 @@ public abstract class Camera extends SubsystemBase {
     protected NetworkTableEntry m_targetElevation;
     /** If the target has a specific ID, it would be found in this network table entry */
     protected NetworkTableEntry m_targetID;
-    /** If there's a priority id, it would be found in this network table entry */
+    /** If there's a priority id, it would be set in this network table entry */
     protected NetworkTableEntry m_priorityid;
 
     /**
-     * There are only 3 primary modes for cameras in FRC: localization, tracking a game piece, mapping out the environment
+     * There are only 3 core modes for cameras in FRC: localization, tracking a game piece, mapping out the environment.
+     * A camera might have substates that break things like PIECE_TRACKING down into specific modes for tracking different
+     * types of game pieces.
      */
     public enum CameraMode {
         /** Tells the camera to focus on positioning */
@@ -280,6 +283,7 @@ public abstract class Camera extends SubsystemBase {
     /** Reads values off network tables, and hands off the queue of updates to another support function */
     private void processUpdateQueue() {
         if (!m_useForOdometry || m_poseUpdator == null) {
+            // Don't have to do anything fancy, periodic() has flushed the message queue
             return;
         }
 
@@ -326,7 +330,8 @@ public abstract class Camera extends SubsystemBase {
          */ 
         Logger.processInputs(m_name, m_visionData);
         processUpdateQueue();
-        // If the timer has expired, so set the state to inactive...
+
+        /** If the timer has expired, so set the state to inactive... */
         if (m_visionData.timestamps.length > 0) {
             m_disconnectedTimer.reset();
             m_activeData = true;

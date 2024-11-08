@@ -1,18 +1,5 @@
 package com.chaos131.vision;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.Test;
-
-import com.chaos131.util.FieldData;
-import com.chaos131.util.Quad;
-
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.util.Units;
-
 public class CameraTransformsTests {
     double DELTA = 0.001;
 
