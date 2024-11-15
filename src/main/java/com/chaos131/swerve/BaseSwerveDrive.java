@@ -281,10 +281,10 @@ public class BaseSwerveDrive extends SubsystemBase {
     }
 
     /**
-     * TODO Fill this out
-     * @param swerveModuleState seriously I don't remember
+     * Ignores everyting and forces all modules to move a designated rotation.
+     * @param swerveModuleState the module state to use
      */
-    public void debug_setSwerveModule(SwerveModuleState swerveModuleState) {
+    public void forceUniformSwerveState (SwerveModuleState swerveModuleState) {
         forAllModules((module) -> module.setTarget(swerveModuleState));
     }
 
@@ -396,7 +396,6 @@ public class BaseSwerveDrive extends SubsystemBase {
     }
 
     /**
-     * TODO: Fix me to use the pose estimator!
      * @param tolerance floor distance in field units to be "close enough"
      * @return true if in range
      */
@@ -639,16 +638,13 @@ public class BaseSwerveDrive extends SubsystemBase {
     }
 
     /**
-     * UNIMPLEMENTED - For Students to complete!
-     * 
      * Translates the robot's current pose with forward moving in the direction of the current angle and left moving orthogonal to the current angle
      * @param robotForwardMeters the meters to move forward (or backwards if negative) in relation to the current pose and direction
      * @param robotLeftMeters the meters to move left (or right if negative) in relation to the current pose and direction
      * @return the new pose
      */
     public Pose2d getTranslatedPose(double robotForwardMeters, double robotLeftMeters) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getTranslatedPose'");
+        return getPose().transformBy(new Transform2d(robotForwardMeters, robotLeftMeters, Rotation2d.fromDegrees(0)));
     }
 
     /**

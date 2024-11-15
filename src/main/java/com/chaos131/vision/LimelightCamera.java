@@ -164,8 +164,7 @@ public class LimelightCamera extends Camera {
 
     @Override
     public void setPriorityID(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setPriorityID'");
+        m_priorityid.setInteger(id);
     }
 
     @Override
