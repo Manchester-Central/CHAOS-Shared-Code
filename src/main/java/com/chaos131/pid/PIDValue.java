@@ -5,11 +5,11 @@
 package com.chaos131.pid;
 
 public class PIDValue {
-    public final double P, I, D;
+  public final double P, I, D;
 
-    public PIDValue(double p, double i, double d) {
-        P = p;
-        I = i; 
-        D = d;
-    }
+  public PIDValue(double p, double i, double d) {
+    P = p;
+    I = i;
+    D = d;
+  }
 }
