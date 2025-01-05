@@ -1,18 +1,14 @@
 package com.chaos131.vision;
 
+import com.chaos131.util.Quad;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
 import java.util.ArrayList;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
-import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
-
-import com.chaos131.util.Quad;
 
 /**
  * Abstract Class that defines what an FRC camera must implement to be useful.
@@ -20,72 +16,6 @@ import com.chaos131.util.Quad;
  * <p>This class is the gateway to robot localization, piece tracking, navigation, and more.
  */
 public abstract class Camera extends SubsystemBase {
-  /**
-   * A data structure recording and parsing information from network tables. This doesn't help a
-   * camera recalculate pose data from a video feed, however we can re-analyze the pose data. Data
-   * stored in here should have the number of timestamps match the number of data blocks (ie, pose
-   * data). The individual pose data arrays can be arbitrarily sized to fit whatever Camera type is
-   * being used (Limelight, Photon, Whatever).
-   */
-  @AutoLog
-  class NetworkPoseData {
-    /** Timestamps from NetworkTables, in microseconds */
-    public double[] timestamps;
-    /** Calculated Pose */
-    public Pose3d[] pose;
-    /** Number of tags observed in the creation of the pose */
-    public int[] tagCount;
-    /**  */
-    public double[] deviations;
-    /** Average distance of the tags used for the pose */
-    public double[] averageTagDistance;
-
-    public void reset() {
-      timestamps = new double[]{};
-      pose = new Pose3d[]{};
-      tagCount = new int[]{};
-      deviations = new double[]{};
-      averageTagDistance = new double[]{};
-    }
-
-    public void resize(int s) {
-      timestamps = new double[s];
-      pose = new Pose3d[s];
-      tagCount = new int[s];
-      deviations = new double[s];
-      averageTagDistance = new double[s];
-    }
-  }
-
-  /**
-   * A data structure recording targetting data. This is good for recording things like game piece
-   * locations on the field. Note that the TargettingData is ambivalent about the number of
-   * targets received, and so if many units are trying to be targetted then additional processing
-   * should be done. Otherwise it will be difficult to distinguish corresponding AzEl locations.
-   */
-  @AutoLog
-  class NetworkTargettingData {
-    /** Timestamps from NetworkTables, in microseconds */
-    public long[] timestamps = new long[] {};
-
-    /** Values from the NetworkTables topic setup from setPosePipeline() */
-    public double[] Az = new double[] {};
-    /** Values from the NetworkTables topic setup from setPosePipeline() */
-    public double[] El = new double[] {};
-
-    public void reset() {
-      timestamps = new long[] {};
-      Az = new double[] {};
-      El = new double[] {};
-    }
-
-    public void resize(int s) {
-      timestamps = new long[s];
-      Az = new double[s];
-      El = new double[s];
-    }
-  }
-
   /**
    * Epsilon values exist to compare floating point values and see if something is "close enough"
    */
@@ -129,12 +59,12 @@ public abstract class Camera extends SubsystemBase {
 
   /** A data structure used by AdvantageKit to record and replay Pose data */
   protected NetworkPoseDataAutoLogged m_poseData = new NetworkPoseDataAutoLogged();
+
   /** A data structure used by AdvantageKit to record and targetting data */
   protected NetworkTargettingDataAutoLogged m_targetData = new NetworkTargettingDataAutoLogged();
 
   /**
-   * A list of April Tags we care about.
-   * This is typically the list of all april tags on the field.
+   * A list of April Tags we care about. This is typically the list of all april tags on the field.
    */
   protected ArrayList<Quad> m_localizationTags = new ArrayList<Quad>();
 
@@ -153,8 +83,8 @@ public abstract class Camera extends SubsystemBase {
   };
 
   /**
-   * A high level operating mode for the camera system. Individual cameras may or may not
-   * implement specific sub-states or sub-modes. For instance, multiple piece tracking modes.
+   * A high level operating mode for the camera system. Individual cameras may or may not implement
+   * specific sub-states or sub-modes. For instance, multiple piece tracking modes.
    */
   protected CameraMode m_mode;
 
@@ -169,8 +99,8 @@ public abstract class Camera extends SubsystemBase {
    * Helps construct a Camera, should always be called in the child class constructors.
    *
    * @param name of the network table name, for instance "limelight-front"
-   * @param specs specs for the camera, that may include physics and optical specs,
-   * but could also include 
+   * @param specs specs for the camera, that may include physics and optical specs, but could also
+   *     include
    */
   public Camera(String name, CameraSpecs specs) {
     m_name = name;
@@ -243,6 +173,13 @@ public abstract class Camera extends SubsystemBase {
     return this;
   }
 
+  /**
+   * Sets the list of tags we care about. Each camera class will have a different method for
+   * handling this. So it should probably be overwritten.
+   *
+   * @param tags list of quads describing the april tags
+   * @return the class itself for chaining
+   */
   public Camera setTagsOfInterest(ArrayList<Quad> tags) {
     m_localizationTags = tags;
     return this;
@@ -262,7 +199,8 @@ public abstract class Camera extends SubsystemBase {
    *     device)
    * @return a value in the range of [0,1] (higher is better)
    */
-  protected abstract double calculateConfidence(Pose3d pose, int tagCount, double distance, double deviation);
+  protected abstract double calculateConfidence(
+      Pose3d pose, int tagCount, double distance, double deviation);
 
   /**
    * Processing Support Function that takes a network tables update, and converts it into a vision
@@ -300,7 +238,7 @@ public abstract class Camera extends SubsystemBase {
    * Reads data from the network table message queue(s), and loads it into the Pose and Targetting
    * structures used for AdvantageKit.
    */
-  abstract protected void LoadNTQueueToVisionData();
+  protected abstract void LoadNTQueueToVisionData();
 
   /**
    * Loads in VisionData from the log in replay mode, and sends vision updates to the pose estimator
@@ -316,9 +254,7 @@ public abstract class Camera extends SubsystemBase {
      */
     Logger.processInputs(m_name, m_poseData);
 
-    /**
-     * Now we do that thang with the all the data we received.
-     */
+    /** Now we do that thang with the all the data we received. */
     processUpdateQueue();
 
     /** If the timer has expired, so set the state to inactive... */
@@ -383,11 +319,20 @@ public abstract class Camera extends SubsystemBase {
    *
    * @param robotPose converts the given robot pose into a camera pose with the offset function
    *     (m_offset)
+   * @param horizontal_margin padding the left and right side (each) (units from 0 to 1)
+   * @param vertical_margin padding the top and bottom side (each) (units from 0 to 1)
    */
   public abstract void updateCropFromRobotpose(
-    Pose3d robotPose, double horizontal_margin, double vertical_margin);
+      Pose3d robotPose, double horizontal_margin, double vertical_margin);
 
-  /** Sets the crop based on a tracked target span or coverage */
+  /**
+   * Sets the crop based on a tracked target span or coverage
+   *
+   * @param l left side of the image to crop from (units range from -1 to 1)
+   * @param r right side of the image to crop from (units range from -1 to 1)
+   * @param t top side of the image to crop from (units range from -1 to 1)
+   * @param b bottom side of the image to crop from (units range from -1 to 1)
+   */
   public abstract void updateCropFromSpan(double l, double r, double t, double b);
 
   /** Sets the crop region back to the full image frame */
@@ -396,7 +341,7 @@ public abstract class Camera extends SubsystemBase {
   /**
    * Takes a high level camera operational mode. This may need to be overwritten and referenced back
    * with super().
-   * 
+   *
    * @param mode that the camera should switch to
    */
   public abstract void setMode(CameraMode mode);

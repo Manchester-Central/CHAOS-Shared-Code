@@ -1,7 +1,7 @@
 plugins {
     id "java"
     id 'maven-publish'
-    id "edu.wpi.first.GradleRIO" version "2025.1.1-beta-1"
+    id "edu.wpi.first.GradleRIO" version "2025.1.1"
     id "com.peterabeles.gversion" version "1.10.3"
     id 'com.diffplug.spotless' version '6.20.0'
 }
@@ -36,11 +36,11 @@ configurations.all {
     exclude group: "edu.wpi.first.wpilibj"
 }
 
-task(checkAkitInstall, dependsOn: "classes", type: JavaExec) {
-    mainClass = "org.littletonrobotics.junction.CheckInstall"
-    classpath = sourceSets.main.runtimeClasspath
-}
-compileJava.finalizedBy checkAkitInstall
+// task(checkAkitInstall, dependsOn: "classes", type: JavaExec) {
+//     mainClass = "org.littletonrobotics.junction.CheckInstall"
+//     classpath = sourceSets.main.runtimeClasspath
+// }
+// compileJava.finalizedBy checkAkitInstall
 
 dependencies {
     annotationProcessor wpi.java.deps.wpilibAnnotations()

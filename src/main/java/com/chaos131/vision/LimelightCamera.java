@@ -1,5 +1,6 @@
 package com.chaos131.vision;
 
+import com.chaos131.util.Quad;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -9,16 +10,10 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
-
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import com.chaos131.util.Quad;
-
-/**
- * Implements a Camera behavior for the This is up to date for Limelight OS 2024.4.0 (April 3rd,
- * 2024)
- */
+/** Implements a Camera behavior for the This is up to date for Limelight OS 2024.10.2 (10/28/24) */
 public class LimelightCamera extends Camera {
   /** Limelight versions can help the implementation navigate features and calibration */
   public enum LimelightVersion {
@@ -66,31 +61,44 @@ public class LimelightCamera extends Camera {
 
   /** NetworkTable name that corresponds with this Camera */
   protected NetworkTable m_visionTable;
+
   /** NetworkTable entry that supplies the robot's pose data */
   protected NetworkTableEntry m_botpose;
+
   /** NetworkTable entry for MegaTag2 */
   protected NetworkTableEntry m_botposeMT2;
+
   /** A data structure used by AdvantageKit to record and replay Pose data */
   protected NetworkPoseDataAutoLogged m_poseDataMT2 = new NetworkPoseDataAutoLogged();
+
   /** Distance in meters before swapping from MT1 to MT2 */
   protected double m_megatag2Threshold;
+
   /** Subscriber that loads in poses */
   protected DoubleArraySubscriber m_observationSubscriber;
-  /** NetworkTable entry that defines what state or processing pipeline the camera is currently in */
+
+  /**
+   * NetworkTable entry that defines what state or processing pipeline the camera is currently in
+   */
   protected NetworkTableEntry m_pipelineID;
 
   /**
    * NetworkTable entry that defines the azimuth (left-right) of the current tracked target
+   *
    * <p>This is typically in camera space, ranging from [-1,1]
    */
   protected NetworkTableEntry m_targetAzimuth;
+
   /**
    * NetworkTable entry that defines the elevation (bottom-top) of the current tracked target
+   *
    * <p>This is typically in camera space, ranging from [-1,1]
    */
   protected NetworkTableEntry m_targetElevation;
+
   /** If the target has a specific ID, it would be found in this network table entry */
   protected NetworkTableEntry m_hasTarget;
+
   /** If there's a priority id, it would be found in this network table entry */
   protected NetworkTableEntry m_priorityid;
 
@@ -98,24 +106,34 @@ public class LimelightCamera extends Camera {
 
   /** NT Entry ID - Pose X */
   protected final int idxX = 0;
+
   /** NT Entry ID - Pose Y */
   protected final int idxY = 1;
+
   /** NT Entry ID - Pose Z */
   protected final int idxZ = 2;
+
   /** NT Entry ID - Pose Roll */
   protected final int idxRoll = 3;
+
   /** NT Entry ID - Pose Pitch */
   protected final int idxPitch = 4;
+
   /** NT Entry ID - Pose Yaw */
   protected final int idxYaw = 5;
+
   /** NT Entry ID - Pipeline Latency */
   protected final int idxLatency = 6;
+
   /** NT Entry ID - Tags Seen */
   protected final int idxTagCount = 7;
+
   /** NT Entry ID - Tag Span */
   protected final int idxTagSpan = 8;
+
   /** NT Entry ID - Tag Distance Average */
   protected final int idxTagDistance = 9;
+
   /** NT Entry ID - Tag Area */
   protected final int idxTagArea = 10;
 
@@ -156,6 +174,13 @@ public class LimelightCamera extends Camera {
     setRobotRotationSupplier(robotRotationSpeedSupplier);
   }
 
+  /**
+   * Calculates the translational deviations. This is important for Kalman filters.
+   *
+   * @param distance distance to the average tag
+   * @param tagCount number of tags used to make the pose
+   * @return Deviations in the {x, y, yaw} coordinates
+   */
   protected double[] calculateTranslationalDeviations(double distance, double tagCount) {
     // MegaTag Standard Deviations
     // [MT1x, MT1y, MT1z, MT1roll, MT1pitch, MT1Yaw, MT2x, MT2y, MT2z, MT2roll, MT2pitch, MT2yaw]
@@ -170,7 +195,8 @@ public class LimelightCamera extends Camera {
     return new double[] {
       m_specs.error_multiplier * stddev + m_specs.minimum_error,
       m_specs.error_multiplier * stddev + m_specs.minimum_error,
-      1};
+      1
+    };
   }
 
   @Override
@@ -220,33 +246,36 @@ public class LimelightCamera extends Camera {
   public int getPriorityID() {
     return (int) m_priorityid.getInteger(-1);
   }
+
   @Override
   public void setPriorityID(int id) {
     m_priorityid.setNumber(id);
   }
+
   @Override
   public void resetPriorityID() {
     m_priorityid.setNumber(-1);
   }
 
   @Override
-  public void updateCropFromRobotpose(Pose3d robotPose, double horizontal_margin, double vertical_margin) {
-    var visibletags = CameraTransforms.CalculateVisibleCoordinates(
-      robotPose, (Quad[])m_localizationTags.toArray(), EPSILON, EPSILON);
+  public void updateCropFromRobotpose(
+      Pose3d robotPose, double horizontal_margin, double vertical_margin) {
+    var visibletags =
+        CameraTransforms.CalculateVisibleCoordinates(
+            robotPose, (Quad[]) m_localizationTags.toArray(), EPSILON, EPSILON);
     // returns in the order of [minX, minY, maxX, maxY]
     var bounds = CameraTransforms.FindBounds(visibletags, horizontal_margin, vertical_margin);
 
     if (bounds == null || m_mode == CameraMode.PIECE_TRACKING) {
-      m_visionTable.getEntry("crop").setDoubleArray(new double[] {-1,1,-1,1});
+      m_visionTable.getEntry("crop").setDoubleArray(new double[] {-1, 1, -1, 1});
     } else {
       /**
-       * Re-ordered because:
-       * 0 - Min or Max X value [-1, 1]
-       * 1 - Min or Max X value [-1, 1]
-       * 2 - Min or Max Y value [-1, 1]
-       * 3 - Min or Max Y value [-1, 1]
+       * Re-ordered because: 0 - Min or Max X value [-1, 1] 1 - Min or Max X value [-1, 1] 2 - Min
+       * or Max Y value [-1, 1] 3 - Min or Max Y value [-1, 1]
        */
-      m_visionTable.getEntry("crop").setDoubleArray(new double[] {bounds[0], bounds[2], bounds[1], bounds[3]});
+      m_visionTable
+          .getEntry("crop")
+          .setDoubleArray(new double[] {bounds[0], bounds[2], bounds[1], bounds[3]});
     }
   }
 
@@ -272,7 +301,7 @@ public class LimelightCamera extends Camera {
 
   @Override
   public void resetCrop() {
-    updateCropFromSpan(-1,1,1,-1);
+    updateCropFromSpan(-1, 1, 1, -1);
   }
 
   @Override
@@ -283,25 +312,37 @@ public class LimelightCamera extends Camera {
     }
 
     // MT1
-    var conf = calculateConfidence(m_poseData.pose[idx], m_poseData.tagCount[idx],
-        m_poseData.averageTagDistance[idx], m_poseData.deviations[0]);
-    var conf2 = calculateConfidence(m_poseDataMT2.pose[idx], m_poseDataMT2.tagCount[idx],
-        m_poseDataMT2.averageTagDistance[idx], m_poseDataMT2.deviations[0]);
-    
+    var conf =
+        calculateConfidence(
+            m_poseData.pose[idx],
+            m_poseData.tagCount[idx],
+            m_poseData.averageTagDistance[idx],
+            m_poseData.deviations[0]);
+    var conf2 =
+        calculateConfidence(
+            m_poseDataMT2.pose[idx],
+            m_poseDataMT2.tagCount[idx],
+            m_poseDataMT2.averageTagDistance[idx],
+            m_poseDataMT2.deviations[0]);
+
     if (m_poseData.averageTagDistance[idx] < m_megatag2Threshold) {
-      return new VisionData(m_poseData.pose[idx], m_poseData.timestamps[idx],
-          new double[]{m_poseData.deviations[idx], m_poseData.deviations[idx], 1}, conf);
+      return new VisionData(
+          m_poseData.pose[idx],
+          m_poseData.timestamps[idx],
+          new double[] {m_poseData.deviations[idx], m_poseData.deviations[idx], 1},
+          conf);
     } else {
-      return new VisionData(m_poseDataMT2.pose[idx], m_poseDataMT2.timestamps[idx],
-          new double[]{m_poseDataMT2.deviations[idx], m_poseDataMT2.deviations[idx], 1}, conf2);
+      return new VisionData(
+          m_poseDataMT2.pose[idx],
+          m_poseDataMT2.timestamps[idx],
+          new double[] {m_poseDataMT2.deviations[idx], m_poseDataMT2.deviations[idx], 1},
+          conf2);
     }
   }
 
   @Override
   protected void LoadNTQueueToVisionData() {
-    /**
-     * TODO: Serious race condition concern here! I can't simply fix this, Limelight needs to.
-     */
+    /** TODO: Serious race condition concern here! I can't simply fix this, Limelight needs to. */
     NetworkTableValue[] mt1_poses = m_botpose.readQueue();
     NetworkTableValue[] mt2_poses = m_botposeMT2.readQueue();
 
@@ -319,10 +360,11 @@ public class LimelightCamera extends Camera {
 
       var posePosition = new Translation3d(data[idxX], data[idxY], data[idxZ]);
 
-      var poseRotation = new Rotation3d(
-          data[idxRoll] * Math.PI / 180,
-          data[idxPitch] * Math.PI / 180,
-          data[idxYaw] * Math.PI / 180);
+      var poseRotation =
+          new Rotation3d(
+              data[idxRoll] * Math.PI / 180,
+              data[idxPitch] * Math.PI / 180,
+              data[idxYaw] * Math.PI / 180);
 
       var visionPose = new Pose3d(posePosition, poseRotation);
 
@@ -330,24 +372,26 @@ public class LimelightCamera extends Camera {
         var cameraOffset = m_offset.get();
         cameraOffset = cameraOffset.rotateBy(new Rotation3d(0, 0, data[idxYaw] * Math.PI / 180));
         cameraOffset.getRotation().getZ();
-        visionPose = new Pose3d(
-            new Translation3d(
-                visionPose.getX() - cameraOffset.getX(),
-                visionPose.getY() - cameraOffset.getY(),
-                visionPose.getZ() - cameraOffset.getZ()),
-            new Rotation3d(
-                0, // poseRotation.getX() - cameraOffset.getRotation().getX(),
-                0, // poseRotation.getY() - cameraOffset.getRotation().getY(),
-                poseRotation.getZ()) // - cameraOffset.getRotation().getZ())
-            );
+        visionPose =
+            new Pose3d(
+                new Translation3d(
+                    visionPose.getX() - cameraOffset.getX(),
+                    visionPose.getY() - cameraOffset.getY(),
+                    visionPose.getZ() - cameraOffset.getZ()),
+                new Rotation3d(
+                    0, // poseRotation.getX() - cameraOffset.getRotation().getX(),
+                    0, // poseRotation.getY() - cameraOffset.getRotation().getY(),
+                    poseRotation.getZ()) // - cameraOffset.getRotation().getZ())
+                );
       }
 
-      double[] deviation = calculateTranslationalDeviations(data[idxTagDistance], data[idxTagCount]);
+      double[] deviation =
+          calculateTranslationalDeviations(data[idxTagDistance], data[idxTagCount]);
 
       m_poseData.averageTagDistance[idx] = data[idxTagDistance];
       m_poseData.deviations[idx] = deviation[0];
       m_poseData.pose[idx] = visionPose;
-      m_poseData.tagCount[idx] = (int)data[idxTagCount];
+      m_poseData.tagCount[idx] = (int) data[idxTagCount];
       m_poseData.timestamps[idx] = timestampSeconds;
     } // End MT1
 
@@ -365,10 +409,11 @@ public class LimelightCamera extends Camera {
 
       var posePosition = new Translation3d(data[idxX], data[idxY], data[idxZ]);
 
-      var poseRotation = new Rotation3d(
-          data[idxRoll] * Math.PI / 180,
-          data[idxPitch] * Math.PI / 180,
-          data[idxYaw] * Math.PI / 180);
+      var poseRotation =
+          new Rotation3d(
+              data[idxRoll] * Math.PI / 180,
+              data[idxPitch] * Math.PI / 180,
+              data[idxYaw] * Math.PI / 180);
 
       var visionPose = new Pose3d(posePosition, poseRotation);
 
@@ -376,24 +421,26 @@ public class LimelightCamera extends Camera {
         var cameraOffset = m_offset.get();
         cameraOffset = cameraOffset.rotateBy(new Rotation3d(0, 0, data[idxYaw] * Math.PI / 180));
         cameraOffset.getRotation().getZ();
-        visionPose = new Pose3d(
-            new Translation3d(
-                visionPose.getX() - cameraOffset.getX(),
-                visionPose.getY() - cameraOffset.getY(),
-                visionPose.getZ() - cameraOffset.getZ()),
-            new Rotation3d(
-                0, // poseRotation.getX() - cameraOffset.getRotation().getX(),
-                0, // poseRotation.getY() - cameraOffset.getRotation().getY(),
-                poseRotation.getZ()) // - cameraOffset.getRotation().getZ())
-            );
+        visionPose =
+            new Pose3d(
+                new Translation3d(
+                    visionPose.getX() - cameraOffset.getX(),
+                    visionPose.getY() - cameraOffset.getY(),
+                    visionPose.getZ() - cameraOffset.getZ()),
+                new Rotation3d(
+                    0, // poseRotation.getX() - cameraOffset.getRotation().getX(),
+                    0, // poseRotation.getY() - cameraOffset.getRotation().getY(),
+                    poseRotation.getZ()) // - cameraOffset.getRotation().getZ())
+                );
       }
 
-      double[] deviation = calculateTranslationalDeviations(data[idxTagDistance], data[idxTagCount]);
+      double[] deviation =
+          calculateTranslationalDeviations(data[idxTagDistance], data[idxTagCount]);
 
       m_poseDataMT2.averageTagDistance[idx] = data[idxTagDistance];
       m_poseDataMT2.deviations[idx] = deviation[0];
       m_poseDataMT2.pose[idx] = visionPose;
-      m_poseDataMT2.tagCount[idx] = (int)data[idxTagCount];
+      m_poseDataMT2.tagCount[idx] = (int) data[idxTagCount];
       m_poseDataMT2.timestamps[idx] = timestampSeconds;
     } // End MT2
   }

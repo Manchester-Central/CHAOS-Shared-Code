@@ -9,11 +9,21 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 
+/** An unimplemented class to process PhotonVision Updates */
 public class PhotonVisionCamera extends Camera {
   @SuppressWarnings("unused")
   private PhotonCamera m_camera;
+
   private PhotonPoseEstimator m_poseEstimator;
 
+  /**
+   * Still unimplemented.
+   *
+   * @param name of the camera, which maps to its network table section
+   * @param tags don't remember
+   * @param strat because photonvision uses its own kalman filter, and this is dumb
+   * @param robotToCamera transform 3d, should really be a consumer
+   */
   public PhotonVisionCamera(
       String name, AprilTagFieldLayout tags, PoseStrategy strat, Transform3d robotToCamera) {
     m_camera = new PhotonCamera(name);
@@ -28,7 +38,7 @@ public class PhotonVisionCamera extends Camera {
 
   @Override
   protected VisionData processMeasuredData(int idx) {
-    //List<PhotonPipelineResult> new_res = m_camera.getAllUnreadResults();
+    // List<PhotonPipelineResult> new_res = m_camera.getAllUnreadResults();
     Optional<EstimatedRobotPose> new_pose = m_poseEstimator.update(null);
     return new VisionData(
         new_pose.get().estimatedPose, new_pose.get().timestampSeconds, new double[] {0, 0, 0}, 1);
@@ -101,7 +111,8 @@ public class PhotonVisionCamera extends Camera {
   }
 
   @Override
-  public void updateCropFromRobotpose(Pose3d robotPose, double horizontal_margin, double vertical_margin) {
+  public void updateCropFromRobotpose(
+      Pose3d robotPose, double horizontal_margin, double vertical_margin) {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'updateCropFromRobotpose'");
   }

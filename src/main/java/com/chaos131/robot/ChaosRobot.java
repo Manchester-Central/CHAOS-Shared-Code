@@ -17,7 +17,6 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  * and common features like mode timers.
  */
 public class ChaosRobot extends LoggedRobot {
-
   /** A container for the majority of the robot code, containing all of the subsystems */
   protected ChaosRobotContainer m_robotContainer;
 
@@ -115,51 +114,12 @@ public class ChaosRobot extends LoggedRobot {
    **************************/
 
   /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code. Probably shouldn't be completely overrode, but instead call super() at the
-   * start of child class versions.
-   */
-  @Override
-  public void robotInit() {
-    m_timerGlobal = Timer.getFPGATimestamp();
-
-    switch (m_mode) {
-      case REAL:
-        setupLoggerRealMode();
-        break;
-
-      case SIM:
-        setupLoggerSimMode();
-        break;
-
-      case REPLAY:
-        setupLoggerReplayMode();
-        break;
-
-      case DEMO:
-      default:
-        break;
-    }
-
-    Logger.recordMetadata("SharedHash", SharedCodeBuildConstants.GIT_SHA);
-    Logger.recordMetadata("SharedCommitDate", SharedCodeBuildConstants.GIT_DATE);
-    Logger.recordMetadata("SharedDirty", (SharedCodeBuildConstants.DIRTY == 1) ? "Yes" : "No");
-    Logger.recordMetadata("SharedBuildDate", SharedCodeBuildConstants.BUILD_DATE);
-
-    setupRobot();
-
-    // Logger.disableDeterministicTimestamps() // See "Deterministic Timestamps" in the
-    // "Understanding Data Flow" page
-    Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may
-    // be added.
-  }
-
-  /**
    * Highly encouraged to replace this method with any robot specific setups. Things like
-   * BuildConstants, voltage logging, etc.
+   * BuildConstants, voltage logging, etc. This is the only way to initialize metadata in subclasses
+   * with advantagekit
    */
   protected void setupRobot() {
-    Logger.recordMetadata("ProjectName", "Another FRC Project"); // Set a metadata value
+    Logger.recordMetadata("ProjectName", "CHAOS is at it again!"); // Set a metadata value
     // Something like...
     // Logger.recordMetadata("RobotHash", BuildConstants.GIT_SHA);
     // Logger.recordMetadata("RobotBranch", BuildConstants.GIT_BRANCH);
@@ -181,15 +141,13 @@ public class ChaosRobot extends LoggedRobot {
     Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
   }
 
-  /** Sets up a simulation mode, called during robotInit(). */
+  /** Sets up a simulation mode, at object creation. */
   protected void setupLoggerSimMode() {
     // Running a physics simulator, log to NT
     Logger.addDataReceiver(new NT4Publisher());
   }
 
-  /**
-   * Sets up Replay Mode, called during robotInit(). Unlikely to ever need to replace this method.
-   */
+  /** Sets up Replay Mode, at object creation. Unlikely to ever need to replace this method. */
   protected void setupLoggerReplayMode() {
     // Replaying a log, set up replay source
     setUseTiming(false); // Run as fast as possible
@@ -197,6 +155,9 @@ public class ChaosRobot extends LoggedRobot {
     Logger.setReplaySource(new WPILOGReader(logPath));
     Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"), 0.01));
   }
+
+  /** Sets up Replay Mode, at object creation. */
+  protected void setupLoggerDemoMode() {}
 
   /** This function is called periodically during all modes. */
   @Override
@@ -284,4 +245,50 @@ public class ChaosRobot extends LoggedRobot {
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {}
+
+  /**
+   * Class constructor. Note that robotInit() was deprecated and all Robot classes should inherit
+   * from this one.
+   */
+  public ChaosRobot() {
+    // Calls the LoggedRobot constructor (Which calls other constructors)
+    // Isn't inheritance fun?
+    super();
+    m_timerGlobal = Timer.getFPGATimestamp();
+
+    switch (m_mode) {
+      case REAL:
+        setupLoggerRealMode();
+        break;
+
+      case SIM:
+        setupLoggerSimMode();
+        break;
+
+      case REPLAY:
+        setupLoggerReplayMode();
+        break;
+
+      case DEMO:
+        setupLoggerDemoMode();
+        break;
+
+      default:
+        break;
+    }
+
+    Logger.recordMetadata("StartupMode", m_mode.name());
+    Logger.recordMetadata("SharedHash", SharedCodeBuildConstants.GIT_SHA);
+    Logger.recordMetadata("SharedCommitDate", SharedCodeBuildConstants.GIT_DATE);
+    Logger.recordMetadata("SharedDirty", (SharedCodeBuildConstants.DIRTY == 1) ? "Yes" : "No");
+    Logger.recordMetadata("SharedBuildDate", SharedCodeBuildConstants.BUILD_DATE);
+
+    // Read my javadoc!
+    setupRobot();
+
+    // Logger.disableDeterministicTimestamps() // See "Deterministic Timestamps" in the
+    // "Understanding Data Flow" page
+    Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may
+    // be added.
+  }
 }
