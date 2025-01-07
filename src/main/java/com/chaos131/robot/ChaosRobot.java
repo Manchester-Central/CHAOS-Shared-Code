@@ -11,6 +11,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter.AdvantageScopeOpenBehavior;
 
 /**
  * A ChaosRobot architecture that bundles together common libraries like AdvantageKit, PathPlanner,
@@ -153,7 +154,9 @@ public class ChaosRobot extends LoggedRobot {
     setUseTiming(false); // Run as fast as possible
     String logPath = LogFileUtil.findReplayLog();
     Logger.setReplaySource(new WPILOGReader(logPath));
-    Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"), 0.01));
+    Logger.addDataReceiver(
+        new WPILOGWriter(
+            LogFileUtil.addPathSuffix(logPath, "_sim"), AdvantageScopeOpenBehavior.AUTO));
   }
 
   /** Sets up Replay Mode, at object creation. */
@@ -192,7 +195,7 @@ public class ChaosRobot extends LoggedRobot {
    * behavior a robot should exhibit while on the field and potentially near people.
    */
   public void disabledCleanup() {
-    Logger.recordOutput("Disabled Cleanup Running...");
+    System.out.println("Disabled Cleanup Running...");
   }
 
   /** This autonomous runs the autonomous command selected by your RobotContainer class. */
@@ -249,11 +252,14 @@ public class ChaosRobot extends LoggedRobot {
   /**
    * Class constructor. Note that robotInit() was deprecated and all Robot classes should inherit
    * from this one.
+   *
+   * @param mode The mode to start the robot in
    */
-  public ChaosRobot() {
+  public ChaosRobot(Mode mode) {
     // Calls the LoggedRobot constructor (Which calls other constructors)
     // Isn't inheritance fun?
     super();
+    m_mode = mode;
     m_timerGlobal = Timer.getFPGATimestamp();
 
     switch (m_mode) {

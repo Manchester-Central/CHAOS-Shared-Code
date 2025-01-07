@@ -32,15 +32,10 @@ repositories {
     mavenLocal()
 }
 
-configurations.all {
-    exclude group: "edu.wpi.first.wpilibj"
+task(replayWatch, type: JavaExec) {
+    mainClass = "org.littletonrobotics.junction.ReplayWatch"
+    classpath = sourceSets.main.runtimeClasspath
 }
-
-// task(checkAkitInstall, dependsOn: "classes", type: JavaExec) {
-//     mainClass = "org.littletonrobotics.junction.CheckInstall"
-//     classpath = sourceSets.main.runtimeClasspath
-// }
-// compileJava.finalizedBy checkAkitInstall
 
 dependencies {
     annotationProcessor wpi.java.deps.wpilibAnnotations()
@@ -52,7 +47,7 @@ dependencies {
 
     // AdvantageKit Lines
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
-    annotationProcessor "org.littletonrobotics.akit.junction:junction-autolog:$akitJson.version"
+    annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
 }
 
 publishing {
