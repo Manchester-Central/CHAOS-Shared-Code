@@ -163,3 +163,6 @@ bin/
 
 # Add built .jar file
 !CHAOS-Shared-Code.jar
+
+# Build Constants
+SharedCodeBuildConstants.java

@@ -12,7 +12,7 @@
 # CHAOS Shared Code
 This is code that our team uses for different projects.
 
-Example features: 
+Example features:
 * Special gamepad wrapper around `CommandXboxController` that adds deadband to axes and stick angles and magnitude.
 * Our Autobuilder system, used for defining auto commands and running our auto scripts
 * Logging to USB and NetworkTables
@@ -20,7 +20,7 @@ Example features:
 * Our base swerve code (pulled/modified from our 2023 code)
 * DashboardNumber, a tool for creating numbers that can be easily used in the code and also updated on a dashboard
 
-## Setup 
+## Setup
 You can run this in the latest WPILib VSCode for java (last tested with 2024).
 
 ## Releases & Packages
@@ -44,18 +44,18 @@ Create a file called `secrets.json` at the root level of your WPILib project and
 ```json
 {
     "github_package_auth" : {
-        "username" : "my_username", 
+        "username" : "my_username",
         "personal_access_token" : "github_pat_redacted"
     }
 }
 ```
 Replace `my_username` with your github username.
 
-Replace `github_pat_redacted` with your github personal access token with readonly permission to all public repos. See [this guide](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) for how to make one. 
+Replace `github_pat_redacted` with your github personal access token with readonly permission to all public repos. See [this guide](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) for how to make one.
 
 **IF ADDING THIS TO A NEW PROJECT, MAKE SURE TO ADD THE `secrets.json` FILE TO `.gitignore` SO YOUR TOKEN IS NOT PUBLISHED TO GITHUB.**
 
-If you are on a CHAOS shared computer, look at [this private discussion](https://github.com/orgs/Manchester-Central/discussions/1) for how to configure the shared token in your project. 
+If you are on a CHAOS shared computer, look at [this private discussion](https://github.com/orgs/Manchester-Central/discussions/1) for how to configure the shared token in your project.
 
 #### build.gradle
 Add these to the `build.gradle` file:
@@ -109,7 +109,6 @@ Add this to the dependencies section of your `build.gradle` file:
 #### settings.gradle
 Add this to the end of your `settings.gradle` file:
 ```groovy
-include ':chaos-shared-code' 
+include ':chaos-shared-code'
 project(':chaos-shared-code').projectDir = new File("../CHAOS-Shared-Code")
 ```
-

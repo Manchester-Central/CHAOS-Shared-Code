@@ -17,231 +17,262 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
-/** Creates a Swerve Module using TalonFxs and a CANcoder (CHAOS's 2022 and 2024 bots used this configuration) */
+/**
+ * Creates a Swerve Module using TalonFxs and a CANcoder (CHAOS's 2022 and 2024 bots used this
+ * configuration)
+ */
 public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
 
-    public static class SpeedControllerConfig {
-        public final int canId;
-        public final InvertedValue motorDirection;
-        public final double speedGearRatio;
-        public final double wheelCircumference;
+  public static class SpeedControllerConfig {
+    public final int canId;
+    public final InvertedValue motorDirection;
+    public final double speedGearRatio;
+    public final double wheelCircumference;
 
-        public SpeedControllerConfig(
-            int canId,
-            InvertedValue motorDirection,
-            double speedGearRatio,
-            double wheelCircumference
-        ) {
-            this.canId = canId;
-            this.motorDirection = motorDirection;
-            this.speedGearRatio = speedGearRatio;
-            this.wheelCircumference = wheelCircumference;
-        }
+    public SpeedControllerConfig(
+        int canId, InvertedValue motorDirection, double speedGearRatio, double wheelCircumference) {
+      this.canId = canId;
+      this.motorDirection = motorDirection;
+      this.speedGearRatio = speedGearRatio;
+      this.wheelCircumference = wheelCircumference;
     }
+  }
 
-    public static class AngleControllerConfig {
-        public final int canId;
-        public final InvertedValue motorDirection;
-        public final double angleGearRatio;
+  public static class AngleControllerConfig {
+    public final int canId;
+    public final InvertedValue motorDirection;
+    public final double angleGearRatio;
 
-        public AngleControllerConfig(
-            int canId,
-            InvertedValue motorDirection,
-            double angleGearRatio
-        ) {
-            this.canId = canId;
-            this.motorDirection = motorDirection;
-            this.angleGearRatio = angleGearRatio;
-        }
+    public AngleControllerConfig(int canId, InvertedValue motorDirection, double angleGearRatio) {
+      this.canId = canId;
+      this.motorDirection = motorDirection;
+      this.angleGearRatio = angleGearRatio;
     }
+  }
 
-    public static class AbsoluteEncoderConfig {
-        public final int canId;
-        public final SensorDirectionValue sensorDirection;
-        public final Rotation2d absoluteAngleOffset;
+  public static class AbsoluteEncoderConfig {
+    public final int canId;
+    public final SensorDirectionValue sensorDirection;
+    public final Rotation2d absoluteAngleOffset;
 
-        public AbsoluteEncoderConfig(
-            int canId,
-            SensorDirectionValue sensorDirection,
-            Rotation2d absoluteAngleOffset
-        ) {
-            this.canId = canId;
-            this.sensorDirection = sensorDirection;
-            this.absoluteAngleOffset = absoluteAngleOffset;
-        }
+    public AbsoluteEncoderConfig(
+        int canId, SensorDirectionValue sensorDirection, Rotation2d absoluteAngleOffset) {
+      this.canId = canId;
+      this.sensorDirection = sensorDirection;
+      this.absoluteAngleOffset = absoluteAngleOffset;
     }
+  }
 
-    public static class DriveConfig {
-        public final double driverModeClosedLoopRampRatePeriod;
-        public final double driveToPositionClosedLoopRampRatePeriod;
-        public final Rotation2d xModeAngle;
+  public static class DriveConfig {
+    public final double driverModeClosedLoopRampRatePeriod;
+    public final double driveToPositionClosedLoopRampRatePeriod;
 
-        public DriveConfig(
-            double driverModeClosedLoopRampRatePeriod,
-            double driveToPositionClosedLoopRampRatePeriod,
-            Rotation2d xModeAngle
-        ) {
-            this.driverModeClosedLoopRampRatePeriod = driverModeClosedLoopRampRatePeriod;
-            this.driveToPositionClosedLoopRampRatePeriod = driveToPositionClosedLoopRampRatePeriod;
-            this.xModeAngle = xModeAngle;
-        }
+    public DriveConfig(
+        double driverModeClosedLoopRampRatePeriod, double driveToPositionClosedLoopRampRatePeriod) {
+      this.driverModeClosedLoopRampRatePeriod = driverModeClosedLoopRampRatePeriod;
+      this.driveToPositionClosedLoopRampRatePeriod = driveToPositionClosedLoopRampRatePeriod;
     }
-    
-    protected CANcoder m_absoluteEncoder;
-    protected TalonFX m_speedController;
-    protected TalonFX m_angleController;
+  }
 
-    protected TalonFXConfiguration m_speedConfig = new TalonFXConfiguration();
-    protected TalonFXConfiguration m_angleConfig = new TalonFXConfiguration();
-    protected CANcoderConfiguration m_cancoderConfig = new CANcoderConfiguration();
-    
-    protected VelocityVoltage m_velocityVoltageMps = new VelocityVoltage(0);
-    protected PositionVoltage m_positionVoltageRotations = new PositionVoltage(0);
+  protected CANcoder m_absoluteEncoder;
+  protected TalonFX m_speedController;
+  protected TalonFX m_angleController;
 
-    protected DriveConfig m_driveConfig;
+  protected TalonFXConfiguration m_speedConfig = new TalonFXConfiguration();
+  protected TalonFXConfiguration m_angleConfig = new TalonFXConfiguration();
+  protected CANcoderConfiguration m_cancoderConfig = new CANcoderConfiguration();
 
-    /**
-     * Creates a new swerve module
-     * @param name the name of the module "FL", "FrontLeft" or whatever standard 
-     * @param translation the position of the module compared to the center of the robot
-     * @param speedControllerConfig the config for the speed controller
-     * @param angleControllerConfig the config for the angle controller
-     * @param absoluteEncoderConfig the config for the absolute encoder
-     * @param driveConfig the options for driving the robot
-     */
-    public TalonFxAndCancoderSwerveModule(
-        String name,
-        Translation2d translation,
-        SpeedControllerConfig speedControllerConfig,
-        AngleControllerConfig angleControllerConfig,
-        AbsoluteEncoderConfig absoluteEncoderConfig,
-        DriveConfig driveConfig
-    ) {
-        super(name, translation, driveConfig.xModeAngle);
+  protected VelocityVoltage m_velocityVoltageMps = new VelocityVoltage(0);
+  protected PositionVoltage m_positionVoltageRotations = new PositionVoltage(0);
 
-        // initialize member variables
-        m_speedController = new TalonFX(speedControllerConfig.canId);
-        m_angleController = new TalonFX(angleControllerConfig.canId);
-        m_absoluteEncoder = new CANcoder(absoluteEncoderConfig.canId);
-        m_driveConfig = driveConfig;
+  protected DriveConfig m_driveConfig;
 
-        // CANCoder config
-        m_cancoderConfig.MagnetSensor.MagnetOffset = absoluteEncoderConfig.absoluteAngleOffset.getRotations();
-        m_cancoderConfig.MagnetSensor.SensorDirection = absoluteEncoderConfig.sensorDirection;
-        m_absoluteEncoder.getConfigurator().apply(m_cancoderConfig);
-        m_absoluteEncoder.getAbsolutePosition().setUpdateFrequency(4);
+  /**
+   * Creates a new swerve module
+   *
+   * @param name the name of the module "FL", "FrontLeft" or whatever standard
+   * @param translation the position of the module compared to the center of the robot
+   * @param speedControllerConfig the config for the speed controller
+   * @param angleControllerConfig the config for the angle controller
+   * @param absoluteEncoderConfig the config for the absolute encoder
+   * @param driveConfig the options for driving the robot
+   */
+  public TalonFxAndCancoderSwerveModule(
+      String name,
+      Translation2d translation,
+      SpeedControllerConfig speedControllerConfig,
+      AngleControllerConfig angleControllerConfig,
+      AbsoluteEncoderConfig absoluteEncoderConfig,
+      DriveConfig driveConfig) {
+    super(name, translation);
 
-        // speed controller config
-        m_speedConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
-        m_speedConfig.MotorOutput.Inverted = speedControllerConfig.motorDirection;
-        m_speedConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        m_speedConfig.Feedback.SensorToMechanismRatio = speedControllerConfig.speedGearRatio / speedControllerConfig.wheelCircumference;
-        m_speedController.getConfigurator().apply(m_speedConfig);
+    // initialize member variables
+    m_speedController = new TalonFX(speedControllerConfig.canId);
+    m_angleController = new TalonFX(angleControllerConfig.canId);
+    m_absoluteEncoder = new CANcoder(absoluteEncoderConfig.canId);
+    m_driveConfig = driveConfig;
 
-        // angle controller config
-        m_angleConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-        m_angleConfig.MotorOutput.Inverted = angleControllerConfig.motorDirection;
-        m_angleConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        m_angleConfig.Feedback.SensorToMechanismRatio = angleControllerConfig.angleGearRatio;
-        m_angleController.getConfigurator().apply(m_angleConfig);
+    // CANCoder config
+    m_cancoderConfig.MagnetSensor.MagnetOffset =
+        absoluteEncoderConfig.absoluteAngleOffset.getRotations();
+    m_cancoderConfig.MagnetSensor.SensorDirection = absoluteEncoderConfig.sensorDirection;
+    m_absoluteEncoder.getConfigurator().apply(m_cancoderConfig);
+    m_absoluteEncoder.getAbsolutePosition().setUpdateFrequency(4);
 
-        // set intitial angle value
-        m_angleController.setPosition(getAbsoluteAngle().getRotations());
-    }
+    // speed controller config
+    m_speedConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    m_speedConfig.MotorOutput.Inverted = speedControllerConfig.motorDirection;
+    m_speedConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+    m_speedConfig.Feedback.SensorToMechanismRatio =
+        speedControllerConfig.speedGearRatio / speedControllerConfig.wheelCircumference;
+    m_speedController.getConfigurator().apply(m_speedConfig);
 
-    @Override
-    protected double getEncoderDistance_m() {
-        return m_speedController.getPosition().getValueAsDouble();
-    }
+    // angle controller config
+    m_angleConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+    m_angleConfig.MotorOutput.Inverted = angleControllerConfig.motorDirection;
+    m_angleConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+    m_angleConfig.Feedback.SensorToMechanismRatio = angleControllerConfig.angleGearRatio;
+    m_angleController.getConfigurator().apply(m_angleConfig);
 
-    @Override
-    protected double getEncoderVelocity_mps() {
-        return m_speedController.getVelocity().getValueAsDouble();
-    }
+    // set intitial angle value
+    m_angleController.setPosition(getAbsoluteAngle().getRotations());
+  }
 
-    @Override
-    protected void setTargetVelocity_mps(double velocity_mps) {
-        m_velocityVoltageMps.Slot = 0;
-        m_speedController.setControl(m_velocityVoltageMps.withVelocity(velocity_mps));
-    }
+  @Override
+  protected double getEncoderDistanceMeters() {
+    return m_speedController.getPosition().getValueAsDouble();
+  }
 
-    @Override
-    protected Rotation2d getEncoderAngle() {
-        return Rotation2d.fromRotations(m_angleController.getPosition().getValueAsDouble());
-    }
+  @Override
+  protected double getEncoderDistanceRadians() {
+    return m_speedController.getRotorPosition().getValueAsDouble();
+  }
 
-    @Override
-    protected void setTargetAngle(Rotation2d angle) {
-        m_positionVoltageRotations.Slot = 0;
-        m_angleController.setControl(m_positionVoltageRotations.withPosition(angle.getRotations()));
-    }
+  @Override
+  protected double getEncoderVelocityMetersPerSecond() {
+    return m_speedController.getVelocity().getValueAsDouble();
+  }
 
-    @Override
-    protected Rotation2d getAbsoluteAngle() {
-        return Rotation2d.fromRotations(m_absoluteEncoder.getAbsolutePosition().getValueAsDouble());
-    }
+  @Override
+  protected double getDriveVelocityRadPerSecond() {
+    return m_speedController.getRotorVelocity().getValueAsDouble() * 2 * Math.PI;
+  }
 
-    @Override
-    protected void stopAngleMotor() {
-        m_angleController.stopMotor();
-    }
+  @Override
+  protected double getTurnVelocityRadPerSecond() {
+    return m_angleController.getRotorVelocity().getValueAsDouble() * 2 * Math.PI;
+  }
 
-    @Override
-    protected void stopSpeedMotor() {
-        m_speedController.stopMotor();
-    }
+  @Override
+  protected void setTargetVelocityMetersPerSecond(double velocity_mps) {
+    m_velocityVoltageMps.Slot = 0;
+    m_speedController.setControl(m_velocityVoltageMps.withVelocity(velocity_mps));
+  }
 
-    @Override
-    protected void recalibrateWithFilteredAbsoluteAngle(Rotation2d absoluteAngle) {
-        m_angleController.setPosition(absoluteAngle.getRotations());
-    }
+  @Override
+  public void setPercentSpeed(double percentSpeed) {
+    m_speedController.set(percentSpeed);
+  }
 
-	@Override
-	public void updateVelocityPIDConstants(PIDFValue update) {
-        Slot0Configs slot0Configs = new Slot0Configs();
-        slot0Configs.kP = update.P;
-        slot0Configs.kI = update.I;
-        slot0Configs.kD = update.D;
-        slot0Configs.kV = update.F;
-        slot0Configs.kS = 0.05;
-        m_speedConfig.Slot0 = slot0Configs;
-        m_speedController.getConfigurator().apply(slot0Configs);
-	}
+  @Override
+  protected double getDriveVoltage() {
+    return m_speedController.getMotorVoltage().getValueAsDouble();
+  }
 
-	@Override
-	public void updateAnglePIDConstants(PIDFValue update) {
-        Slot0Configs slot0Configs = new Slot0Configs();
-        slot0Configs.kP = update.P;
-        slot0Configs.kI = update.I;
-        slot0Configs.kD = update.D;
-        slot0Configs.kV = update.F;
-        m_angleConfig.Slot0 = slot0Configs;
-        m_angleController.getConfigurator().apply(slot0Configs);
-	}
+  @Override
+  protected double getTurnVoltage() {
+    return m_angleController.getMotorVoltage().getValueAsDouble();
+  }
 
-    @Override
-    public void driverModeInit() {
-        m_speedConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = m_driveConfig.driverModeClosedLoopRampRatePeriod;
-        m_speedConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = m_driveConfig.driverModeClosedLoopRampRatePeriod;
-        m_speedController.getConfigurator().apply(m_speedConfig.ClosedLoopRamps);
-    }
+  @Override
+  protected double getDriveCurrent() {
+    return m_speedController.getSupplyCurrent().getValueAsDouble();
+  }
 
-    @Override
-    public void driveToPositionInit() {
-        m_speedConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = m_driveConfig.driveToPositionClosedLoopRampRatePeriod;
-        m_speedConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = m_driveConfig.driveToPositionClosedLoopRampRatePeriod;
-        m_speedController.getConfigurator().apply(m_speedConfig.ClosedLoopRamps);
-    }
+  @Override
+  protected double getTurnCurrent() {
+    return m_angleController.getSupplyCurrent().getValueAsDouble();
+  }
 
-    @Override
-    public void addCoachTabDashboardValues(ShuffleboardTab coachTab) {}
+  @Override
+  protected Rotation2d getEncoderAngle() {
+    return Rotation2d.fromRotations(m_angleController.getPosition().getValueAsDouble());
+  }
 
-    @Override
-    protected void updateDashboard() {}
+  @Override
+  protected void setTargetAngle(Rotation2d angle) {
+    m_positionVoltageRotations.Slot = 0;
+    m_angleController.setControl(m_positionVoltageRotations.withPosition(angle.getRotations()));
+  }
 
+  @Override
+  protected Rotation2d getAbsoluteAngle() {
+    return Rotation2d.fromRotations(m_absoluteEncoder.getAbsolutePosition().getValueAsDouble());
+  }
+
+  @Override
+  protected void stopAngleMotor() {
+    m_angleController.stopMotor();
+  }
+
+  @Override
+  protected void stopSpeedMotor() {
+    m_speedController.stopMotor();
+  }
+
+  @Override
+  protected void recalibrateWithFilteredAbsoluteAngle(Rotation2d absoluteAngle) {
+    m_angleController.setPosition(absoluteAngle.getRotations());
+  }
+
+  @Override
+  public void updateVelocityPIDConstants(PIDFValue update) {
+    Slot0Configs slot0Configs = new Slot0Configs();
+    slot0Configs.kP = update.P;
+    slot0Configs.kI = update.I;
+    slot0Configs.kD = update.D;
+    slot0Configs.kV = update.F;
+    slot0Configs.kS = 0.05;
+    m_speedConfig.Slot0 = slot0Configs;
+    m_speedController.getConfigurator().apply(slot0Configs);
+  }
+
+  @Override
+  public void updateAnglePIDConstants(PIDFValue update) {
+    Slot0Configs slot0Configs = new Slot0Configs();
+    slot0Configs.kP = update.P;
+    slot0Configs.kI = update.I;
+    slot0Configs.kD = update.D;
+    slot0Configs.kV = update.F;
+    m_angleConfig.Slot0 = slot0Configs;
+    m_angleController.getConfigurator().apply(slot0Configs);
+  }
+
+  @Override
+  public void driverModeInit() {
+    m_speedConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod =
+        m_driveConfig.driverModeClosedLoopRampRatePeriod;
+    m_speedConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod =
+        m_driveConfig.driverModeClosedLoopRampRatePeriod;
+    m_speedController.getConfigurator().apply(m_speedConfig.ClosedLoopRamps);
+  }
+
+  @Override
+  public void driveToPositionInit() {
+    m_speedConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod =
+        m_driveConfig.driveToPositionClosedLoopRampRatePeriod;
+    m_speedConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod =
+        m_driveConfig.driveToPositionClosedLoopRampRatePeriod;
+    m_speedController.getConfigurator().apply(m_speedConfig.ClosedLoopRamps);
+  }
+
+  @Override
+  public void addCoachTabDashboardValues(ShuffleboardTab coachTab) {}
+
+  @Override
+  protected void updateDashboard() {}
 }
