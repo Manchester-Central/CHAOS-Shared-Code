@@ -24,22 +24,19 @@ public abstract class ChaosRobotContainer {
     configureTesterController();
   }
 
-  protected void BuildAutoer() {
-    if (AutoBuilder.isConfigured()){
+  protected void buildPathplannerAutoChooser() {
+    if (AutoBuilder.isConfigured()) {
       m_pathPlannerChooser = AutoBuilder.buildAutoChooser();
       SmartDashboard.putData("Auto Chooser", m_pathPlannerChooser);
-      
-          }
-      
-      
-        }
-      
-        /***************************
-         *    System Structures    *
-         ***************************/
-      
-        /** PathPlanner data structure */
-        private SendableChooser<Command> m_pathPlannerChooser;
+    }
+  }
+
+  /***************************
+   *    System Structures    *
+   ***************************/
+
+  /** PathPlanner data structure */
+  private SendableChooser<Command> m_pathPlannerChooser;
 
   /** Swerve Drive System */
   protected BaseSwerveDrive m_swerveDrive;
@@ -93,6 +90,7 @@ public abstract class ChaosRobotContainer {
    * @return the command choosen according to network tables
    */
   public Command getAutonomousCommand() {
+    if (m_pathPlannerChooser == null) return null;
     return m_pathPlannerChooser.getSelected();
   }
 
@@ -101,7 +99,7 @@ public abstract class ChaosRobotContainer {
 
   /**
    * Attempts to update the pose estimator within the swerve drive object. Note that the SwerveDrive
-   * may disregard pose updates if
+   * may disregard pose updates as well.
    *
    * @param data VisionData structure containing the required parts
    */

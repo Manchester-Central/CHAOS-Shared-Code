@@ -122,6 +122,7 @@ test {
 wpi.java.configureTestTasks(test)
 
 project.compileJava.dependsOn(createVersionFile)
+project.compileJava.dependsOn 'spotlessApply'
 gversion {
     srcDir       = "src/main/java/"
     classPackage = "com.chaos131"
