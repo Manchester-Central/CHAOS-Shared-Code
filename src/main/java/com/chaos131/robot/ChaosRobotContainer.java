@@ -18,21 +18,28 @@ public abstract class ChaosRobotContainer {
   public ChaosRobotContainer() {
     // PathPlanner Setup
     addAutoChoices();
-    m_pathPlannerChooser = AutoBuilder.buildAutoChooser();
-    SmartDashboard.putData("Auto Chooser", m_pathPlannerChooser);
-
     configureDriverController();
     configureOperatorController();
     configureSimKeyboard();
     configureTesterController();
   }
 
-  /***************************
-   *    System Structures    *
-   ***************************/
-
-  /** PathPlanner data structure */
-  private final SendableChooser<Command> m_pathPlannerChooser;
+  protected void BuildAutoer() {
+    if (AutoBuilder.isConfigured()){
+      m_pathPlannerChooser = AutoBuilder.buildAutoChooser();
+      SmartDashboard.putData("Auto Chooser", m_pathPlannerChooser);
+      
+          }
+      
+      
+        }
+      
+        /***************************
+         *    System Structures    *
+         ***************************/
+      
+        /** PathPlanner data structure */
+        private SendableChooser<Command> m_pathPlannerChooser;
 
   /** Swerve Drive System */
   protected BaseSwerveDrive m_swerveDrive;
