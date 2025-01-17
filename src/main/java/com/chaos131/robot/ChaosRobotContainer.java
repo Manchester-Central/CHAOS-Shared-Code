@@ -11,19 +11,26 @@ import edu.wpi.first.wpilibj2.command.Command;
 
 /**
  * Base robot container that accompanies ChaosRobot, and contains many data structures and methods
- * that are common across seasons and projects.
+ * that are common across seasons and projects. Must pass in the type of DriveSystem as a generic
+ * since every year we change it slightly (new dependency feature, )
  */
-public abstract class ChaosRobotContainer {
+public abstract class ChaosRobotContainer<T extends BaseSwerveDrive> {
   /** Default Constructor, initializes AutoChoices, Controller Setups */
   public ChaosRobotContainer() {
     // PathPlanner Setup
-    addAutoChoices();
+    configureDriveSystem();
     configureDriverController();
     configureOperatorController();
     configureSimKeyboard();
     configureTesterController();
+    addAutoChoices();
+    buildPathplannerAutoChooser();
   }
 
+  /**
+   * PathPlanner must be setup (presumably in configureDriveSystem) before we can build the auto
+   * chooser that interacts with smart dashboard. Which is weird but it is what it is I suppose.
+   */
   protected void buildPathplannerAutoChooser() {
     if (AutoBuilder.isConfigured()) {
       m_pathPlannerChooser = AutoBuilder.buildAutoChooser();
@@ -39,7 +46,7 @@ public abstract class ChaosRobotContainer {
   private SendableChooser<Command> m_pathPlannerChooser;
 
   /** Swerve Drive System */
-  protected BaseSwerveDrive m_swerveDrive;
+  protected T m_swerveDrive;
 
   /************************
    *    Control Inputs    *
@@ -57,24 +64,27 @@ public abstract class ChaosRobotContainer {
   /** Controller for testing experimental features */
   protected Gamepad m_tester;
 
+  /** Presumably this is a Swerve Drive system */
+  protected abstract void configureDriveSystem();
+
   /** Required to be implemented by child class to setup the Driver's controller interface. */
-  public abstract void configureDriverController();
+  protected abstract void configureDriverController();
 
   /** Required to be implemented by child class to setup the Operators's controller interface. */
-  public abstract void configureOperatorController();
+  protected abstract void configureOperatorController();
 
   /** Required to be implemented by child class to setup a Tester controller interface. */
-  public abstract void configureTesterController();
+  protected abstract void configureTesterController();
 
   /** Required to be implemented by child class to setup a keyboard simulation interface. */
-  public abstract void configureSimKeyboard();
+  protected abstract void configureSimKeyboard();
 
   /**************************
    *    Autonomous Setup    *
    **************************/
 
   /** Implemented by child classes to list all the commands we implement. */
-  protected void addAutoChoices() {}
+  protected abstract void addAutoChoices();
 
   /**
    * Adds a choice to the dropdown for PathPlanner
