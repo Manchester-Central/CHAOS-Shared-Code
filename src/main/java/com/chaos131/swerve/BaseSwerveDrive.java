@@ -298,11 +298,12 @@ public class BaseSwerveDrive extends SubsystemBase {
   }
 
   /**
-   * TODO Fill this out
+   * Sets each module to a specific state, this is typically a specific rotation without any
+   * velocity.
    *
-   * @param swerveModuleState seriously I don't remember
+   * @param swerveModuleState The state to apply to each swerve module
    */
-  public void debug_setSwerveModule(SwerveModuleState swerveModuleState) {
+  public void forceUniformSwerveState(SwerveModuleState swerveModuleState) {
     forAllModules((module) -> module.setTarget(swerveModuleState));
   }
 
@@ -688,10 +689,8 @@ public class BaseSwerveDrive extends SubsystemBase {
   }
 
   /**
-   * UNIMPLEMENTED - For Students to complete!
-   *
-   * <p>Translates the robot's current pose with forward moving in the direction of the current
-   * angle and left moving orthogonal to the current angle
+   * Translates the robot's current pose with forward moving in the direction of the current angle
+   * and left moving orthogonal to the current angle
    *
    * @param robotForwardMeters the meters to move forward (or backwards if negative) in relation to
    *     the current pose and direction
@@ -700,8 +699,9 @@ public class BaseSwerveDrive extends SubsystemBase {
    * @return the new pose
    */
   public Pose2d getTranslatedPose(double robotForwardMeters, double robotLeftMeters) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getTranslatedPose'");
+    return getPose()
+        .transformBy(
+            new Transform2d(robotForwardMeters, robotLeftMeters, Rotation2d.fromDegrees(0)));
   }
 
   /**
