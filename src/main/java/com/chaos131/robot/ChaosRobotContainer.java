@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
  * Base robot container that accompanies ChaosRobot, and contains many data structures and methods
  * that are common across seasons and projects.
  */
-public abstract class ChaosRobotContainer {
+public abstract class ChaosRobotContainer<TSwerveDrive extends BaseSwerveDrive> {
   /** Default Constructor, initializes AutoChoices, Controller Setups */
   public ChaosRobotContainer() {
     // PathPlanner Setup
@@ -39,7 +39,7 @@ public abstract class ChaosRobotContainer {
   private SendableChooser<Command> m_pathPlannerChooser;
 
   /** Swerve Drive System */
-  protected BaseSwerveDrive m_swerveDrive;
+  protected TSwerveDrive m_swerveDrive;
 
   /************************
    *    Control Inputs    *
