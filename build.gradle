@@ -6,16 +6,16 @@ plugins {
     id 'com.diffplug.spotless' version '6.20.0'
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
-
 java {
     withSourcesJar()
     withJavadocJar()
+
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
     maven {
         url 'https://frcmaven.wpi.edu/artifactory/release'
     }
