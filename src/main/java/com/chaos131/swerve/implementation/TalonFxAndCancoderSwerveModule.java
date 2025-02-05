@@ -103,6 +103,7 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
    */
   public TalonFxAndCancoderSwerveModule(
       String name,
+      String canBusName,
       Translation2d translation,
       SpeedControllerConfig speedControllerConfig,
       AngleControllerConfig angleControllerConfig,
@@ -111,9 +112,9 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
     super(name, translation);
 
     // initialize member variables
-    m_speedController = new TalonFX(speedControllerConfig.canId);
-    m_angleController = new TalonFX(angleControllerConfig.canId);
-    m_absoluteEncoder = new CANcoder(absoluteEncoderConfig.canId);
+    m_speedController = new TalonFX(speedControllerConfig.canId, canBusName);
+    m_angleController = new TalonFX(angleControllerConfig.canId, canBusName);
+    m_absoluteEncoder = new CANcoder(absoluteEncoderConfig.canId, canBusName);
     m_driveConfig = driveConfig;
 
     // CANCoder config
