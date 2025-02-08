@@ -85,7 +85,7 @@ public class AprilTagTests {
   }
 
   @Test
-  public void testTagZeroDegree() {
+  public void testTagAxisAlignedDegree() {
     double[] transform;
     // These are values for FRC 2025's April Tag 17 and field dimensions
     Transform3d coord_shift = new Transform3d(17.5482504 / 2, 8.0519016 / 2, 0, new Rotation3d());
@@ -102,6 +102,24 @@ public class AprilTagTests {
       // off the two are
       assertEquals(
           id21.pose2d.getTranslation().getDistance(new Translation2d(5.321, 4.026)), 0, 0.01);
+    } catch (JsonProcessingException e) {
+      // Failed to convert string to matrix
+      assertTrue(false);
+    }
+
+    try {
+      transform = // 4x4 Transformation Matrix for Fmap2025 ID17 that faces straight right
+          new ObjectMapper()
+              .readValue(
+                  "[-1,-1.2246467991473532e-16,0,-5.116399999999999,1.2246467991473532e-16,-1,0,-0.00009999999999976694,0,0,1,0.308102,0,0,0,1]",
+                  double[].class);
+      var trans_mat = MatBuilder.fill(Nat.N4(), Nat.N4(), transform);
+      AprilTag id18 = new AprilTag(18, trans_mat, 165.1 / 1000.0, coord_shift);
+      assertEquals(id18.pose2d.getRotation().getDegrees(), 180, 1);
+      // Translation2d values taken from Wolfram Alpha converting inches to meters, we check how far
+      // off the two are
+      assertEquals(
+          id18.pose2d.getTranslation().getDistance(new Translation2d(3.658, 4.026)), 0, 0.01);
     } catch (JsonProcessingException e) {
       // Failed to convert string to matrix
       assertTrue(false);

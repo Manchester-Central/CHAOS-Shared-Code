@@ -86,8 +86,8 @@ public class AprilTag extends Quad {
     Rotation3d rot;
     if (cross_product.norm() < 1e-8) {
       // If the vector is too small we shouldn't use it, so lets default to yaw for now
-      double dot_product = Math.acos(original_direction.dot(facing_direction));
-      rot = new Rotation3d(0, 0, dot_product * Math.PI);
+      double dot_product = original_direction.dot(facing_direction);
+      rot = new Rotation3d(0, 0, (1 - dot_product) / 2 * Math.PI);
     } else {
       // The vector is large enough for us to do some stuffs with
       double dot_product = Math.acos(original_direction.dot(facing_direction));
