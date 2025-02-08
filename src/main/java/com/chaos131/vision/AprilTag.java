@@ -7,6 +7,7 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -41,8 +42,9 @@ public class AprilTag extends Quad {
    * @param sizeInMeters used to define the distances to the corners from the center of the tag,
    *     assumed to be a square tag
    */
-  public AprilTag(int tag_id, Matrix<N4, N4> transform, double sizeInMeters) {
-    this(tag_id, "36h11", transform, sizeInMeters);
+  public AprilTag(
+      int tag_id, Matrix<N4, N4> transform, double sizeInMeters, Transform3d coord_shift) {
+    this(tag_id, "36h11", transform, sizeInMeters, coord_shift);
   }
 
   /**
@@ -55,7 +57,12 @@ public class AprilTag extends Quad {
    * @param sizeInMeters used to define the distances to the corners from the center of the tag,
    *     assumed to be a square tag
    */
-  public AprilTag(int tag_id, String tag_family, Matrix<N4, N4> transform, double sizeInMeters) {
+  public AprilTag(
+      int tag_id,
+      String tag_family,
+      Matrix<N4, N4> transform,
+      double sizeInMeters,
+      Transform3d coord_shift) {
     super(
         transform.times(VecBuilder.fill(sizeInMeters / -2, 0, sizeInMeters / -2, 1.0)),
         transform.times(VecBuilder.fill(sizeInMeters / 2, 0, sizeInMeters / -2, 1.0)),
@@ -73,16 +80,28 @@ public class AprilTag extends Quad {
     Matrix<N4, N1> forward_point = transform.times(VecBuilder.fill(0, 1, 0, 1.0));
     Vector<N3> facing_direction =
         new Vector<N3>(forward_point.minus(center_point).block(3, 1, 0, 0));
-    facing_direction = facing_direction.div(facing_direction.norm());
 
     // Why the hell is dot and cross product split between static and member functions?!
     Vector<N3> cross_product = Vector.cross(original_direction, facing_direction);
-    double dot_product = Math.acos(original_direction.dot(facing_direction));
-    cross_product = cross_product.div(cross_product.norm()).times(dot_product);
-    Rotation3d rot = new Rotation3d(cross_product);
+    Rotation3d rot;
+    if (cross_product.norm() < 1e-8) {
+      // If the vector is too small we shouldn't use it, so lets default to yaw for now
+      double dot_product = Math.acos(original_direction.dot(facing_direction));
+      rot = new Rotation3d(0, 0, dot_product * Math.PI);
+    } else {
+      // The vector is large enough for us to do some stuffs with
+      double dot_product = Math.acos(original_direction.dot(facing_direction));
+      cross_product = cross_product.div(cross_product.norm()).times(dot_product);
+      rot = new Rotation3d(cross_product);
+    }
 
     // Finally... we can set the pose. I still hate EJML and WPILib's math library
-    pose3d = new Pose3d(tag_center, rot);
+    if (coord_shift != null) {
+      // Shift from Limelight Coordinate frame to WPIBlue
+      pose3d = new Pose3d(tag_center.plus(coord_shift.getTranslation()), rot);
+    } else {
+      pose3d = new Pose3d(tag_center, rot);
+    }
     pose2d = pose3d.toPose2d();
   }
 }

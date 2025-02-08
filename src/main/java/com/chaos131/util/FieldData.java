@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.Filesystem;
 import java.io.File;
 import java.io.IOException;
@@ -71,6 +73,15 @@ public class FieldData {
     ArrayList<AprilTag> tags = new ArrayList<>();
     try {
       JsonNode productNode = new ObjectMapper().readTree(json);
+      Transform3d coordinate_shift = new Transform3d();
+      if (productNode.get("fieldlength") != null) {
+        coordinate_shift =
+            new Transform3d(
+                productNode.get("fieldlength").asDouble() / 2.0,
+                productNode.get("fieldwidth").asDouble() / 2.0,
+                0,
+                new Rotation3d());
+      }
       for (var fidu : productNode.get("fiducials")) {
         // if (fidu != null) System.out.println(fidu);
 
@@ -79,7 +90,8 @@ public class FieldData {
             new ObjectMapper().readValue(fidu.get("transform").toString(), double[].class);
         var trans_mat = MatBuilder.fill(Nat.N4(), Nat.N4(), transform);
 
-        var tag = new AprilTag(fidu.get("id").asInt(), trans_mat, tag_size / 1000.0);
+        var tag =
+            new AprilTag(fidu.get("id").asInt(), trans_mat, tag_size / 1000.0, coordinate_shift);
         tags.add(tag);
       }
     } catch (IOException e) {
