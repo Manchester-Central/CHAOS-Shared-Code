@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
+import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 
 public class CameraTransformsTests {
@@ -89,7 +90,7 @@ public class CameraTransformsTests {
 
   @Test
   public void testLoadingFmap() {
-    var tags = FieldData.LoadTagLocations(fmap.fmap2024);
+    ArrayList<AprilTag> tags = FieldData.LoadTagLocations(fmap.fmap2024);
     assertEquals(16, tags.size());
   }
 
@@ -100,8 +101,8 @@ public class CameraTransformsTests {
         new Pose3d(
             new Translation3d(22.0, field_up_meters / 2, 1.451102), // z is the speaker tag height
             new Rotation3d(0, 0, Math.PI));
-    var fmap_data = FieldData.LoadTagLocations(fmap.fmap2024);
-    Quad[] tags = new Quad[fmap_data.size()];
+    ArrayList<AprilTag> fmap_data = FieldData.LoadTagLocations(fmap.fmap2024);
+    AprilTag[] tags = new AprilTag[fmap_data.size()];
     fmap_data.toArray(tags);
     var res = CameraTransforms.CalculateVisibleCoordinates(camerapose, tags, 80, 56, 0.2, 100);
     // String desmos = "";

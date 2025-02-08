@@ -24,6 +24,7 @@ public abstract class ChaosRobotContainer<TSwerveDrive extends BaseSwerveDrive> 
     configureTesterController();
   }
 
+  /** Builds the pathplanner auto builder, and protects the call against accidental calls. */
   protected void buildPathplannerAutoChooser() {
     if (AutoBuilder.isConfigured()) {
       m_pathPlannerChooser = AutoBuilder.buildAutoChooser();

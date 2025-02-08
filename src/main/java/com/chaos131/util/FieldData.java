@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.wpi.first.math.MatBuilder;
 import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * An empty class definition that should be fleshed out with functions to read fmap file contents
@@ -23,15 +25,40 @@ public class FieldData {
    *     default
    * @return the list of every April Tag in the fmap
    */
-  public static ArrayList<Quad> LoadTagLocationsFromFile(String fmap_name) {
+  public static ArrayList<AprilTag> LoadTagLocationsFromFile(String fmap_name) {
     Path fmap_path = Path.of(Filesystem.getDeployDirectory() + File.separator + fmap_name);
     String file_contents;
     try {
       file_contents = Files.readString(fmap_path);
       return LoadTagLocations(file_contents);
     } catch (IOException e) {
-      return new ArrayList<Quad>();
+      return new ArrayList<AprilTag>();
     }
+  }
+
+  /**
+   * @param fmap_name file name to read from
+   * @return HashMap using AprilTag IDs as the key and the tag data as the value
+   */
+  public static HashMap<Integer, AprilTag> GetAprilTagMap(String fmap_name) {
+    HashMap<Integer, AprilTag> mapping = new HashMap<>();
+    ArrayList<AprilTag> all_tags = LoadTagLocationsFromFile(fmap_name);
+    for (var tag : all_tags) {
+      mapping.put(tag.id, tag);
+    }
+    return mapping;
+  }
+
+  /**
+   * @param tags array list of april tags
+   * @return Pose2d array of all tags in the given ArrayList
+   */
+  public static Pose2d[] GatherAprilTagPoses(ArrayList<AprilTag> tags) {
+    Pose2d[] poses = new Pose2d[tags.size()];
+    for (int idx = 0; idx < tags.size(); idx++) {
+      poses[idx] = tags.get(idx).pose2d;
+    }
+    return poses;
   }
 
   /**
@@ -40,8 +67,8 @@ public class FieldData {
    * @param json the json in string format
    * @return the list of every April Tag in the fmap
    */
-  public static ArrayList<Quad> LoadTagLocations(String json) {
-    ArrayList<Quad> quads = new ArrayList<>();
+  public static ArrayList<AprilTag> LoadTagLocations(String json) {
+    ArrayList<AprilTag> tags = new ArrayList<>();
     try {
       JsonNode productNode = new ObjectMapper().readTree(json);
       for (var fidu : productNode.get("fiducials")) {
@@ -53,25 +80,13 @@ public class FieldData {
         var trans_mat = MatBuilder.fill(Nat.N4(), Nat.N4(), transform);
 
         var tag = new AprilTag(fidu.get("id").asInt(), trans_mat, tag_size / 1000.0);
-        quads.add(tag);
+        tags.add(tag);
       }
     } catch (IOException e) {
       // Probably a file not found issue, but maybe...?
       e.printStackTrace();
     }
 
-    return quads;
-  }
-
-  private static ArrayList<Quad> AprilTags;
-
-  /**
-   * @return all the found april tags from a loaded file, null if no file has been loaded yet
-   */
-  public static ArrayList<Quad> getAllAprilTags() {
-    if (AprilTags == null) {
-      AprilTags = LoadTagLocationsFromFile("frc2024.fmap");
-    }
-    return AprilTags;
+    return tags;
   }
 }
