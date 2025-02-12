@@ -34,7 +34,8 @@ public class DashboardNumber {
   private boolean m_tuningEnabled;
 
   /**
-   * Creates a value that can be updated via NetworkTables
+   * Creates a value that can be updated via NetworkTables. Note: `onUpdate` will be immediately
+   * called with `initialValue`.
    *
    * @param name of the field in network tables
    * @param startValue the initial value to be used
@@ -43,11 +44,32 @@ public class DashboardNumber {
    */
   public DashboardNumber(
       String name, double startValue, boolean tuningEnabled, Consumer<Double> onUpdate) {
+    this(name, startValue, tuningEnabled, true, onUpdate);
+  }
+
+  /**
+   * Creates a value that can be updated via NetworkTables
+   *
+   * @param name of the field in network tables
+   * @param startValue the initial value to be used
+   * @param tuningEnabled if tuning is enabled
+   * @param willTriggerWithInitialValue if true, `onUpdate` will be immediately called with
+   *     `initialValue`
+   * @param onUpdate what to do when the value changes
+   */
+  public DashboardNumber(
+      String name,
+      double startValue,
+      boolean tuningEnabled,
+      boolean willTriggerWithInitialValue,
+      Consumer<Double> onUpdate) {
     m_value = startValue;
     m_name = name;
     m_onUpdate = onUpdate;
     m_tuningEnabled = tuningEnabled;
-    onUpdate.accept(m_value);
+    if (willTriggerWithInitialValue) {
+      onUpdate.accept(m_value);
+    }
     if (m_tuningEnabled) {
       SmartDashboard.putNumber(name, m_value);
     }
