@@ -18,6 +18,10 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -43,12 +47,6 @@ public class BaseSwerveDrive extends SubsystemBase {
     /** The angle of the robot */
     public Rotation2d gyro;
   }
-
-  /** Unused modifier to robot speed, for calibration and debugging purposes */
-  public static double TranslationSpeedModifier = 1.0;
-
-  /** Unused modifier to robot rotation, for calibration and debugging purposes */
-  public static double RotationSpeedModifier = 1.0;
 
   /** List of swerve modules */
   protected List<BaseSwerveModule> m_swerveModules;
@@ -256,25 +254,11 @@ public class BaseSwerveDrive extends SubsystemBase {
   }
 
   /**
-   * Moves the robot according to the NORMALIZED speeds (where 1.0 is max speed, and -1.0 is max
-   * speed in the other direction) `TranslationSpeedModifier` and `RotationSpeedModifier` will be
-   * applied as [0.0, 1.0] multipliers.
+   * Moves the robot according to the NORMALIZED speeds.
    *
    * @param chassisSpeeds the normalized speeds
    */
   public void move(ChassisSpeeds chassisSpeeds) {
-    chassisSpeeds.vxMetersPerSecond =
-        MathUtil.clamp(chassisSpeeds.vxMetersPerSecond, -1, 1)
-            * m_swerveConfigs.maxRobotSpeed_mps()
-            * TranslationSpeedModifier;
-    chassisSpeeds.vyMetersPerSecond =
-        MathUtil.clamp(chassisSpeeds.vyMetersPerSecond, -1, 1)
-            * m_swerveConfigs.maxRobotSpeed_mps()
-            * TranslationSpeedModifier;
-    chassisSpeeds.omegaRadiansPerSecond =
-        MathUtil.clamp(chassisSpeeds.omegaRadiansPerSecond, -1, 1)
-            * m_swerveConfigs.maxRobotRotation_radps()
-            * RotationSpeedModifier;
     if (chassisSpeeds.vxMetersPerSecond == 0
         && chassisSpeeds.vyMetersPerSecond == 0
         && chassisSpeeds.omegaRadiansPerSecond == 0) {
@@ -282,7 +266,7 @@ public class BaseSwerveDrive extends SubsystemBase {
       return;
     }
     SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(chassisSpeeds);
-    SwerveDriveKinematics.desaturateWheelSpeeds(states, m_swerveConfigs.maxRobotSpeed_mps());
+    SwerveDriveKinematics.desaturateWheelSpeeds(states, m_swerveConfigs.maxRobotSpeed());
     for (var i = 0; i < states.length; i++) {
       m_swerveModules.get(i).setTarget(states[i]);
     }
@@ -310,39 +294,34 @@ public class BaseSwerveDrive extends SubsystemBase {
   /**
    * Moves the robot on the field while driving to a position automatically.
    *
-   * @param xPercentSpeed speed percent [-1.0, 1.0] of max speed in the x direction
-   * @param yPercentSpeed speed percent [-1.0, 1.0] of max speed in the y direction
-   * @param omegaPercentSpeed speed percent [-1.0, 1.0] of max rotation speed in the CCW direction
+   * @param xSpeed linear speed in the x direction
+   * @param ySpeed linear speed in the y direction
+   * @param omegaPercentSpeed angular speed in the CCW direction
    */
   public void moveFieldRelativeForPID(
-      double xPercentSpeed, double yPercentSpeed, double omegaPercentSpeed) {
+      LinearVelocity xSpeed, LinearVelocity ySpeed, AngularVelocity omegaSpeed) {
     ChassisSpeeds speeds =
-        ChassisSpeeds.fromFieldRelativeSpeeds(
-            xPercentSpeed, yPercentSpeed, omegaPercentSpeed, getOdometryRotation());
+        ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, getOdometryRotation());
     move(speeds);
   }
 
   /**
    * Moves the robot on the field from the perspective of the current driver station.
    *
-   * @param xPercentSpeed speed percent [-1.0, 1.0] of max speed in the x direction
-   * @param yPercentSpeed speed percent [-1.0, 1.0] of max speed in the y direction
-   * @param omegaPercentSpeed speed percent [-1.0, 1.0] of max rotation speed in the CCW direction
+   * @param xSpeed linear speed in the x direction
+   * @param ySpeed linear speed in the y direction
+   * @param omegaSpeed angular speed in the CCW direction
    */
   public void moveFieldRelative(
-      double xPercentSpeed, double yPercentSpeed, double omegaPercentSpeed) {
+      LinearVelocity xSpeed, LinearVelocity ySpeed, AngularVelocity omegaSpeed) {
     ChassisSpeeds speeds;
     if (isDefaultAlliance()) {
       speeds =
-          ChassisSpeeds.fromFieldRelativeSpeeds(
-              xPercentSpeed, yPercentSpeed, omegaPercentSpeed, getOdometryRotation());
+          ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, getOdometryRotation());
     } else {
       speeds =
           ChassisSpeeds.fromFieldRelativeSpeeds(
-              xPercentSpeed,
-              yPercentSpeed,
-              omegaPercentSpeed,
-              getOdometryRotation().minus(new Rotation2d(Math.PI)));
+              xSpeed, ySpeed, omegaSpeed, getOdometryRotation().minus(new Rotation2d(Math.PI)));
     }
     move(speeds);
   }
@@ -350,13 +329,13 @@ public class BaseSwerveDrive extends SubsystemBase {
   /**
    * Moves the robot on the field while driving to a position automatically.
    *
-   * @param xPercentSpeed speed percent [-1.0, 1.0] of max speed in the x direction
-   * @param yPercentSpeed speed percent [-1.0, 1.0] of max speed in the y direction
+   * @param xSpeed linear speed in the x direction
+   * @param ySpeed linear speed in the y direction
    * @param angle the angle on the field to target
    * @param magnitude how quickly to target the angle [0, 1.0]
    */
   public void moveFieldRelativeAngle(
-      double xPercentSpeed, double yPercentSpeed, Rotation2d angle, double magnitude) {
+      LinearVelocity xSpeed, LinearVelocity ySpeed, Rotation2d angle, double magnitude) {
     double omega = 0;
     ChassisSpeeds speeds;
     if (Math.abs(magnitude) >= 0.2) {
@@ -367,15 +346,15 @@ public class BaseSwerveDrive extends SubsystemBase {
     if (isDefaultAlliance()) {
       speeds =
           ChassisSpeeds.fromFieldRelativeSpeeds(
-              xPercentSpeed, yPercentSpeed, omega, getOdometryRotation());
+              xSpeed, ySpeed, Units.RadiansPerSecond.of(omega), getOdometryRotation());
     } else {
       // Rotate the direction if we're on the non default side (if 0,0 is on the blue side and we're
       // red, we need to rotate our perspective)
       speeds =
           ChassisSpeeds.fromFieldRelativeSpeeds(
-              xPercentSpeed,
-              yPercentSpeed,
-              omega,
+              xSpeed,
+              ySpeed,
+              Units.RadiansPerSecond.of(omega),
               getOdometryRotation().minus(new Rotation2d(Math.PI)));
     }
     move(speeds);
@@ -384,13 +363,13 @@ public class BaseSwerveDrive extends SubsystemBase {
   /**
    * Moves robot relative mode while maintaining field relative angle.
    *
-   * @param xPercentSpeed speed percent [-1.0, 1.0] of max speed in the x direction
-   * @param yPercentSpeed speed percent [-1.0, 1.0] of max speed in the y direction
+   * @param xSpeed linear speed in the x direction
+   * @param ySpeed linear speed in the y direction
    * @param angle the angle on the field to target
    * @param magnitude how quickly to target the angle [0, 1.0]
    */
   public void moveRobotRelativeAngle(
-      double xPercentSpeed, double yPercentSpeed, Rotation2d angle, double magnitude) {
+      LinearVelocity xSpeed, LinearVelocity ySpeed, Rotation2d angle, double magnitude) {
     double omega = 0;
     if (Math.abs(magnitude) >= 0.2) {
       omega =
@@ -398,20 +377,20 @@ public class BaseSwerveDrive extends SubsystemBase {
               * magnitude;
     }
 
-    ChassisSpeeds speeds = new ChassisSpeeds(xPercentSpeed, yPercentSpeed, omega);
+    ChassisSpeeds speeds = new ChassisSpeeds(xSpeed, ySpeed, Units.RadiansPerSecond.of(omega));
     move(speeds);
   }
 
   /**
    * Moves the robot relative to itself.
    *
-   * @param xPercentSpeed speed percent [-1.0, 1.0] of max speed in the x direction
-   * @param yPercentSpeed speed percent [-1.0, 1.0] of max speed in the y direction
-   * @param omegaPercentSpeed speed percent [-1.0, 1.0] of max rotation speed in the CCW direction
+   * @param xSpeed linear speed in the x direction
+   * @param ySpeed linear speed in the y direction
+   * @param omegaSpeed angular speed in the CCW direction
    */
   public void moveRobotRelative(
-      double xPercentSpeed, double yPercentSpeed, double omegaPercentSpeed) {
-    ChassisSpeeds speeds = new ChassisSpeeds(xPercentSpeed, yPercentSpeed, omegaPercentSpeed);
+      LinearVelocity xSpeed, LinearVelocity ySpeed, AngularVelocity omegaSpeed) {
+    ChassisSpeeds speeds = new ChassisSpeeds(xSpeed, ySpeed, omegaSpeed);
     move(speeds);
   }
 
@@ -515,7 +494,8 @@ public class BaseSwerveDrive extends SubsystemBase {
             -(maxTranslationSpeedPercent * normalizedDifference.getY()),
             (maxTranslationSpeedPercent * normalizedDifference.getY()));
     double angle = m_AngleDegreesPid.calculate(pose.getRotation().getDegrees());
-    moveFieldRelativeForPID(x, y, angle);
+    moveFieldRelativeForPID(
+        Units.MetersPerSecond.of(x), Units.MetersPerSecond.of(y), Units.RadiansPerSecond.of(angle));
   }
 
   /**
@@ -661,18 +641,19 @@ public class BaseSwerveDrive extends SubsystemBase {
   /**
    * @return the robot translation speed (in any direction) in meters per second
    */
-  public double getRobotSpeedMps() {
+  public LinearVelocity getRobotSpeed() {
     var robotSpeeds = getRobotRelativeSpeeds();
     var xMetersPerSecond = robotSpeeds.vxMetersPerSecond;
     var yMetersPerSecond = robotSpeeds.vyMetersPerSecond;
-    return Math.sqrt(Math.pow(xMetersPerSecond, 2) + Math.pow(yMetersPerSecond, 2));
+    return Units.MetersPerSecond.of(
+        Math.sqrt(Math.pow(xMetersPerSecond, 2) + Math.pow(yMetersPerSecond, 2)));
   }
 
   /**
    * @return double - The angular velocity of the robot in radians per second
    */
-  public double getRobotRotationSpeedRadsPerSec() {
-    return getRobotRelativeSpeeds().omegaRadiansPerSecond;
+  public AngularVelocity getRobotRotationSpeed() {
+    return Units.RadiansPerSecond.of(getRobotRelativeSpeeds().omegaRadiansPerSecond);
   }
 
   /**
@@ -698,32 +679,10 @@ public class BaseSwerveDrive extends SubsystemBase {
    *     current pose and direction
    * @return the new pose
    */
-  public Pose2d getTranslatedPose(double robotForwardMeters, double robotLeftMeters) {
+  public Pose2d getTranslatedPose(Distance robotForwardMeters, Distance robotLeftMeters) {
     return getPose()
         .transformBy(
             new Transform2d(robotForwardMeters, robotLeftMeters, Rotation2d.fromDegrees(0)));
-  }
-
-  /**
-   * Updates the speed modifiers [0.0, 1.0] of the robot for translation and rotation
-   *
-   * @param translationSpeedModifier the value to multiply the swerve drive's translation output by
-   * @param rotationSpeedModifier the value to multiply the swerve drive's rotation output by
-   */
-  public void updateSpeedModifier(double translationSpeedModifier, double rotationSpeedModifier) {
-    TranslationSpeedModifier = MathUtil.clamp(translationSpeedModifier, 0.0, 1.0);
-    RotationSpeedModifier = MathUtil.clamp(rotationSpeedModifier, 0.0, 1.0);
-  }
-
-  /**
-   * Updates the speed modifier [0.0, 1.0] of the robot for translation and rotation
-   *
-   * @param speedModifier the value to multiply the swerve drive's output by
-   */
-  public void updateSpeedModifier(double speedModifier) {
-    var speedModifierClamped = MathUtil.clamp(speedModifier, 0.0, 1.0);
-    TranslationSpeedModifier = speedModifierClamped;
-    RotationSpeedModifier = speedModifierClamped;
   }
 
   /**

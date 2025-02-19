@@ -3,6 +3,9 @@ package com.chaos131.swerve;
 import com.chaos131.pid.PIDFValue;
 import com.chaos131.pid.PIDValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 /**
@@ -74,26 +77,26 @@ public class SwerveConfigs {
   }
 
   /** MaxRobotSpeed_mps */
-  private double m_maxRobotSpeed_mps = 4.0;
+  private LinearVelocity m_maxRobotSpeed = Units.MetersPerSecond.of(4.0);
 
-  public double maxRobotSpeed_mps() {
-    return m_maxRobotSpeed_mps;
+  public LinearVelocity maxRobotSpeed() {
+    return m_maxRobotSpeed;
   }
 
-  public SwerveConfigs setMaxRobotSpeed_mps(double maxRobotSpeed_mps) {
-    m_maxRobotSpeed_mps = maxRobotSpeed_mps;
+  public SwerveConfigs setMaxRobotSpeed(LinearVelocity maxRobotSpeed) {
+    m_maxRobotSpeed = maxRobotSpeed;
     return this;
   }
 
-  /** MaxRobotRotation_radps */
-  private double m_maxRobotRotation_radps = 3;
+  /** MaxRobotRotation */
+  private AngularVelocity m_maxRobotRotation = Units.RadiansPerSecond.of(3.0);
 
-  public double maxRobotRotation_radps() {
-    return m_maxRobotRotation_radps;
+  public AngularVelocity maxRobotRotation() {
+    return m_maxRobotRotation;
   }
 
-  public SwerveConfigs setMaxRobotRotation_radps(double maxRobotRotation_radps) {
-    m_maxRobotRotation_radps = maxRobotRotation_radps;
+  public SwerveConfigs setMaxRobotRotation(AngularVelocity maxRobotRotation) {
+    m_maxRobotRotation = maxRobotRotation;
     return this;
   }
 
