@@ -296,7 +296,7 @@ public class BaseSwerveDrive extends SubsystemBase {
    *
    * @param xSpeed linear speed in the x direction
    * @param ySpeed linear speed in the y direction
-   * @param omegaPercentSpeed angular speed in the CCW direction
+   * @param omegaSpeed angular speed in the CCW direction
    */
   public void moveFieldRelativeForPID(
       LinearVelocity xSpeed, LinearVelocity ySpeed, AngularVelocity omegaSpeed) {
