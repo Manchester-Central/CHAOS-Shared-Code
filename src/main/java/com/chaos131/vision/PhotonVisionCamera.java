@@ -41,7 +41,7 @@ public class PhotonVisionCamera extends Camera {
     // List<PhotonPipelineResult> new_res = m_camera.getAllUnreadResults();
     Optional<EstimatedRobotPose> new_pose = m_poseEstimator.update(null);
     return new VisionData(
-        new_pose.get().estimatedPose, new_pose.get().timestampSeconds, new double[] {0, 0, 0}, 1);
+        new_pose.get().estimatedPose, new_pose.get().timestampSeconds, new double[] {0, 0, 0}, 1, m_name);
   }
 
   @Override
