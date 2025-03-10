@@ -30,7 +30,7 @@ jobs:
       run: bash .githooks/pre-commit.sh
 
     - name: Cache Gradle dependendies
-      uses: actions/cache@v1
+      uses: actions/cache@v4
       with:
         path: ~/.gradle/caches
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
