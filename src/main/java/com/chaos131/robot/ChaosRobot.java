@@ -1,6 +1,7 @@
 package com.chaos131.robot;
 
 import com.chaos131.SharedCodeBuildConstants;
+import com.chaos131.swerve.BaseSwerveDrive;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -17,9 +18,9 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter.AdvantageScopeOpenBeha
  * A ChaosRobot architecture that bundles together common libraries like AdvantageKit, PathPlanner,
  * and common features like mode timers.
  */
-public class ChaosRobot extends LoggedRobot {
+public class ChaosRobot<TSwerveDrive extends BaseSwerveDrive, TChaosRobotContainer extends ChaosRobotContainer<TSwerveDrive>> extends LoggedRobot {
   /** A container for the majority of the robot code, containing all of the subsystems */
-  protected ChaosRobotContainer m_robotContainer;
+  protected TChaosRobotContainer m_robotContainer;
 
   /** A command choosen for Autonomous Mode */
   private Command m_autoCmd;
@@ -202,7 +203,7 @@ public class ChaosRobot extends LoggedRobot {
   @Override
   public void autonomousInit() {
     timerStart();
-    var m_autoCmd = m_robotContainer.getAutonomousCommand();
+    m_autoCmd = m_robotContainer.getAutonomousCommand();
     Logger.recordOutput("Received Auto Cmd", m_autoCmd.getName());
     if (m_autoCmd != null) {
       m_autoCmd.schedule();
