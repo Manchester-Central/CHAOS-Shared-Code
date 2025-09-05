@@ -23,9 +23,9 @@ public class DashboardUnit<T extends Unit> {
             name + "_" + m_defaultUnit.toString(), defaultValue.in(m_defaultUnit));
   }
 
-  // TODO: evaluate better way
   @SuppressWarnings("unchecked")
   public Measure<T> get() {
-    return (Measure<T>) m_defaultUnit.of(0);
+    return (Measure<T>) m_defaultUnit.of(m_networkNumber.get());
   }
+
 }
