@@ -63,26 +63,46 @@ Add these to the `build.gradle` file:
 Make sure to add this above the dependencies sections:
 ```groovy
 def secretsFile = file("secrets.json")
-def secrets = new groovy.json.JsonSlurper().parseText(secretsFile.text)
+if (secretsFile.exists()) {
+    def secrets = new groovy.json.JsonSlurper().parseText(secretsFile.text)
+    project.ext.sharedCodeUsername = secrets.github_package_auth.username
+    project.ext.sharedCodePassword = secrets.github_package_auth.personal_access_token
+}
+else {
+    project.ext.sharedCodeUsername = System.getenv('CHAOS_PACKAGE_USERNAME')
+    project.ext.sharedCodePassword = System.getenv('CHAOS_PACKAGE_PASSWORD')
+}
 
 repositories {
     maven {
         url = uri("https://maven.pkg.github.com/Manchester-Central/CHAOS-Shared-Code")
         credentials {
-            username = secrets.github_package_auth.username
-            password = secrets.github_package_auth.personal_access_token
+            username = sharedCodeUsername
+            password = sharedCodePassword
         }
     }
 }
 ```
 
-Add this line inside the dependencies section (change `2024.0.15` with the latest package version)
+Add this line inside the dependencies section (change `2025.0.14` with the latest package version)
 ```groovy
-    implementation 'com.chaos131:shared:2024.0.15'
+    implementation 'com.chaos131:shared:2025.0.14'
 ```
 
 You can see a live example here:
-https://github.com/Manchester-Central/2024-Crescendo/blob/main/build.gradle
+https://github.com/Manchester-Central/2025-offseason-bot/blob/main/build.gradle
+
+If runnning a build on Github, you'll also need to add this step before the build step:
+```yml
+      - name: Set environment variable from context
+        run: |
+          echo "CHAOS_PACKAGE_USERNAME=${{ vars.CHAOS_PACKAGE_USERNAME }}" >> $GITHUB_ENV
+          echo "CHAOS_PACKAGE_PASSWORD=${{ vars.CHAOS_PACKAGE_PASSWORD }}" >> $GITHUB_ENV
+```
+
+You can see an example of the build script here:
+https://github.com/Manchester-Central/2025-offseason-bot/blob/main/.github/workflows/build.yml
+(This also expects a valid username and token stored in the [organizational](https://github.com/organizations/Manchester-Central/settings/variables/actions) or project variables)
 
 ### Manually add JAR
 
