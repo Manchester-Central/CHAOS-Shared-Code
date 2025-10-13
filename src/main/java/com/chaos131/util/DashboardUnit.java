@@ -6,17 +6,18 @@ package com.chaos131.util;
 
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
+
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 /**
  * A utility for creating dashboard synced values in terms of units
  */
-public class DashboardUnit<T extends Unit> {
+public class DashboardUnit<U extends Unit, M extends Measure<U>> {
 
   protected LoggedNetworkNumber m_networkNumber;
-  protected T m_defaultUnit;
+  protected U m_defaultUnit;
 
-  public DashboardUnit(String name, Measure<T> defaultValue) {
+  public DashboardUnit(String name, M defaultValue) {
     m_defaultUnit = defaultValue.unit();
     m_networkNumber =
         new LoggedNetworkNumber(
@@ -24,8 +25,8 @@ public class DashboardUnit<T extends Unit> {
   }
 
   @SuppressWarnings("unchecked")
-  public Measure<T> get() {
-    return (Measure<T>) m_defaultUnit.of(m_networkNumber.get());
+  public M get() {
+    return (M) m_defaultUnit.of(m_networkNumber.get());
   }
 
 }
