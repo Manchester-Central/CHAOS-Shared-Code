@@ -48,7 +48,7 @@ This expects you to put the shared project in the same parent folder as your tar
 If including this repo as a git submodule, go to the workspace root in a command prompt and type in
 ```bash
 git clone https://github.com/Manchester-Central/CHAOS-Shared-Code.git
-git submodule add CHAOS-Shared-Code
+git submodule add ./CHAOS-Shared-Code
 ```
 
 You can then type in `git status` and you should see a red line "CHAOS-Shared-Code" indicating uncommitted changes. You can now `git add CHAOS-Shared-Code` now or later. If you have a preferred GUI, any normal git clone will accomplish the same thing. Proceed with the next two steps to tell gradle to also include the submodule.
