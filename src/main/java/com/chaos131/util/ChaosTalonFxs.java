@@ -4,28 +4,24 @@
 
 package com.chaos131.util;
 
-import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.chaos131.pid.PIDFValue;
 import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXSConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.sim.CANcoderSimState;
+import com.ctre.phoenix6.hardware.TalonFXS;
 import com.ctre.phoenix6.sim.ChassisReference;
-import com.ctre.phoenix6.sim.TalonFXSimState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Mass;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 /** A TalonFX wrapper with automatic simulation support and helper functions. */
-public class ChaosTalonFx extends TalonFX {
+public class ChaosTalonFxs extends TalonFXS {
   private double m_gearRatio;
   private DCMotorSim m_motorSimModel;
   private ChassisReference m_simDirection;
@@ -35,11 +31,11 @@ public class ChaosTalonFx extends TalonFX {
   private final MotionMagicVoltage m_positionMotionMagicVoltage = new MotionMagicVoltage(0);
   private final DynamicMotionMagicVoltage m_positionDynamicMotionMagicVoltage =
       new DynamicMotionMagicVoltage(0, 0, 0);
-  public final TalonFXConfiguration Configuration = new TalonFXConfiguration();
+  public final TalonFXSConfiguration Configuration = new TalonFXSConfiguration();
   private double m_lastUserSetSpeed = 0.0;
 
   /** Creates the new TalonFX wrapper WITHOUT simulation support. */
-  public ChaosTalonFx(int canId, String canBus) {
+  public ChaosTalonFxs(int canId, String canBus) {
     super(canId, canBus);
     this.m_gearRatio = 0.0;
     m_motorSimModel = null;
@@ -94,33 +90,35 @@ public class ChaosTalonFx extends TalonFX {
       return;
     }
 
-    TalonFXSimState talonFxSim = getSimState();
-    // talonFxSim.Orientation = m_simDirection;
+    var talonFxSim = getSimState();
+    // TODO: talonFxSim.Orientation = m_simDirection;
 
     // set the supply voltage of the TalonFX
     talonFxSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
     if (m_isMainSimMotor) {
       // get the motor voltage of the TalonFX
-      Voltage motorVoltage = talonFxSim.getMotorVoltageMeasure();
+      var motorVoltage = talonFxSim.getMotorVoltage();
 
       // use the motor voltage to calculate new position and velocity
       // using WPILib's DCMotorSim class for physics simulation
-      // m_motorSimModel.setInputVoltage(motorVoltage.in(Volts));
-      // m_motorSimModel.update(Robot.defaultPeriodSecs);
+      m_motorSimModel.setInputVoltage(motorVoltage);
+      m_motorSimModel.update(0.020); // assume 20 ms loop time
 
       if (m_attachedCanCoder != null) {
-        CANcoderSimState canCoderSimState = m_attachedCanCoder.getSimState();
-        canCoderSimState.setRawPosition(m_motorSimModel.getAngularPosition());
-        canCoderSimState.setVelocity(m_motorSimModel.getAngularVelocity());
+        var canCoderSimState = m_attachedCanCoder.getSimState();
+        canCoderSimState.setRawPosition(m_motorSimModel.getAngularPositionRotations());
+        canCoderSimState.setVelocity(
+            Units.radiansToRotations(m_motorSimModel.getAngularVelocityRadPerSec()));
       }
     }
 
     // apply the new rotor position and velocity to the TalonFX;
     // note that this is rotor position/velocity (before gear ratio), but
     // DCMotorSim returns mechanism position/velocity (after gear ratio)
-    talonFxSim.setRawRotorPosition(m_motorSimModel.getAngularPosition().times(m_gearRatio));
-    talonFxSim.setRotorVelocity(m_motorSimModel.getAngularVelocity().times(m_gearRatio));
+    talonFxSim.setRawRotorPosition(m_gearRatio * m_motorSimModel.getAngularPositionRotations());
+    talonFxSim.setRotorVelocity(
+        m_gearRatio * Units.radiansToRotations(m_motorSimModel.getAngularVelocityRadPerSec()));
   }
 
   /** Applies/burns the configuration to the motor. */
@@ -162,27 +160,27 @@ public class ChaosTalonFx extends TalonFX {
   }
 
   /** Tells the motor controller to move to the target position. */
-  public void moveToPosition(Angle position) {
+  public void moveToPosition(double position) {
     m_positionVoltage.Slot = 0;
     setControl(m_positionVoltage.withPosition(position));
   }
 
   /** Tells the motor controller to move to the target position. */
-  public void moveToPosition(Angle position, int slot) {
+  public void moveToPosition(double position, int slot) {
     m_positionVoltage.Slot = slot;
     setControl(m_positionVoltage.withPosition(position));
   }
 
   /** Tells the motor controller to move to the target position using MotionMagic. */
-  public void moveToPositionMotionMagic(Angle position) {
+  public void moveToPositionMotionMagic(double position) {
     m_positionMotionMagicVoltage.Slot = 0;
     setControl(m_positionMotionMagicVoltage.withPosition(position));
   }
 
   /** Tells the motor controller to move to the target position using MotionMagic. */
-  public void moveToPositionMotionMagic(Angle position, Mass kg, Angle absoluteGravityAngle) {
+  public void moveToPositionMotionMagic(double position, double kg, Angle absoluteGravityAngle) {
     var currentRadians = absoluteGravityAngle.in(Radians);
-    var currentKg = Math.cos(currentRadians) * kg.in(Kilograms);
+    var currentKg = Math.cos(currentRadians) * kg;
     m_positionMotionMagicVoltage.Slot = 0;
     setControl(
         m_positionMotionMagicVoltage.withPosition(position).withFeedForward(Volts.of(currentKg)));
