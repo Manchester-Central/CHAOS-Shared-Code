@@ -1,7 +1,7 @@
 package com.chaos131.pid;
 
 import java.util.function.Consumer;
-import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 /**
  * A Logged Dashboard number specific for PID Values. This is useful for tracking PID values during
@@ -10,7 +10,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
  */
 public class LoggedPIDTuner extends PIDTuner {
   /** The P, I, D, and F values broken into their own logged values */
-  private LoggedDashboardNumber m_p, m_i, m_d, m_f;
+  private LoggedNetworkNumber m_p, m_i, m_d, m_f;
 
   /**
    * Creates a PID Tuner with AdvantageKit Logging built in
@@ -39,16 +39,16 @@ public class LoggedPIDTuner extends PIDTuner {
   public LoggedPIDTuner(
       String key, double _p, double _i, double _d, double _f, Consumer<PIDFValue> pidfUpdater) {
     super(key, true, _p, _i, _d, _f, pidfUpdater);
-    m_p = new LoggedDashboardNumber(key + "_p", _p);
-    m_f = new LoggedDashboardNumber(key + "_f", _f);
-    m_i = new LoggedDashboardNumber(key + "_i", _i);
-    m_d = new LoggedDashboardNumber(key + "_d", _d);
+    m_p = new LoggedNetworkNumber(key + "_p", _p);
+    m_f = new LoggedNetworkNumber(key + "_f", _f);
+    m_i = new LoggedNetworkNumber(key + "_i", _i);
+    m_d = new LoggedNetworkNumber(key + "_d", _d);
   }
 
   @Override
   protected void setDefaults(double defaultP, double defaultI, double defaultD, double defaultF) {}
 
-  /** Collects the values from each of the LoggedDashboardNumbers */
+  /** Collects the values from each of the LoggedNetworkNumbers */
   @Override
   public PIDFValue toPIDFValue() {
     return new PIDFValue(m_p.get(), m_i.get(), m_d.get(), m_f.get());

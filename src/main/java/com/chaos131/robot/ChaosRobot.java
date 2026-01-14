@@ -18,7 +18,10 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter.AdvantageScopeOpenBeha
  * A ChaosRobot architecture that bundles together common libraries like AdvantageKit, PathPlanner,
  * and common features like mode timers.
  */
-public class ChaosRobot<TSwerveDrive extends BaseSwerveDrive, TChaosRobotContainer extends ChaosRobotContainer<TSwerveDrive>> extends LoggedRobot {
+public class ChaosRobot<
+        TSwerveDrive extends BaseSwerveDrive,
+        TChaosRobotContainer extends ChaosRobotContainer<TSwerveDrive>>
+    extends LoggedRobot {
   /** A container for the majority of the robot code, containing all of the subsystems */
   protected TChaosRobotContainer m_robotContainer;
 

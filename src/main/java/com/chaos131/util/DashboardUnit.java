@@ -6,12 +6,9 @@ package com.chaos131.util;
 
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
-
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
-/**
- * A utility for creating dashboard synced values in terms of units
- */
+/** A utility for creating dashboard synced values in terms of units */
 public class DashboardUnit<U extends Unit, M extends Measure<U>> {
 
   protected LoggedNetworkNumber m_networkNumber;
@@ -28,5 +25,4 @@ public class DashboardUnit<U extends Unit, M extends Measure<U>> {
   public M get() {
     return (M) m_defaultUnit.of(m_networkNumber.get());
   }
-
 }

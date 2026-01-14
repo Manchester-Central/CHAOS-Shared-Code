@@ -330,13 +330,15 @@ public class LimelightCamera extends Camera {
           m_poseData.pose[idx],
           m_poseData.timestamps[idx],
           new double[] {m_poseData.deviations[idx], m_poseData.deviations[idx], 1},
-          conf, m_name);
+          conf,
+          m_name);
     } else {
       return new VisionData(
           m_poseDataMT2.pose[idx],
           m_poseDataMT2.timestamps[idx],
           new double[] {m_poseDataMT2.deviations[idx], m_poseDataMT2.deviations[idx], 1},
-          conf2, m_name);
+          conf2,
+          m_name);
     }
   }
 
