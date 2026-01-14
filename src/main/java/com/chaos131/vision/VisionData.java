@@ -32,7 +32,8 @@ public class VisionData {
    * @param deviation for confidence
    * @param confidence for confidence
    */
-  public VisionData(Pose3d pose, double timestamp, double deviation[], double confidence, String name) {
+  public VisionData(
+      Pose3d pose, double timestamp, double deviation[], double confidence, String name) {
     m_pose = pose;
     m_time = timestamp;
     m_deviation = deviation;
@@ -81,9 +82,8 @@ public class VisionData {
   public double getConfidence() {
     return m_confidence;
   }
-  
+
   public String getName() {
     return m_name;
   }
-
 }
