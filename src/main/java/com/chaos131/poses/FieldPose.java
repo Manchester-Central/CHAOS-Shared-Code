@@ -82,11 +82,7 @@ public abstract class FieldPose {
    * @return the distance along the floor. Does not account for vertical component.
    */
   public double getDistanceFromLocation(Pose2d robotpose) {
-    if (getCurrentAlliance() == Alliance.Blue) {
-      return getBluePose().getTranslation().getDistance(robotpose.getTranslation());
-    } else {
-      return getRedPose().getTranslation().getDistance(robotpose.getTranslation());
-    }
+    return getCurrentAlliancePose().getTranslation().getDistance(robotpose.getTranslation());
   }
 
   /**

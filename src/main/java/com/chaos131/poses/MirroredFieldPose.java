@@ -91,9 +91,9 @@ public abstract class MirroredFieldPose extends FieldPose {
    */
   public Pose3d calculateSymmetry(Translation2d midpoint, Pose3d pose) {
     Pose2d flattenedPose = pose.toPose2d();
-    var xDistanceToMid = midpoint.getX() - pose.getX();
+    var xDistanceToMid = midpoint.getX() - flattenedPose.getX();
     var newX = midpoint.getX() + xDistanceToMid;
-    var newY = pose.getY();
+    var newY = flattenedPose.getY();
     var newAngle = Rotation2d.fromDegrees(180).minus(flattenedPose.getRotation());
     return new Pose3d(newX, newY, pose.getTranslation().getZ(), new Rotation3d(newAngle));
   }
