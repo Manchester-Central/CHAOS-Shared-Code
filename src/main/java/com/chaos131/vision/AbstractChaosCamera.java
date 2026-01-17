@@ -15,7 +15,7 @@ import org.littletonrobotics.junction.Logger;
  *
  * <p>This class is the gateway to robot localization, piece tracking, navigation, and more.
  */
-public abstract class Camera extends SubsystemBase {
+public abstract class AbstractChaosCamera extends SubsystemBase {
   /**
    * Epsilon values exist to compare floating point values and see if something is "close enough"
    */
@@ -93,7 +93,7 @@ public abstract class Camera extends SubsystemBase {
    *******************/
 
   /** Empty constructor that should never be directly called */
-  protected Camera() {}
+  protected AbstractChaosCamera() {}
 
   /**
    * Helps construct a Camera, should always be called in the child class constructors.
@@ -102,7 +102,7 @@ public abstract class Camera extends SubsystemBase {
    * @param specs specs for the camera, that may include physics and optical specs, but could also
    *     include
    */
-  public Camera(String name, CameraSpecs specs) {
+  public AbstractChaosCamera(String name, CameraSpecs specs) {
     m_name = name;
     m_specs = specs;
     m_useForOdometry = true;
@@ -118,7 +118,7 @@ public abstract class Camera extends SubsystemBase {
    * @param offsetHandler the function that defines the offset
    * @return itself
    */
-  public Camera setOffsetHandler(Supplier<Pose3d> offsetHandler) {
+  public AbstractChaosCamera setOffsetHandler(Supplier<Pose3d> offsetHandler) {
     m_offset = offsetHandler;
     return this;
   }
@@ -129,7 +129,7 @@ public abstract class Camera extends SubsystemBase {
    * @param poseConsumer the updater function
    * @return itself
    */
-  public Camera setPoseUpdator(Consumer<VisionData> poseConsumer) {
+  public AbstractChaosCamera setPoseUpdator(Consumer<VisionData> poseConsumer) {
     m_poseUpdator = poseConsumer;
     return this;
   }
@@ -140,7 +140,7 @@ public abstract class Camera extends SubsystemBase {
    * @param poseSupplier the pose function
    * @return itself
    */
-  public Camera setSimPoseSupplier(Supplier<Pose2d> poseSupplier) {
+  public AbstractChaosCamera setSimPoseSupplier(Supplier<Pose2d> poseSupplier) {
     m_simPoseSupplier = poseSupplier;
     return this;
   }
@@ -154,7 +154,7 @@ public abstract class Camera extends SubsystemBase {
    * @param speedSupplier the speed function
    * @return itself
    */
-  public Camera setRobotSpeedSupplier(Supplier<Double> speedSupplier) {
+  public AbstractChaosCamera setRobotSpeedSupplier(Supplier<Double> speedSupplier) {
     m_robotSpeedSupplier = speedSupplier;
     return this;
   }
@@ -168,7 +168,7 @@ public abstract class Camera extends SubsystemBase {
    * @param rotationSupplier the speed function
    * @return itself
    */
-  public Camera setRobotRotationSupplier(Supplier<Double> rotationSupplier) {
+  public AbstractChaosCamera setRobotRotationSupplier(Supplier<Double> rotationSupplier) {
     m_robotRotationSpeedSupplier = rotationSupplier;
     return this;
   }
@@ -180,7 +180,7 @@ public abstract class Camera extends SubsystemBase {
    * @param tags list of quads describing the april tags
    * @return the class itself for chaining
    */
-  public Camera setTagsOfInterest(ArrayList<Quad> tags) {
+  public AbstractChaosCamera setTagsOfInterest(ArrayList<Quad> tags) {
     m_localizationTags = tags;
     return this;
   }

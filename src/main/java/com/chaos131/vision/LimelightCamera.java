@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /** Implements a Camera behavior for the This is up to date for Limelight OS 2024.10.2 (10/28/24) */
-public class LimelightCamera extends Camera {
+public class LimelightCamera extends AbstractChaosCamera {
   /** Limelight versions can help the implementation navigate features and calibration */
   public enum LimelightVersion {
     /** Limelight2 */

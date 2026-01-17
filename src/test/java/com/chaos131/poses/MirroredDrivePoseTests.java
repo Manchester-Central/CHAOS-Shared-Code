@@ -5,22 +5,23 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class MirroredDrivePoseTests {
   /** This is an example of a DrivePose class that can be implemented in your robot code */
-  class DrivePoseImpl extends MirroredDrivePose {
-    public static final double FieldWidthMeters = 10;
+  class DrivePoseImpl extends MirroredFieldPose {
+    public static final Translation2d midpoint = new Translation2d(10, 4);
     public static final Alliance DefaultAlliance = Alliance.Blue;
 
     protected DrivePoseImpl(String name, Pose2d bluePose) {
-      super(FieldWidthMeters, DefaultAlliance, name, bluePose);
+      super(midpoint, DefaultAlliance, name, bluePose);
     }
 
     protected DrivePoseImpl(Pose2d bluePose) {
-      super(FieldWidthMeters, DefaultAlliance, null, bluePose);
+      super(midpoint, DefaultAlliance, null, bluePose);
     }
 
     @Override
@@ -32,7 +33,7 @@ public class MirroredDrivePoseTests {
 
   @BeforeEach
   public void clean() {
-    DrivePoseImpl.DrivePoses.clear();
+    DrivePoseImpl.FieldPoses.clear();
   }
 
   @Test
