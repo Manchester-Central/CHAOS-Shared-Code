@@ -34,7 +34,7 @@ public class ChaosTalonFx extends TalonFX {
   private final PositionVoltage m_positionVoltage = new PositionVoltage(0);
   private final MotionMagicVoltage m_positionMotionMagicVoltage = new MotionMagicVoltage(0);
   private final DynamicMotionMagicVoltage m_positionDynamicMotionMagicVoltage =
-      new DynamicMotionMagicVoltage(0, 0, 0);
+      new DynamicMotionMagicVoltage(0, 0, 0, 0);
   public final TalonFXConfiguration Configuration = new TalonFXConfiguration();
   private double m_lastUserSetSpeed = 0.0;
 
