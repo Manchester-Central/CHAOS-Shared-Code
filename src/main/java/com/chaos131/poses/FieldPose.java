@@ -1,19 +1,17 @@
 package com.chaos131.poses;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public abstract class FieldPose {
-  public static final Map<String, FieldPose> FieldPoses =
-      new HashMap<String, FieldPose>();
+  public static final Map<String, FieldPose> FieldPoses = new HashMap<String, FieldPose>();
 
   /** The pre-calculated red pose */
   protected Pose3d m_redPose;
@@ -27,16 +25,17 @@ public abstract class FieldPose {
   /** The corresponding alliance the original pose was built for */
   protected final Alliance m_defaultAlliance;
 
-  public FieldPose(Translation2d midpoint, Alliance defaultAlliance, String name, Pose3d defaultPose) {
+  public FieldPose(
+      Translation2d midpoint, Alliance defaultAlliance, String name, Pose3d defaultPose) {
     m_defaultAlliance = defaultAlliance;
     m_name = name;
 
     if (defaultAlliance == Alliance.Blue) {
-        m_bluePose = defaultPose;
-        m_redPose = calculateSymmetry(midpoint, defaultPose);
+      m_bluePose = defaultPose;
+      m_redPose = calculateSymmetry(midpoint, defaultPose);
     } else {
-        m_bluePose = calculateSymmetry(midpoint, defaultPose);
-        m_redPose = defaultPose;
+      m_bluePose = calculateSymmetry(midpoint, defaultPose);
+      m_redPose = defaultPose;
     }
 
     // only register drive poses with a name
@@ -51,6 +50,7 @@ public abstract class FieldPose {
   public Pose2d getBluePose() {
     return m_bluePose.toPose2d();
   }
+
   public Pose3d getBluePose3d() {
     return m_bluePose;
   }
@@ -61,6 +61,7 @@ public abstract class FieldPose {
   public Pose2d getRedPose() {
     return m_redPose.toPose2d();
   }
+
   public Pose3d getRedPose3d() {
     return m_redPose;
   }
@@ -72,7 +73,7 @@ public abstract class FieldPose {
     return m_name;
   }
 
-  abstract public Pose3d calculateSymmetry(Translation2d midpoint, Pose3d pose);
+  public abstract Pose3d calculateSymmetry(Translation2d midpoint, Pose3d pose);
 
   /**
    * Calculates the distance from a specific spot on the field. Typically this is the robot's

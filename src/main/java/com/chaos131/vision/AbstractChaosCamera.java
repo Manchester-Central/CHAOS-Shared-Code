@@ -92,9 +92,6 @@ public abstract class AbstractChaosCamera extends SubsystemBase {
    * Initializations *
    *******************/
 
-  /** Empty constructor that should never be directly called */
-  protected AbstractChaosCamera() {}
-
   /**
    * Helps construct a Camera, should always be called in the child class constructors.
    *

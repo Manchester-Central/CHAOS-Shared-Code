@@ -40,8 +40,7 @@ public abstract class MirroredFieldPose extends FieldPose {
   /**
    * Creates a new drive pose with mirrored red and blue poses.
    *
-   * @param fieldWidthMeters the width of the field you want to mirror on. (With field width 10, an
-   *     x of 0 for blue will map to an x of 10 for red)
+   * @param midpoint the center of the field - use the field length and width and divide by 2
    * @param defaultAlliance the alliance color that will be on the (0, 0) side of your field
    * @param name the name of the pose. Leave as null if you don't want to add it to DrivePoses
    * @param defaultPose the pose to mirror
@@ -51,15 +50,15 @@ public abstract class MirroredFieldPose extends FieldPose {
     super(midpoint, defaultAlliance, name, defaultPose);
   }
 
-  protected MirroredFieldPose(Translation2d midpoint, Alliance defaultAlliance, String name, Pose2d defaultPose) {
+  protected MirroredFieldPose(
+      Translation2d midpoint, Alliance defaultAlliance, String name, Pose2d defaultPose) {
     this(midpoint, defaultAlliance, name, new Pose3d(defaultPose));
   }
 
   /**
    * Creates a new drive pose with mirrored red and blue poses
    *
-   * @param fieldWidthMeters the width of the field you want to mirror on. (With field width 10, an
-   *     x of 0 for blue will map to an x of 10 for red)
+   * @param midpoint the center of the field - use the field length and width and divide by 2
    * @param defaultAlliance the alliance color that will be on the (0, 0) side of your field
    * @param name the name of the pose. Leave as null if you don't want to add it to DrivePoses
    * @param defaultXMeters the x position
@@ -73,11 +72,7 @@ public abstract class MirroredFieldPose extends FieldPose {
       double defaultXMeters,
       double defaultYMeters,
       Rotation2d defaultAngle) {
-    this(
-        midpoint,
-        defaultAlliance,
-        name,
-        new Pose2d(defaultXMeters, defaultYMeters, defaultAngle));
+    this(midpoint, defaultAlliance, name, new Pose2d(defaultXMeters, defaultYMeters, defaultAngle));
   }
 
   /**
@@ -85,7 +80,7 @@ public abstract class MirroredFieldPose extends FieldPose {
    *
    * <p>This changes both the translation and rotation components.
    *
-   * @param fieldCenterPointMeters the center line to mirror the x value on
+   * @param midpoint the center of the field - use the field length and width and divide by 2
    * @param pose the pose to mirror
    * @return the new mirrored pose
    */

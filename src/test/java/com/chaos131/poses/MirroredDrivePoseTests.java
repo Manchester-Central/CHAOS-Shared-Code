@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 public class MirroredDrivePoseTests {
   /** This is an example of a DrivePose class that can be implemented in your robot code */
   class DrivePoseImpl extends MirroredFieldPose {
-    public static final Translation2d midpoint = new Translation2d(10, 4);
+    public static final Translation2d midpoint = new Translation2d(5, 4);
     public static final Alliance DefaultAlliance = Alliance.Blue;
 
     protected DrivePoseImpl(String name, Pose2d bluePose) {
