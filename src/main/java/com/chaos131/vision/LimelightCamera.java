@@ -17,7 +17,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableValue;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
 import org.littletonrobotics.junction.Logger;
 
 /** Implements a Camera behavior for the This is up to date for Limelight OS 2024.10.2 (10/28/24) */
@@ -255,12 +254,13 @@ public class LimelightCamera extends AbstractChaosCamera {
 
   /**
    * Gets the target's 3D pose with respect to the robot's coordinate system.
+   *
    * @return Pose3d object representing the target's position and orientation relative to the robot
    */
   public Pose3d getTargetPose3dRobotSpace() {
     double[] data = m_visionTable.getEntry("targetpose_robotspace").getDoubleArray(new double[0]);
     if (data.length == 0) {
-      return new Pose3d(new Translation3d(-1,-1,-1), new Rotation3d());
+      return new Pose3d(new Translation3d(-1, -1, -1), new Rotation3d());
     }
     // We have actual data to work with
     var posePosition = new Translation3d(data[idxX], data[idxY], data[idxZ]);
@@ -274,11 +274,11 @@ public class LimelightCamera extends AbstractChaosCamera {
     var visionPose = new Pose3d(posePosition, poseRotation);
     return visionPose;
   }
-  
+
   public Pose3d getBotPose3dTargetSpace() {
     double[] data = m_visionTable.getEntry("botpose_targetspace").getDoubleArray(new double[0]);
     if (data.length == 0) {
-      return new Pose3d(new Translation3d(-1,-1,-1), new Rotation3d());
+      return new Pose3d(new Translation3d(-1, -1, -1), new Rotation3d());
     }
     // We have actual data to work with
     var posePosition = new Translation3d(data[idxX], data[idxY], data[idxZ]);
