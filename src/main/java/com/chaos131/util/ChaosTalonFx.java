@@ -16,11 +16,9 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.sim.CANcoderSimState;
-import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Mass;
-import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
@@ -28,7 +26,6 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 public class ChaosTalonFx extends TalonFX {
   private double m_gearRatio;
   private DCMotorSim m_motorSimModel;
-  private ChassisReference m_simDirection;
   private boolean m_isMainSimMotor;
   private ChaosCanCoder m_attachedCanCoder;
   private final PositionVoltage m_positionVoltage = new PositionVoltage(0);
@@ -36,7 +33,6 @@ public class ChaosTalonFx extends TalonFX {
   private final DynamicMotionMagicVoltage m_positionDynamicMotionMagicVoltage =
       new DynamicMotionMagicVoltage(0, 0, 0);
   public final TalonFXConfiguration Configuration = new TalonFXConfiguration();
-  private double m_lastUserSetSpeed = 0.0;
 
   /** Creates the new TalonFX wrapper WITHOUT simulation support. */
   public ChaosTalonFx(int canId, String canBus) {
@@ -50,11 +46,9 @@ public class ChaosTalonFx extends TalonFX {
   public void attachMotorSim(
       DCMotorSim dcMotorSim,
       double gearRatio,
-      ChassisReference simDirection,
       boolean isMainSimMotor) {
     this.m_gearRatio = gearRatio;
     m_motorSimModel = dcMotorSim;
-    m_simDirection = simDirection;
     m_isMainSimMotor = isMainSimMotor;
   }
 
@@ -64,14 +58,10 @@ public class ChaosTalonFx extends TalonFX {
   }
 
   public void setSpeed(double speed) {
-    m_lastUserSetSpeed = speed;
     super.set(speed);
   }
 
   public double getSpeed() {
-    // if (Robot.isSimulation()) {
-    //   return m_lastUserSetSpeed;
-    // }
     return super.get();
   }
 
@@ -95,20 +85,11 @@ public class ChaosTalonFx extends TalonFX {
     }
 
     TalonFXSimState talonFxSim = getSimState();
-    // talonFxSim.Orientation = m_simDirection;
 
     // set the supply voltage of the TalonFX
     talonFxSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
     if (m_isMainSimMotor) {
-      // get the motor voltage of the TalonFX
-      Voltage motorVoltage = talonFxSim.getMotorVoltageMeasure();
-
-      // use the motor voltage to calculate new position and velocity
-      // using WPILib's DCMotorSim class for physics simulation
-      // m_motorSimModel.setInputVoltage(motorVoltage.in(Volts));
-      // m_motorSimModel.update(Robot.defaultPeriodSecs);
-
       if (m_attachedCanCoder != null) {
         CANcoderSimState canCoderSimState = m_attachedCanCoder.getSimState();
         canCoderSimState.setRawPosition(m_motorSimModel.getAngularPosition());

@@ -1,5 +1,10 @@
 package com.chaos131.vision;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import com.chaos131.util.Quad;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -13,8 +18,10 @@ import edu.wpi.first.networktables.NetworkTableValue;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+
 /** Implements a Camera behavior for the This is up to date for Limelight OS 2024.10.2 (10/28/24) */
-public class LimelightCamera extends Camera {
+public class LimelightCamera extends AbstractChaosCamera {
   /** Limelight versions can help the implementation navigate features and calibration */
   public enum LimelightVersion {
     /** Limelight2 */
@@ -162,7 +169,7 @@ public class LimelightCamera extends Camera {
     m_visionTable = NetworkTableInstance.getDefault().getTable(m_name);
     m_botpose = m_visionTable.getEntry("botpose_wpiblue");
     m_botposeMT2 = m_visionTable.getEntry("botpose_orb_wpiblue");
-    m_megatag2Threshold = 3.0; // Hard coded for now
+    m_megatag2Threshold = 0.0; // Hard coded for now, distance in meters, 0 is "off"
     m_pipelineID = m_visionTable.getEntry("getpipe");
     m_targetAzimuth = m_visionTable.getEntry("tx");
     m_targetElevation = m_visionTable.getEntry("ty");
@@ -172,6 +179,9 @@ public class LimelightCamera extends Camera {
     setPoseUpdator(poseConsumer);
     setRobotSpeedSupplier(robotRotationSpeedSupplier);
     setRobotRotationSupplier(robotRotationSpeedSupplier);
+    // Discard any queued messages during startup
+    m_botpose.readQueue();
+    m_botposeMT2.readQueue();
   }
 
   /**
@@ -202,9 +212,10 @@ public class LimelightCamera extends Camera {
   @Override
   public double calculateConfidence(Pose3d pose, int tagCount, double distance, double deviation) {
     var rotationSpeed = Math.abs(m_robotRotationSpeedSupplier.get());
-    var isMovingTooFast = m_specs.max_speed_acceptable < m_robotSpeedSupplier.get();
-    var isRotatingTooFast = m_specs.max_rotation_acceptable < rotationSpeed;
-    var isTooFar = m_specs.max_distance_acceptable < distance;
+    var isMovingTooFast =
+        m_specs.max_speed_acceptable.in(MetersPerSecond) < m_robotSpeedSupplier.get();
+    var isRotatingTooFast = m_specs.max_rotation_acceptable.in(RotationsPerSecond) < rotationSpeed;
+    var isTooFar = m_specs.max_distance_acceptable.in(Meters) < distance;
     if (isTooFar || isMovingTooFast || isRotatingTooFast) {
       return 0;
     }
@@ -240,6 +251,46 @@ public class LimelightCamera extends Camera {
       }
     }
     return cam_el;
+  }
+
+  /**
+   * Gets the target's 3D pose with respect to the robot's coordinate system.
+   * @return Pose3d object representing the target's position and orientation relative to the robot
+   */
+  public Pose3d getTargetPose3dRobotSpace() {
+    double[] data = m_visionTable.getEntry("targetpose_robotspace").getDoubleArray(new double[0]);
+    if (data.length == 0) {
+      return new Pose3d(new Translation3d(-1,-1,-1), new Rotation3d());
+    }
+    // We have actual data to work with
+    var posePosition = new Translation3d(data[idxX], data[idxY], data[idxZ]);
+
+    var poseRotation =
+        new Rotation3d(
+            data[idxRoll] * Math.PI / 180,
+            data[idxPitch] * Math.PI / 180,
+            data[idxYaw] * Math.PI / 180);
+
+    var visionPose = new Pose3d(posePosition, poseRotation);
+    return visionPose;
+  }
+  
+  public Pose3d getBotPose3dTargetSpace() {
+    double[] data = m_visionTable.getEntry("botpose_targetspace").getDoubleArray(new double[0]);
+    if (data.length == 0) {
+      return new Pose3d(new Translation3d(-1,-1,-1), new Rotation3d());
+    }
+    // We have actual data to work with
+    var posePosition = new Translation3d(data[idxX], data[idxY], data[idxZ]);
+
+    var poseRotation =
+        new Rotation3d(
+            data[idxRoll] * Math.PI / 180,
+            data[idxPitch] * Math.PI / 180,
+            data[idxYaw] * Math.PI / 180);
+
+    var visionPose = new Pose3d(posePosition, poseRotation);
+    return visionPose;
   }
 
   @Override
@@ -346,7 +397,17 @@ public class LimelightCamera extends Camera {
   protected void LoadNTQueueToVisionData() {
     /** TODO: Serious race condition concern here! I can't simply fix this, Limelight needs to. */
     NetworkTableValue[] mt1_poses = m_botpose.readQueue();
+    Logger.recordOutput(m_name + "/DataLength", mt1_poses.length);
     NetworkTableValue[] mt2_poses = m_botposeMT2.readQueue();
+    { // TODO: Analyze actual logs to see if this block is still necessary
+      // TODO: Investigate TableEntry issues...
+      if (mt1_poses.length == 1 && mt1_poses[0] == null) {
+        return;
+      }
+      if (mt1_poses.length == 0) {
+        return;
+      }
+    }
 
     // Parse MegaTag1 Info
     m_poseData.resize(mt1_poses.length);
@@ -354,11 +415,12 @@ public class LimelightCamera extends Camera {
       long timestamp = mt1_poses[idx].getServerTime();
       var data = mt1_poses[idx].getDoubleArray();
 
-      double timestampSeconds = timestamp / 1000000.0 - data[idxLatency] / 1000.0;
+      final double timestampSeconds = timestamp / 1000000.0 - data[idxLatency] / 1000.0;
 
-      if (data == null || data[idxX] < EPSILON) {
-        continue;
-      }
+      // TODO: Investigate if we have null conditions still
+      // if (data == null || data[idxX] < EPSILON) {
+      //   continue;
+      // }
 
       var posePosition = new Translation3d(data[idxX], data[idxY], data[idxZ]);
 
@@ -405,9 +467,10 @@ public class LimelightCamera extends Camera {
 
       double timestampSeconds = timestamp / 1000000.0 - data[idxLatency] / 1000.0;
 
-      if (data == null || data[idxX] < EPSILON) {
-        continue;
-      }
+      // TODO: If this wasn't necessary for MT1, then it shouldn't be for MT2
+      // if (data == null || data[idxX] < EPSILON) {
+      //   continue;
+      // }
 
       var posePosition = new Translation3d(data[idxX], data[idxY], data[idxZ]);
 
@@ -445,5 +508,23 @@ public class LimelightCamera extends Camera {
       m_poseDataMT2.tagCount[idx] = (int) data[idxTagCount];
       m_poseDataMT2.timestamps[idx] = timestampSeconds;
     } // End MT2
+  }
+
+  public static CameraSpecs LL3GSpecs() {
+    var specs = new CameraSpecs();
+    specs.minimum_error = 0.02;
+    specs.error_exponent = 2;
+    specs.distance_scalar = 1 / 3.15;
+    // Higher values reduce confidence, tuned to 10 from 1 based on Isaac's feedback.
+    // And then later back to 2.0
+    specs.error_multiplier = 2.0;
+    specs.tag_count_scalar = 1.0;
+    specs.VFOV = Degrees.of(56.0);
+    specs.HFOV = Degrees.of(80.0);
+    specs.max_speed_acceptable = MetersPerSecond.of(1.0);
+    specs.max_distance_acceptable = Meters.of(4.0);
+    specs.max_rotation_acceptable = RotationsPerSecond.of(0.8);
+    specs.confidence_requirement = 0.5;
+    return specs;
   }
 }
