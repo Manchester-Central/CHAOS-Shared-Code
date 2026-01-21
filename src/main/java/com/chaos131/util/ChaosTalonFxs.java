@@ -14,7 +14,6 @@ import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
-import com.ctre.phoenix6.sim.ChassisReference;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotController;
@@ -24,7 +23,6 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 public class ChaosTalonFxs extends TalonFXS {
   private double m_gearRatio;
   private DCMotorSim m_motorSimModel;
-  private ChassisReference m_simDirection;
   private boolean m_isMainSimMotor;
   private ChaosCanCoder m_attachedCanCoder;
   private final PositionVoltage m_positionVoltage = new PositionVoltage(0);
@@ -32,7 +30,6 @@ public class ChaosTalonFxs extends TalonFXS {
   private final DynamicMotionMagicVoltage m_positionDynamicMotionMagicVoltage =
       new DynamicMotionMagicVoltage(0, 0, 0);
   public final TalonFXSConfiguration Configuration = new TalonFXSConfiguration();
-  private double m_lastUserSetSpeed = 0.0;
 
   /** Creates the new TalonFX wrapper WITHOUT simulation support. */
   public ChaosTalonFxs(int canId, String canBus) {
@@ -46,11 +43,9 @@ public class ChaosTalonFxs extends TalonFXS {
   public void attachMotorSim(
       DCMotorSim dcMotorSim,
       double gearRatio,
-      ChassisReference simDirection,
       boolean isMainSimMotor) {
     this.m_gearRatio = gearRatio;
     m_motorSimModel = dcMotorSim;
-    m_simDirection = simDirection;
     m_isMainSimMotor = isMainSimMotor;
   }
 
@@ -60,14 +55,10 @@ public class ChaosTalonFxs extends TalonFXS {
   }
 
   public void setSpeed(double speed) {
-    m_lastUserSetSpeed = speed;
     super.set(speed);
   }
 
   public double getSpeed() {
-    // if (Robot.isSimulation()) {
-    //   return m_lastUserSetSpeed;
-    // }
     return super.get();
   }
 
@@ -91,7 +82,6 @@ public class ChaosTalonFxs extends TalonFXS {
     }
 
     var talonFxSim = getSimState();
-    // TODO: talonFxSim.Orientation = m_simDirection;
 
     // set the supply voltage of the TalonFX
     talonFxSim.setSupplyVoltage(RobotController.getBatteryVoltage());
