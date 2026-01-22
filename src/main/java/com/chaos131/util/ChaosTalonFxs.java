@@ -40,10 +40,7 @@ public class ChaosTalonFxs extends TalonFXS {
   }
 
   /** Adds physical simulation support. */
-  public void attachMotorSim(
-      DCMotorSim dcMotorSim,
-      double gearRatio,
-      boolean isMainSimMotor) {
+  public void attachMotorSim(DCMotorSim dcMotorSim, double gearRatio, boolean isMainSimMotor) {
     this.m_gearRatio = gearRatio;
     m_motorSimModel = dcMotorSim;
     m_isMainSimMotor = isMainSimMotor;
