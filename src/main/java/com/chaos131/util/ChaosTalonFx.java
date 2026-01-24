@@ -16,7 +16,9 @@ import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.sim.CANcoderSimState;
+import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
+import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.wpilibj.RobotController;
@@ -43,23 +45,23 @@ public class ChaosTalonFx extends TalonFX {
   }
 
   /** Adds physical simulation support. */
-  public void attachMotorSim(DCMotorSim dcMotorSim, double gearRatio, boolean isMainSimMotor) {
+  public void attachMotorSim(
+      DCMotorSim dcMotorSim,
+      double gearRatio,
+      boolean isMainSimMotor,
+      ChassisReference orientation,
+      MotorType motorType) {
     this.m_gearRatio = gearRatio;
     m_motorSimModel = dcMotorSim;
     m_isMainSimMotor = isMainSimMotor;
+    var talonFXSim = this.getSimState();
+    talonFXSim.Orientation = orientation;
+    talonFXSim.setMotorType(motorType);
   }
 
   /** Adds a CanCoder for syncing simulation values. */
   public void attachCanCoderSim(ChaosCanCoder canCoder) {
     m_attachedCanCoder = canCoder;
-  }
-
-  public void setSpeed(double speed) {
-    super.set(speed);
-  }
-
-  public double getSpeed() {
-    return super.get();
   }
 
   public void setSimAngle(Angle simAngle) {
@@ -75,7 +77,7 @@ public class ChaosTalonFx extends TalonFX {
    * Tells the motor to handle updating the sim state. Copied/inspired from:
    * https://v6.docs.ctr-electronics.com/en/2024/docs/api-reference/simulation/simulation-intro.html
    */
-  public void simUpdate() {
+  public void simulationPeriodic() {
     if (m_motorSimModel == null) {
       // Skip sim updates for motors without models
       return;
@@ -85,6 +87,13 @@ public class ChaosTalonFx extends TalonFX {
 
     // set the supply voltage of the TalonFX
     talonFxSim.setSupplyVoltage(RobotController.getBatteryVoltage());
+
+    var motorVoltage = talonFxSim.getMotorVoltage();
+
+    // use the motor voltage to calculate new position and velocity
+    // using WPILib's DCMotorSim class for physics simulation
+    m_motorSimModel.setInputVoltage(motorVoltage);
+    m_motorSimModel.update(0.020); // assume 20 ms loop time
 
     if (m_isMainSimMotor) {
       if (m_attachedCanCoder != null) {

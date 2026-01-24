@@ -14,7 +14,9 @@ import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFXS;
-import edu.wpi.first.math.util.Units;
+import com.ctre.phoenix6.sim.CANcoderSimState;
+import com.ctre.phoenix6.sim.ChassisReference;
+import com.ctre.phoenix6.sim.TalonFXSSimState;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
@@ -40,23 +42,21 @@ public class ChaosTalonFxs extends TalonFXS {
   }
 
   /** Adds physical simulation support. */
-  public void attachMotorSim(DCMotorSim dcMotorSim, double gearRatio, boolean isMainSimMotor) {
+  public void attachMotorSim(
+      DCMotorSim dcMotorSim,
+      double gearRatio,
+      boolean isMainSimMotor,
+      ChassisReference orientation) {
     this.m_gearRatio = gearRatio;
     m_motorSimModel = dcMotorSim;
     m_isMainSimMotor = isMainSimMotor;
+    var talonFXSim = this.getSimState();
+    talonFXSim.MotorOrientation = orientation;
   }
 
   /** Adds a CanCoder for syncing simulation values. */
   public void attachCanCoderSim(ChaosCanCoder canCoder) {
     m_attachedCanCoder = canCoder;
-  }
-
-  public void setSpeed(double speed) {
-    super.set(speed);
-  }
-
-  public double getSpeed() {
-    return super.get();
   }
 
   public void setSimAngle(Angle simAngle) {
@@ -72,40 +72,37 @@ public class ChaosTalonFxs extends TalonFXS {
    * Tells the motor to handle updating the sim state. Copied/inspired from:
    * https://v6.docs.ctr-electronics.com/en/2024/docs/api-reference/simulation/simulation-intro.html
    */
-  public void simUpdate() {
+  public void simulationPeriodic() {
     if (m_motorSimModel == null) {
       // Skip sim updates for motors without models
       return;
     }
 
-    var talonFxSim = getSimState();
+    TalonFXSSimState talonFxSim = getSimState();
 
     // set the supply voltage of the TalonFX
     talonFxSim.setSupplyVoltage(RobotController.getBatteryVoltage());
 
+    var motorVoltage = talonFxSim.getMotorVoltage();
+
+    // use the motor voltage to calculate new position and velocity
+    // using WPILib's DCMotorSim class for physics simulation
+    m_motorSimModel.setInputVoltage(motorVoltage);
+    m_motorSimModel.update(0.020); // assume 20 ms loop time
+
     if (m_isMainSimMotor) {
-      // get the motor voltage of the TalonFX
-      var motorVoltage = talonFxSim.getMotorVoltage();
-
-      // use the motor voltage to calculate new position and velocity
-      // using WPILib's DCMotorSim class for physics simulation
-      m_motorSimModel.setInputVoltage(motorVoltage);
-      m_motorSimModel.update(0.020); // assume 20 ms loop time
-
       if (m_attachedCanCoder != null) {
-        var canCoderSimState = m_attachedCanCoder.getSimState();
-        canCoderSimState.setRawPosition(m_motorSimModel.getAngularPositionRotations());
-        canCoderSimState.setVelocity(
-            Units.radiansToRotations(m_motorSimModel.getAngularVelocityRadPerSec()));
+        CANcoderSimState canCoderSimState = m_attachedCanCoder.getSimState();
+        canCoderSimState.setRawPosition(m_motorSimModel.getAngularPosition());
+        canCoderSimState.setVelocity(m_motorSimModel.getAngularVelocity());
       }
     }
 
     // apply the new rotor position and velocity to the TalonFX;
     // note that this is rotor position/velocity (before gear ratio), but
     // DCMotorSim returns mechanism position/velocity (after gear ratio)
-    talonFxSim.setRawRotorPosition(m_gearRatio * m_motorSimModel.getAngularPositionRotations());
-    talonFxSim.setRotorVelocity(
-        m_gearRatio * Units.radiansToRotations(m_motorSimModel.getAngularVelocityRadPerSec()));
+    talonFxSim.setRawRotorPosition(m_motorSimModel.getAngularPosition().times(m_gearRatio));
+    talonFxSim.setRotorVelocity(m_motorSimModel.getAngularVelocity().times(m_gearRatio));
   }
 
   /** Applies/burns the configuration to the motor. */
