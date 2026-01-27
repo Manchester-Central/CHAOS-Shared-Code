@@ -155,6 +155,12 @@ public class ChaosTalonFx extends TalonFX {
   }
 
   /** Tells the motor controller to move to the target position. */
+  public void moveToPosition(double position) {
+    m_positionVoltage.Slot = 0;
+    setControl(m_positionVoltage.withPosition(position));
+  }
+
+  /** Tells the motor controller to move to the target position. */
   public void moveToPosition(Angle position, int slot) {
     m_positionVoltage.Slot = slot;
     setControl(m_positionVoltage.withPosition(position));
