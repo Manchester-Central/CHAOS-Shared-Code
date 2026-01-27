@@ -5,6 +5,7 @@
 package com.chaos131.util;
 
 import static edu.wpi.first.units.Units.Kilograms;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -20,6 +21,7 @@ import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
@@ -150,6 +152,12 @@ public class ChaosTalonFx extends TalonFX {
 
   /** Tells the motor controller to move to the target position. */
   public void moveToPosition(Angle position) {
+    m_positionVoltage.Slot = 0;
+    setControl(m_positionVoltage.withPosition(position));
+  }
+
+  /** Tells the motor controller to move to the target position. */
+  public void moveToPosition(double position) {
     m_positionVoltage.Slot = 0;
     setControl(m_positionVoltage.withPosition(position));
   }
