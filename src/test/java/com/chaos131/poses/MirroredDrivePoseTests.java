@@ -76,7 +76,7 @@ public class MirroredDrivePoseTests {
   }
 
   @Test
-  public void testGetClosestPose() {
+  public void testGetClosestKnownPose() {
     var pose1 = new DrivePoseImpl("pose1", new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
     var pose2 = new DrivePoseImpl("pose2", new Pose2d(6, 6, Rotation2d.fromDegrees(0)));
     var pose3 = new DrivePoseImpl("pose3", new Pose2d(9, 0, Rotation2d.fromDegrees(0)));
@@ -90,6 +90,21 @@ public class MirroredDrivePoseTests {
     assertEquals(
         DrivePoseImpl.getClosestKnownPose(new Pose2d(8, 0, Rotation2d.fromDegrees(180))),
         pose3.getBluePose());
+  }
+
+  @Test
+  public void testGetClosestPose() {
+    var pose1 = new DrivePoseImpl("pose1", new Pose2d(0, 0, Rotation2d.fromDegrees(0)));
+    var pose2 = new DrivePoseImpl("pose2", new Pose2d(6, 6, Rotation2d.fromDegrees(0)));
+
+    var drivePose1 = new Pose2d(0, 0, Rotation2d.fromDegrees(180));
+    assertEquals(DrivePoseImpl.getNearestPoint(drivePose1, pose1, pose2), pose1);
+
+    var drivePose2 = new Pose2d(1, 0, Rotation2d.fromDegrees(0));
+    assertEquals(DrivePoseImpl.getNearestPoint(drivePose2, pose1, pose2), pose1);
+
+    var drivePose3 = new Pose2d(5, 5, Rotation2d.fromDegrees(180));
+    assertEquals(DrivePoseImpl.getNearestPoint(drivePose3, pose1, pose2), pose2);
   }
 
   // @Test

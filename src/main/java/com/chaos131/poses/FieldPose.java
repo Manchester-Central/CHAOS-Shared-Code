@@ -1,5 +1,7 @@
 package com.chaos131.poses;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -7,11 +9,11 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-
-import static edu.wpi.first.units.Units.Meters;
-
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public abstract class FieldPose {
@@ -141,5 +143,38 @@ public abstract class FieldPose {
     var poses = new ArrayList<Pose2d>();
     FieldPoses.forEach((name, pose) -> poses.add(pose.getCurrentAlliancePose()));
     return robotPose.nearest(poses);
+  }
+
+  /**
+   * Finds the closest FieldPose to the sourcePose given the current alliance. Will throw a runtime
+   * error if no FieldPoses are added.
+   *
+   * @param sourcePose the pose to compare to
+   * @param fieldPoses the poses to search through
+   */
+  public static FieldPose getNearestPoint(Pose2d sourcePose, FieldPose... fieldPoses) {
+    return getNearestPoint(sourcePose, Arrays.asList(fieldPoses));
+  }
+
+  /**
+   * Finds the closest FieldPose to the sourcePose given the current alliance. Will throw a runtime
+   * error if no FieldPoses are added.
+   *
+   * @param sourcePose the pose to compare to
+   * @param fieldPoses the poses to search through
+   */
+  public static FieldPose getNearestPoint(Pose2d sourcePose, List<FieldPose> fieldPoses) {
+    // spotless:off
+    return fieldPoses
+      .stream()
+      .min(Comparator.comparingDouble(pose -> getDistanceFromLocations(sourcePose, pose.getCurrentAlliancePose()).in(Meters)))
+      .get();
+    // spotless:on
+  }
+
+  @Override
+  public String toString() {
+    return String.format(
+        "%s(name: %s, bluePose: %s)", getClass().getSimpleName(), m_name, m_bluePose);
   }
 }
