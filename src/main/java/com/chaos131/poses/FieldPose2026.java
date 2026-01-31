@@ -4,11 +4,11 @@ import static edu.wpi.first.units.Units.Inches;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import java.io.IOException;
 
@@ -45,8 +45,12 @@ public class FieldPose2026 extends PivotedFieldPose {
   public static FieldPose2026 ClimbRightBar;
   public static FieldPose2026 ClimbFarRightBar;
 
-  private FieldPose2026(Alliance defaultAlliance, String name, Pose3d defaultPose) {
+  public FieldPose2026(Alliance defaultAlliance, String name, Pose3d defaultPose) {
     super(Midpoint, defaultAlliance, name, defaultPose);
+  }
+
+  public FieldPose2026(Alliance defaultAlliance, String name, Pose2d defaultPose) {
+    super(Midpoint, defaultAlliance, name, new Pose3d(defaultPose));
   }
 
   /**
@@ -59,11 +63,6 @@ public class FieldPose2026 extends PivotedFieldPose {
    * @throws IOException
    */
   public static void initializeFieldPoses() throws IOException {
-    var alliance = DriverStation.getAlliance();
-    if (alliance.isEmpty()) {
-      throw new IOException(
-          "Failed to load file because Alliance is unknown. Try waiting next time.");
-    }
     AprilTagLayout = new AprilTagFieldLayout(AprilTagField.m_resourceFile);
     Midpoint =
         new Translation2d(

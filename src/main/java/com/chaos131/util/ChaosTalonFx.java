@@ -14,13 +14,16 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.sim.CANcoderSimState;
 import com.ctre.phoenix6.sim.ChassisReference;
 import com.ctre.phoenix6.sim.TalonFXSimState;
 import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
@@ -31,6 +34,7 @@ public class ChaosTalonFx extends TalonFX {
   private boolean m_isMainSimMotor;
   private ChaosCanCoder m_attachedCanCoder;
   private final PositionVoltage m_positionVoltage = new PositionVoltage(0);
+  private final VelocityVoltage m_velocityVoltage = new VelocityVoltage(0);
   private final MotionMagicVoltage m_positionMotionMagicVoltage = new MotionMagicVoltage(0);
   private final DynamicMotionMagicVoltage m_positionDynamicMotionMagicVoltage =
       new DynamicMotionMagicVoltage(0, 0, 0);
@@ -146,6 +150,11 @@ public class ChaosTalonFx extends TalonFX {
     slot0.kA = ka;
     Configuration.Slot0 = slot0;
     applyConfig();
+  }
+
+  public void moveAtVelocity(AngularVelocity velocity) {
+    m_velocityVoltage.Slot = 0;
+    setControl(m_velocityVoltage.withVelocity(velocity));
   }
 
   /** Tells the motor controller to move to the target position. */
