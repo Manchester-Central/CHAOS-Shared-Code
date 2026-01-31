@@ -152,8 +152,8 @@ public abstract class FieldPose {
    * @param sourcePose the pose to compare to
    * @param fieldPoses the poses to search through
    */
-  public static FieldPose getNearestPoint(Pose2d sourcePose, FieldPose... fieldPoses) {
-    return getNearestPoint(sourcePose, Arrays.asList(fieldPoses));
+  public static FieldPose getClosestPose(Pose2d sourcePose, FieldPose... fieldPoses) {
+    return getClosestPose(sourcePose, Arrays.asList(fieldPoses));
   }
 
   /**
@@ -163,7 +163,7 @@ public abstract class FieldPose {
    * @param sourcePose the pose to compare to
    * @param fieldPoses the poses to search through
    */
-  public static FieldPose getNearestPoint(Pose2d sourcePose, List<FieldPose> fieldPoses) {
+  public static FieldPose getClosestPose(Pose2d sourcePose, List<FieldPose> fieldPoses) {
     // spotless:off
     return fieldPoses
       .stream()
