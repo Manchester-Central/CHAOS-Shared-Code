@@ -4,8 +4,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+
+import static edu.wpi.first.units.Units.Meters;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -82,8 +86,20 @@ public abstract class FieldPose {
    * @param robotpose to calculate from
    * @return the distance along the floor. Does not account for vertical component.
    */
-  public double getDistanceFromLocation(Pose2d robotpose) {
-    return getCurrentAlliancePose().getTranslation().getDistance(robotpose.getTranslation());
+  public Distance getDistanceFromLocation(Pose2d robotpose) {
+    return getDistanceFromLocations(getCurrentAlliancePose(), robotpose);
+  }
+
+  /**
+   * Calculates the distance from a specific spot on the field. Typically this is the robot's
+   * position.
+   *
+   * @param pose1
+   * @param pose2 
+   * @return the distance along the floor. Does not account for vertical component. Returns absolute values.
+   */
+  public static Distance getDistanceFromLocations(Pose2d pose1, Pose2d pose2) {
+    return Meters.of(pose2.getTranslation().getDistance(pose1.getTranslation()));
   }
 
   /**
