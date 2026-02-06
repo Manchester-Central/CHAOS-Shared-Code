@@ -4,7 +4,7 @@
 
 package com.chaos131.can;
 
-/** Add your docs here. */
+/** Constants used for CAN Bus initialization. */
 public final class CanConstants {
 
   /** Stores our canbus names. */
