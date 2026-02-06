@@ -39,14 +39,20 @@ public class ChaosTalonFx extends TalonFX {
   private final MotionMagicVoltage m_positionMotionMagicVoltage = new MotionMagicVoltage(0);
   private final DynamicMotionMagicVoltage m_positionDynamicMotionMagicVoltage =
       new DynamicMotionMagicVoltage(0, 0, 0);
-  public final TalonFXConfiguration Configuration = new TalonFXConfiguration();
+  public final TalonFXConfiguration Configuration;
 
   /** Creates the new TalonFX wrapper WITHOUT simulation support. */
-  public ChaosTalonFx(CanId canId, CanBusName canBus) {
+  public ChaosTalonFx(CanId canId, CanBusName canBus, TalonFXConfiguration config) {
     super(canId.id, canBus.name);
+    Configuration = config;
     this.m_gearRatio = 0.0;
     m_motorSimModel = null;
     m_isMainSimMotor = false;
+  }
+
+    /** Creates the new TalonFX wrapper WITHOUT simulation support. */
+  public ChaosTalonFx(CanId canId, CanBusName canBus) {
+    this(canId, canBus, new TalonFXConfiguration());
   }
 
   /** Adds physical simulation support. */

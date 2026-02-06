@@ -11,11 +11,17 @@ import com.ctre.phoenix6.hardware.CANcoder;
 
 /** A TalonFX wrapper with automatic simulation support and helper functions. */
 public class ChaosCanCoder extends CANcoder {
-  public final CANcoderConfiguration Configuration = new CANcoderConfiguration();
+  public final CANcoderConfiguration Configuration;
+  
+  /** Creates the new TalonFX wrapper WITHOUT simulation support. */
+  public ChaosCanCoder(CanId canId, CanBusName canBus, CANcoderConfiguration config) {
+    super(canId.id, canBus.name);
+    Configuration = config;
+  }
 
   /** Creates the new TalonFX wrapper WITHOUT simulation support. */
   public ChaosCanCoder(CanId canId, CanBusName canBus) {
-    super(canId.id, canBus.name);
+    this(canId, canBus, new CANcoderConfiguration());
   }
 
   /** Applies/burns the configuration to the motor. */
