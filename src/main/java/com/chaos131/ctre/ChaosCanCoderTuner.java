@@ -2,8 +2,9 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package com.chaos131.util;
+package com.chaos131.ctre;
 
+import com.chaos131.util.DashboardNumber;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import java.util.function.BiConsumer;
 
