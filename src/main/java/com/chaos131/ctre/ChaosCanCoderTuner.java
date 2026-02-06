@@ -6,12 +6,17 @@ package com.chaos131.ctre;
 
 import com.chaos131.util.DashboardNumber;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiConsumer;
 
-/** This creates a class to easily tune TalonFXConfigs for 1 or more motors. */
+/** This creates a class to easily tune CANcoderConfiguration for 1 or more CANcoders. */
 public class ChaosCanCoderTuner {
   private String m_name;
   private ChaosCanCoder m_canCoder;
+  private List<DashboardNumber> m_tunables =
+      new ArrayList<>(); // Keep in list to prevent any garbage collection
 
   /**
    * Creates a tuner for modifying numeric values of TalonFxConfigs.
@@ -25,6 +30,22 @@ public class ChaosCanCoderTuner {
   }
 
   /**
+   * Creates tunables for the MagnetSensorConfigs number values
+   *
+   * @param initialConfig the starting MagnetSensorConfigs values
+   */
+  public void tunableMagnetSensor(MagnetSensorConfigs initialConfig) {
+    tunable(
+        "DiscontinuityPoint_rotations",
+        initialConfig.AbsoluteSensorDiscontinuityPoint,
+        (config, newValue) -> config.MagnetSensor.AbsoluteSensorDiscontinuityPoint = newValue);
+    tunable(
+        "Offset_rotations",
+        initialConfig.MagnetOffset,
+        (config, newValue) -> config.MagnetSensor.MagnetOffset = newValue);
+  }
+
+  /**
    * Creates a tunable value for the TalonFxConfiguration and will apply/burn the value to the motor
    * when it changes.
    *
@@ -35,14 +56,17 @@ public class ChaosCanCoderTuner {
    */
   public DashboardNumber tunable(
       String valueName, double initialValue, BiConsumer<CANcoderConfiguration, Double> onUpdate) {
-    return new DashboardNumber(
-        "CANCoderConfig/" + m_name + "/" + valueName,
-        initialValue,
-        true,
-        false,
-        newValue -> {
-          onUpdate.accept(m_canCoder.Configuration, newValue);
-          m_canCoder.applyConfig();
-        });
+    DashboardNumber dsNumber =
+        new DashboardNumber(
+            "CANCoderConfig/" + m_name + "/" + valueName,
+            initialValue,
+            true,
+            false,
+            newValue -> {
+              onUpdate.accept(m_canCoder.Configuration, newValue);
+              m_canCoder.applyConfig();
+            });
+    m_tunables.add(dsNumber);
+    return dsNumber;
   }
 }

@@ -50,7 +50,7 @@ public class ChaosTalonFx extends TalonFX {
     m_isMainSimMotor = false;
   }
 
-    /** Creates the new TalonFX wrapper WITHOUT simulation support. */
+  /** Creates the new TalonFX wrapper WITHOUT simulation support. */
   public ChaosTalonFx(CanId canId, CanBusName canBus) {
     this(canId, canBus, new TalonFXConfiguration());
   }
