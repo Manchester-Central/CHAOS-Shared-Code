@@ -37,7 +37,7 @@ public enum Color {
     this(new Color8Bit(r, g, b));
   }
 
-    /** Forms a Color out of a Color8BIt */
+  /** Forms a Color out of a Color8BIt */
   Color(Color8Bit c) {
     color8Bit = c;
     red = c.red;
@@ -47,6 +47,7 @@ public enum Color {
 
   /**
    * Returns a COlor8Bit that shows scaled values for the duty cycle
+   *
    * @param dutyCycle a percentage value [-1.0, 1.0] to convert to a scaled color
    */
   public static Color8Bit fromDutyCycle(double dutyCycle) {
@@ -59,8 +60,12 @@ public enum Color {
     int scaleValue = (int) Math.floor(100 * dutyCycle);
     int scaledUpValue = grayBase + scaleValue + 10;
     int scaledDownValue = grayBase - scaleValue - 10;
-    return dutyCycle > 0 
-      ? new Color8Bit(scaledDownValue, scaledUpValue, scaledDownValue) // Show a scaled green value if positive
-      : new Color8Bit(scaledUpValue, scaledDownValue, scaledDownValue); // Show a scaled red value if negatve
+    return dutyCycle > 0
+        ? new Color8Bit(
+            scaledDownValue,
+            scaledUpValue,
+            scaledDownValue) // Show a scaled green value if positive
+        : new Color8Bit(
+            scaledUpValue, scaledDownValue, scaledDownValue); // Show a scaled red value if negatve
   }
 }
