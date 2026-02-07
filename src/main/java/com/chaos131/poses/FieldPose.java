@@ -97,8 +97,9 @@ public abstract class FieldPose {
    * position.
    *
    * @param pose1
-   * @param pose2 
-   * @return the distance along the floor. Does not account for vertical component. Returns absolute values.
+   * @param pose2
+   * @return the distance along the floor. Does not account for vertical component. Returns absolute
+   *     values.
    */
   public static Distance getDistanceFromLocations(Pose2d pose1, Pose2d pose2) {
     return Meters.of(pose2.getTranslation().getDistance(pose1.getTranslation()));

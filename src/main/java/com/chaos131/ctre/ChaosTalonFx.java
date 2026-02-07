@@ -2,12 +2,14 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package com.chaos131.util;
+package com.chaos131.ctre;
 
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.chaos131.can.CanConstants.CanBusName;
+import com.chaos131.can.CanConstants.CanId;
 import com.chaos131.pid.PIDFValue;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -23,7 +25,6 @@ import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Mass;
-import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
@@ -38,14 +39,20 @@ public class ChaosTalonFx extends TalonFX {
   private final MotionMagicVoltage m_positionMotionMagicVoltage = new MotionMagicVoltage(0);
   private final DynamicMotionMagicVoltage m_positionDynamicMotionMagicVoltage =
       new DynamicMotionMagicVoltage(0, 0, 0);
-  public final TalonFXConfiguration Configuration = new TalonFXConfiguration();
+  public final TalonFXConfiguration Configuration;
 
   /** Creates the new TalonFX wrapper WITHOUT simulation support. */
-  public ChaosTalonFx(int canId, String canBus) {
-    super(canId, canBus);
+  public ChaosTalonFx(CanId canId, CanBusName canBus, TalonFXConfiguration config) {
+    super(canId.id, canBus.name);
+    Configuration = config;
     this.m_gearRatio = 0.0;
     m_motorSimModel = null;
     m_isMainSimMotor = false;
+  }
+
+  /** Creates the new TalonFX wrapper WITHOUT simulation support. */
+  public ChaosTalonFx(CanId canId, CanBusName canBus) {
+    this(canId, canBus, new TalonFXConfiguration());
   }
 
   /** Adds physical simulation support. */
