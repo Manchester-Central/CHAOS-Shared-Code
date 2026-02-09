@@ -34,6 +34,11 @@ public class DashboardNumber {
   /** What to do when the number is changed */
   private Consumer<Double> m_onUpdate;
 
+  /** Adds a task to periodically check all dashboard numbers */
+  static {
+    PeriodicTasks.getInstance().addTask(DashboardNumber::checkAll);
+  }
+
   /**
    * Creates a value that can be updated via NetworkTables.
    *
@@ -98,7 +103,7 @@ public class DashboardNumber {
   }
 
   /** Checks every Dashboard number and updates them if they need to be updated */
-  public static void checkAll() {
+  private static void checkAll() {
     for (DashboardNumber dashboardNumber : AllUpdaters) {
       dashboardNumber.checkValue();
     }
