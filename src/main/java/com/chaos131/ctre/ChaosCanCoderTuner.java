@@ -58,7 +58,7 @@ public class ChaosCanCoderTuner {
       String valueName, double initialValue, BiConsumer<CANcoderConfiguration, Double> onUpdate) {
     DashboardNumber dsNumber =
         new DashboardNumber(
-            "CANCoderConfig/" + m_name + "/" + valueName,
+            m_name + "/" + valueName,
             initialValue,
             false,
             newValue -> {

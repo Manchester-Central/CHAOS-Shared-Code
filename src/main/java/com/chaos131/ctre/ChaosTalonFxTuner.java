@@ -57,7 +57,7 @@ public class ChaosTalonFxTuner {
       String valueName, double initialValue, BiConsumer<TalonFXConfiguration, Double> onUpdate) {
     DashboardNumber dsNumber =
         new DashboardNumber(
-            "TalonFxConfig/" + m_name + "/" + valueName,
+            m_name + "/" + valueName,
             initialValue,
             false,
             newValue -> {
