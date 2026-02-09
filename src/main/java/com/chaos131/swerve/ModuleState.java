@@ -9,8 +9,13 @@ import org.littletonrobotics.junction.AutoLog;
  *
  * <p>Note that this is separated from the BaseSwerveModule's scope because java does not like the
  * nesting of the derived ModuleStateAutoLogged within an abstract BaseSwerveModule class.
+ *
+ * @deprecated CHAOS has moved onto using <a
+ *     href="https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template/">AdvantageKit's
+ *     TalonFx template</a>
  */
 @AutoLog
+@Deprecated(since = "2026.1", forRemoval = true)
 public class ModuleState {
   /** Tracks if the motor is active and responsive */
   public boolean driveMotorConnected = true;

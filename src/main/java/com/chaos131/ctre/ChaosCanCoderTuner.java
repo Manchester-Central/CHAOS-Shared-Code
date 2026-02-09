@@ -29,12 +29,17 @@ public class ChaosCanCoderTuner {
     m_canCoder = canCoder;
   }
 
+  /** Creates tunables for the MagnetSensorConfigs number values using the cancoder's config */
+  public ChaosCanCoderTuner withMagnetSensor() {
+    return withMagnetSensor(m_canCoder.Configuration.MagnetSensor);
+  }
+
   /**
    * Creates tunables for the MagnetSensorConfigs number values
    *
    * @param initialConfig the starting MagnetSensorConfigs values
    */
-  public void tunableMagnetSensor(MagnetSensorConfigs initialConfig) {
+  public ChaosCanCoderTuner withMagnetSensor(MagnetSensorConfigs initialConfig) {
     tunable(
         "DiscontinuityPoint_rotations",
         initialConfig.AbsoluteSensorDiscontinuityPoint,
@@ -43,6 +48,7 @@ public class ChaosCanCoderTuner {
         "Offset_rotations",
         initialConfig.MagnetOffset,
         (config, newValue) -> config.MagnetSensor.MagnetOffset = newValue);
+    return this;
   }
 
   /**
@@ -58,9 +64,8 @@ public class ChaosCanCoderTuner {
       String valueName, double initialValue, BiConsumer<CANcoderConfiguration, Double> onUpdate) {
     DashboardNumber dsNumber =
         new DashboardNumber(
-            "CANCoderConfig/" + m_name + "/" + valueName,
+            m_name + "/" + valueName,
             initialValue,
-            true,
             false,
             newValue -> {
               onUpdate.accept(m_canCoder.Configuration, newValue);

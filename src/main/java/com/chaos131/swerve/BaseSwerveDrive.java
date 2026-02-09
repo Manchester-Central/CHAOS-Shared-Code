@@ -36,7 +36,14 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.littletonrobotics.junction.AutoLog;
 
-/** The larger SwerveDrive subsystem that manages each swerve module. */
+/**
+ * The larger SwerveDrive subsystem that manages each swerve module.
+ *
+ * @deprecated CHAOS has moved onto using <a
+ *     href="https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template/">AdvantageKit's
+ *     TalonFx template</a>
+ */
+@Deprecated(since = "2026.1", forRemoval = true)
 public class BaseSwerveDrive extends SubsystemBase {
   /** Tracks the state of the swerve system in AdvantageKit */
   @AutoLog

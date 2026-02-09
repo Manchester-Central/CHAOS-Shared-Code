@@ -4,12 +4,14 @@
 
 package com.chaos131.util;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 /**
  * A tool for creating numbers that can be easily used in the code and also updated on a dashboard
@@ -21,6 +23,12 @@ public class DashboardNumber {
   /** Shared list of all updaters that can be iterated over */
   private static List<DashboardNumber> AllUpdaters = new ArrayList<>();
 
+  /** The NetworkNumber that is used for getting updates to/from the NetworkTables. */
+  protected LoggedNetworkNumber m_networkNumber;
+
+  /** The original value of the DashboardNumber */
+  private double m_originalValue;
+
   /** Value being stored */
   private double m_value;
 
@@ -30,21 +38,34 @@ public class DashboardNumber {
   /** What to do when the number is changed */
   private Consumer<Double> m_onUpdate;
 
-  /** checks if the tuning is enabled...? */
-  private boolean m_tuningEnabled;
+  /** The alert to display when the current value is different from the original value. */
+  private Alert m_changedValueAlert;
+
+  /** Adds a task to periodically check all dashboard numbers */
+  static {
+    PeriodicTasks.getInstance().addTask(DashboardNumber::checkAll);
+  }
 
   /**
-   * Creates a value that can be updated via NetworkTables. Note: `onUpdate` will be immediately
-   * called with `initialValue`.
+   * Creates a value that can be updated via NetworkTables.
    *
    * @param name of the field in network tables
    * @param startValue the initial value to be used
-   * @param tuningEnabled if tuning is enabled
-   * @param onUpdate what to do when the value changes
    */
-  public DashboardNumber(
-      String name, double startValue, boolean tuningEnabled, Consumer<Double> onUpdate) {
-    this(name, startValue, tuningEnabled, true, onUpdate);
+  public DashboardNumber(String name, double startValue) {
+    this(name, startValue, false, (value) -> {});
+  }
+
+  /**
+   * Creates a value that can be updated via NetworkTables. Note: `onUpdate` will NOT be called
+   * immediately with `initialValue`.
+   *
+   * @param name of the field in network tables
+   * @param startValue the initial value to be used
+   * @param onUpdate the consumer that will be called when the value is updated
+   */
+  public DashboardNumber(String name, double startValue, Consumer<Double> onUpdate) {
+    this(name, startValue, false, onUpdate);
   }
 
   /**
@@ -52,27 +73,24 @@ public class DashboardNumber {
    *
    * @param name of the field in network tables
    * @param startValue the initial value to be used
-   * @param tuningEnabled if tuning is enabled
    * @param willTriggerWithInitialValue if true, `onUpdate` will be immediately called with
    *     `initialValue`
-   * @param onUpdate what to do when the value changes
+   * @param onUpdate the consumer that will be called when the value is updated
    */
   public DashboardNumber(
       String name,
       double startValue,
-      boolean tuningEnabled,
       boolean willTriggerWithInitialValue,
       Consumer<Double> onUpdate) {
     m_value = startValue;
+    m_originalValue = startValue;
     m_name = name;
     m_onUpdate = onUpdate;
-    m_tuningEnabled = tuningEnabled;
     if (willTriggerWithInitialValue) {
       onUpdate.accept(m_value);
     }
-    if (m_tuningEnabled) {
-      SmartDashboard.putNumber(name, m_value);
-    }
+    m_networkNumber = new LoggedNetworkNumber("DashboardNumbers/" + name, startValue);
+    m_changedValueAlert = new Alert("Changed DashboardNumbers", "", AlertType.kWarning);
     AllUpdaters.add(this);
   }
 
@@ -85,22 +103,26 @@ public class DashboardNumber {
 
   /** Check if the value is new, run the update function if it is */
   private void checkValue() {
-    if (!m_tuningEnabled) {
-      return;
-    }
-    var newValue = SmartDashboard.getNumber(m_name, m_value);
+    var newValue = m_networkNumber.get();
     if (newValue != m_value) {
       m_value = newValue;
       m_onUpdate.accept(m_value);
       ChangedValues.add(m_name);
+
+      if (newValue != m_originalValue) {
+        m_changedValueAlert.set(true);
+        m_changedValueAlert.setText(
+            String.format("Value '%s' changed from %f to %f", m_name, m_originalValue, newValue));
+      } else {
+        m_changedValueAlert.set(false);
+      }
     }
   }
 
   /** Checks every Dashboard number and updates them if they need to be updated */
-  public static void checkAll() {
+  private static void checkAll() {
     for (DashboardNumber dashboardNumber : AllUpdaters) {
       dashboardNumber.checkValue();
     }
-    SmartDashboard.putStringArray("ChangedValues", ChangedValues.toArray(new String[0]));
   }
 }

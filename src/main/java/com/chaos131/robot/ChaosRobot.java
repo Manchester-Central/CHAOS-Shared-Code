@@ -17,7 +17,12 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter.AdvantageScopeOpenBeha
 /**
  * A ChaosRobot architecture that bundles together common libraries like AdvantageKit, PathPlanner,
  * and common features like mode timers.
+ *
+ * @deprecated CHAOS has moved onto using <a
+ *     href="https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template/">AdvantageKit's
+ *     TalonFx template</a>
  */
+@Deprecated(since = "2026.1", forRemoval = true)
 public class ChaosRobot<
         TSwerveDrive extends BaseSwerveDrive,
         TChaosRobotContainer extends ChaosRobotContainer<TSwerveDrive>>

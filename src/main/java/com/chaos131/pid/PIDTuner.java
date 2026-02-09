@@ -8,7 +8,13 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.function.Consumer;
 
-/** Helps tune a PID from the Dashboard */
+/**
+ * Helps tune a PID from the Dashboard
+ *
+ * @deprecated We use {@link com.chaos131.ctre.ChaosTalonFxTuner} for CTRE PID tuning and WPILib's
+ *     PIDController already supports dashboard tuning.
+ */
+@Deprecated(since = "2026.1", forRemoval = true)
 public class PIDTuner {
   protected final String m_componentName;
   protected final boolean m_tuningEnabled;

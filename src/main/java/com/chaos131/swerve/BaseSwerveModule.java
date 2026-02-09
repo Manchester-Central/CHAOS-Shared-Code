@@ -17,7 +17,12 @@ import org.littletonrobotics.junction.Logger;
 /**
  * An individual swerve module that composes the swerve drive system. There are typically 4 modules
  * on a robot.
+ *
+ * @deprecated CHAOS has moved onto using <a
+ *     href="https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template/">AdvantageKit's
+ *     TalonFx template</a>
  */
+@Deprecated(since = "2026.1", forRemoval = true)
 public abstract class BaseSwerveModule {
 
   /** Name of the swerve module, typically this is FrontLeft, FrontRight, etc */
