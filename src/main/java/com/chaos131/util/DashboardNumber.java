@@ -4,12 +4,13 @@
 
 package com.chaos131.util;
 
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 /**
@@ -25,6 +26,9 @@ public class DashboardNumber {
   /** The NetworkNumber that is used for getting updates to/from the NetworkTables. */
   protected LoggedNetworkNumber m_networkNumber;
 
+  /** The original value of the DashboardNumber */
+  private double m_originalValue;
+
   /** Value being stored */
   private double m_value;
 
@@ -33,6 +37,9 @@ public class DashboardNumber {
 
   /** What to do when the number is changed */
   private Consumer<Double> m_onUpdate;
+
+  /** The alert to display when the current value is different from the original value. */
+  private Alert m_changedValueAlert;
 
   /** Adds a task to periodically check all dashboard numbers */
   static {
@@ -76,12 +83,14 @@ public class DashboardNumber {
       boolean willTriggerWithInitialValue,
       Consumer<Double> onUpdate) {
     m_value = startValue;
+    m_originalValue = startValue;
     m_name = name;
     m_onUpdate = onUpdate;
     if (willTriggerWithInitialValue) {
       onUpdate.accept(m_value);
     }
     m_networkNumber = new LoggedNetworkNumber("DashboardNumbers/" + name, startValue);
+    m_changedValueAlert = new Alert("Changed DashboardNumbers", "", AlertType.kWarning);
     AllUpdaters.add(this);
   }
 
@@ -99,6 +108,14 @@ public class DashboardNumber {
       m_value = newValue;
       m_onUpdate.accept(m_value);
       ChangedValues.add(m_name);
+
+      if (newValue != m_originalValue) {
+        m_changedValueAlert.set(true);
+        m_changedValueAlert.setText(
+            String.format("Value '%s' changed from %f to %f", m_name, m_originalValue, newValue));
+      } else {
+        m_changedValueAlert.set(false);
+      }
     }
   }
 
@@ -107,6 +124,5 @@ public class DashboardNumber {
     for (DashboardNumber dashboardNumber : AllUpdaters) {
       dashboardNumber.checkValue();
     }
-    Logger.recordOutput("DashboardNumbers/ChangedValues", ChangedValues.toArray(new String[0]));
   }
 }
