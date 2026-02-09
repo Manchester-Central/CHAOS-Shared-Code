@@ -7,7 +7,9 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
  * A Logged Dashboard number specific for PID Values. This is useful for tracking PID values during
  * testing, but should be replaced with a basic PID structure once settled. Extends the PIDTuner to
  * make it easier to swap between the two.
+ * @deprecated We use {@link com.chaos131.ctre.ChaosTalonFxTuner} for CTRE PID tuning and WPILib's PIDController already supports dashboard tuning.
  */
+@Deprecated(since = "2026.1", forRemoval = true)
 public class LoggedPIDTuner extends PIDTuner {
   /** The P, I, D, and F values broken into their own logged values */
   private LoggedNetworkNumber m_p, m_i, m_d, m_f;
