@@ -60,7 +60,6 @@ public class ChaosCanCoderTuner {
         new DashboardNumber(
             "CANCoderConfig/" + m_name + "/" + valueName,
             initialValue,
-            true,
             false,
             newValue -> {
               onUpdate.accept(m_canCoder.Configuration, newValue);

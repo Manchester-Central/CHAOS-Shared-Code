@@ -6,7 +6,9 @@ package com.chaos131.pid;
 
 /**
  * A PIDF update value.
- * @deprecated We use {@link com.chaos131.ctre.ChaosTalonFxTuner} for CTRE PID tuning and WPILib's PIDController already supports dashboard tuning.
+ *
+ * @deprecated We use {@link com.chaos131.ctre.ChaosTalonFxTuner} for CTRE PID tuning and WPILib's
+ *     PIDController already supports dashboard tuning.
  */
 @Deprecated(since = "2026.1", forRemoval = true)
 public class PIDFValue {

@@ -59,7 +59,6 @@ public class ChaosTalonFxTuner {
         new DashboardNumber(
             "TalonFxConfig/" + m_name + "/" + valueName,
             initialValue,
-            true,
             false,
             newValue -> {
               for (ChaosTalonFx chaosTalonFx : m_talons) {

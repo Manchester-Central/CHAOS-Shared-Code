@@ -30,8 +30,15 @@ public class DashboardNumber {
   /** What to do when the number is changed */
   private Consumer<Double> m_onUpdate;
 
-  /** checks if the tuning is enabled...? */
-  private boolean m_tuningEnabled;
+  /**
+   * Creates a value that can be updated via NetworkTables.
+   *
+   * @param name of the field in network tables
+   * @param startValue the initial value to be used
+   */
+  public DashboardNumber(String name, double startValue) {
+    this(name, startValue, false, (value) -> {});
+  }
 
   /**
    * Creates a value that can be updated via NetworkTables. Note: `onUpdate` will be immediately
@@ -39,12 +46,10 @@ public class DashboardNumber {
    *
    * @param name of the field in network tables
    * @param startValue the initial value to be used
-   * @param tuningEnabled if tuning is enabled
    * @param onUpdate what to do when the value changes
    */
-  public DashboardNumber(
-      String name, double startValue, boolean tuningEnabled, Consumer<Double> onUpdate) {
-    this(name, startValue, tuningEnabled, true, onUpdate);
+  public DashboardNumber(String name, double startValue, Consumer<Double> onUpdate) {
+    this(name, startValue, true, onUpdate);
   }
 
   /**
@@ -52,7 +57,6 @@ public class DashboardNumber {
    *
    * @param name of the field in network tables
    * @param startValue the initial value to be used
-   * @param tuningEnabled if tuning is enabled
    * @param willTriggerWithInitialValue if true, `onUpdate` will be immediately called with
    *     `initialValue`
    * @param onUpdate what to do when the value changes
@@ -60,19 +64,15 @@ public class DashboardNumber {
   public DashboardNumber(
       String name,
       double startValue,
-      boolean tuningEnabled,
       boolean willTriggerWithInitialValue,
       Consumer<Double> onUpdate) {
     m_value = startValue;
     m_name = name;
     m_onUpdate = onUpdate;
-    m_tuningEnabled = tuningEnabled;
     if (willTriggerWithInitialValue) {
       onUpdate.accept(m_value);
     }
-    if (m_tuningEnabled) {
-      SmartDashboard.putNumber(name, m_value);
-    }
+    SmartDashboard.putNumber(name, m_value);
     AllUpdaters.add(this);
   }
 
@@ -85,9 +85,6 @@ public class DashboardNumber {
 
   /** Check if the value is new, run the update function if it is */
   private void checkValue() {
-    if (!m_tuningEnabled) {
-      return;
-    }
     var newValue = SmartDashboard.getNumber(m_name, m_value);
     if (newValue != m_value) {
       m_value = newValue;
