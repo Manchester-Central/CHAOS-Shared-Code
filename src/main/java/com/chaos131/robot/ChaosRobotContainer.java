@@ -12,7 +12,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 /**
  * Base robot container that accompanies ChaosRobot, and contains many data structures and methods
  * that are common across seasons and projects.
+ *
+ * @deprecated CHAOS has moved onto using <a
+ *     href="https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template/">AdvantageKit's
+ *     TalonFx template</a>
  */
+@Deprecated(since = "2026.1", forRemoval = true)
 public abstract class ChaosRobotContainer<TSwerveDrive extends BaseSwerveDrive> {
   /** Default Constructor, initializes AutoChoices, Controller Setups */
   public ChaosRobotContainer() {

@@ -11,7 +11,12 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 /**
  * Configuration container that holds debug states, PID values, tolerance values, and any other
  * Swerve Tuning values.
+ *
+ * @deprecated CHAOS has moved onto using <a
+ *     href="https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template/">AdvantageKit's
+ *     TalonFx template</a>
  */
+@Deprecated(since = "2026.1", forRemoval = true)
 public class SwerveConfigs {
   /** These configs should be created and configured before creating the swerve drive class */
   public SwerveConfigs() {}

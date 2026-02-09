@@ -24,9 +24,15 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 /**
  * Creates a Swerve Module using TalonFxs and a CANcoder (CHAOS's 2022 and 2024 bots used this
  * configuration)
+ *
+ * @deprecated CHAOS has moved onto using <a
+ *     href="https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template/">AdvantageKit's
+ *     TalonFx template</a>
  */
+@Deprecated(since = "2026.1", forRemoval = true)
 public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
 
+  @Deprecated(since = "2026.1", forRemoval = true)
   public static class SpeedControllerConfig {
     public final int canId;
     public final InvertedValue motorDirection;
@@ -42,6 +48,7 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
     }
   }
 
+  @Deprecated(since = "2026.1", forRemoval = true)
   public static class AngleControllerConfig {
     public final int canId;
     public final InvertedValue motorDirection;
@@ -54,6 +61,7 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
     }
   }
 
+  @Deprecated(since = "2026.1", forRemoval = true)
   public static class AbsoluteEncoderConfig {
     public final int canId;
     public final SensorDirectionValue sensorDirection;
@@ -67,6 +75,7 @@ public class TalonFxAndCancoderSwerveModule extends BaseSwerveModule {
     }
   }
 
+  @Deprecated(since = "2026.1", forRemoval = true)
   public static class DriveConfig {
     public final double driverModeClosedLoopRampRatePeriod;
     public final double driveToPositionClosedLoopRampRatePeriod;
