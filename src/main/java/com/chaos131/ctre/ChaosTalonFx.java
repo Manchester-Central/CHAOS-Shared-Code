@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.Volts;
 import com.chaos131.can.CanConstants.CanBusName;
 import com.chaos131.can.CanConstants.CanId;
 import com.chaos131.pid.PIDFValue;
+import com.chaos131.util.PeriodicTasks;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
@@ -25,6 +26,7 @@ import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
@@ -68,6 +70,10 @@ public class ChaosTalonFx extends TalonFX {
     var talonFXSim = this.getSimState();
     talonFXSim.Orientation = orientation;
     talonFXSim.setMotorType(motorType);
+
+    if (RobotBase.isSimulation()) {
+      PeriodicTasks.getInstance().addTask(this::simulationPeriodic);
+    }
   }
 
   /** Adds a CanCoder for syncing simulation values. */
@@ -75,6 +81,11 @@ public class ChaosTalonFx extends TalonFX {
     m_attachedCanCoder = canCoder;
   }
 
+  /**
+   * Sets the starting angle of the motor in the sim.
+   *
+   * @param simAngle the initial angle
+   */
   public void setSimAngle(Angle simAngle) {
     if (m_motorSimModel == null) {
       // Skip sim updates for motors without models
@@ -88,12 +99,7 @@ public class ChaosTalonFx extends TalonFX {
    * Tells the motor to handle updating the sim state. Copied/inspired from:
    * https://v6.docs.ctr-electronics.com/en/2024/docs/api-reference/simulation/simulation-intro.html
    */
-  public void simulationPeriodic() {
-    if (m_motorSimModel == null) {
-      // Skip sim updates for motors without models
-      return;
-    }
-
+  private void simulationPeriodic() {
     TalonFXSimState talonFxSim = getSimState();
 
     // set the supply voltage of the TalonFX

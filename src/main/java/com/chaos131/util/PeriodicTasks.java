@@ -17,9 +17,7 @@ public final class PeriodicTasks extends SubsystemBase {
   /** The singleton instance of the subsystem. */
   private static PeriodicTasks m_instance = new PeriodicTasks();
 
-  /**
-   * Gets the singleton instance of the subsystem
-   */
+  /** Gets the singleton instance of the subsystem */
   public static PeriodicTasks getInstance() {
     return m_instance;
   }
