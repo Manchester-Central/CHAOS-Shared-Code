@@ -106,10 +106,22 @@ public abstract class FieldPose {
   }
 
   /**
+   * Calculates the angle from the robotPose to the FieldPose. Useful for aiming the robot.
+   *
    * @param robotpose to calculate from
    * @return Rotation2d - the field coordinate angle relative to field angle 0.
    */
-  public Rotation2d angleFrom(Translation2d robotpose) {
+  public Rotation2d getTargetAngleForRobot(Pose2d robotpose) {
+    return getTargetAngleForRobot(robotpose.getTranslation());
+  }
+
+  /**
+   * Calculates the angle from the robotPose to the FieldPose. Useful for aiming the robot.
+   *
+   * @param robotpose to calculate from
+   * @return Rotation2d - the field coordinate angle relative to field angle 0.
+   */
+  public Rotation2d getTargetAngleForRobot(Translation2d robotpose) {
     return getCurrentAlliancePose().getTranslation().minus(robotpose).getAngle();
   }
 
