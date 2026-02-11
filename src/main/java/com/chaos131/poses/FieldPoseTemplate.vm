@@ -8,7 +8,9 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class ${className} extends ${parentClass} {
-    private static Translation2d Midpoint = new Translation2d(16.540988 / 2, 8.069326 / 2); 
+    private static Translation2d Midpoint = new Translation2d(${fieldLength} / 2, ${fieldWidth} / 2);
+
+${aprilTags}
 
     public ${className}(Alliance defaultAlliance, String name, Pose3d defaultPose) {
         super(Midpoint, defaultAlliance, name, defaultPose);

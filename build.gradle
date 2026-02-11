@@ -136,16 +136,16 @@ spotless {
 // Codegen
 import org.apache.velocity.app.VelocityEngine
 import org.apache.velocity.VelocityContext
-tasks.register('generateTemplates') {
+tasks.register('generatePoseStructures') {
     group = 'Generation'
 
     // Define the data to loop over
     def configs = [
-        [
-            'Codegen2024',
-            'MirroredFieldPose',
-            'frc2024.fmap'
-        ],
+        // [
+        //     'Codegen2024',
+        //     'MirroredFieldPose',
+        //     'frc2024.fmap'
+        // ],
         [
             'Codegen2025',
             'PivotedFieldPose',
@@ -166,16 +166,31 @@ tasks.register('generateTemplates') {
         ve.init()
 
         configs.each { config ->
-            def name = config[0]
-            def parent_class = config[1]
-            def json_file = config[2]
+            def (name, parent_class, json_filename) = config
+            def json_filepath = file("src/main/deploy/${json_filename}")
+
+            if (!json_filepath.exists()) {
+                return;
+            }
+
+            def json_contents = new groovy.json.JsonSlurper().parseText(json_filepath.text)
+            def field_length = json_contents.fieldlength
+            def field_width = json_contents.fieldwidth
 
             // Create a unique file for each entry
             def outputFile = file("src/main/java/com/chaos131/poses/${name}.java")
 
+            def tag_strings = []
+            for (fiducial in json_contents.fiducials) {
+                tag_strings.add("    public static final ${name} tag${fiducial.id} = null;")
+            }
+
             def context = new org.apache.velocity.VelocityContext()
             context.put("className", name)
             context.put("parentClass", parent_class)
+            context.put("fieldLength", field_length)
+            context.put("fieldWidth", field_width)
+            context.put("aprilTags", tag_strings.join('\n'))
 
             outputFile.withWriter { writer ->
                 ve.evaluate(context, writer, "LOG", templateFile.text)
@@ -193,7 +208,7 @@ test {
 wpi.java.configureTestTasks(test)
 
 project.compileJava.dependsOn(createVersionFile)
-project.compileJava.dependsOn(generateTemplates)
+project.compileJava.dependsOn(generatePoseStructures)
 project.compileJava.dependsOn 'spotlessApply'
 gversion {
     srcDir       = "src/main/java/"
