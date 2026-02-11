@@ -1,3 +1,12 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.apache.velocity:velocity-engine-core:2.3'
+    }
+}
+
 plugins {
     id "java"
     id 'maven-publish'
@@ -124,6 +133,59 @@ spotless {
     }
 }
 
+// Codegen
+import org.apache.velocity.app.VelocityEngine
+import org.apache.velocity.VelocityContext
+tasks.register('generateTemplates') {
+    group = 'Generation'
+
+    // Define the data to loop over
+    def configs = [
+        [
+            'Codegen2024',
+            'MirroredFieldPose',
+            'frc2024.fmap'
+        ],
+        [
+            'Codegen2025',
+            'PivotedFieldPose',
+            'frc2025r2_ANDYMARK.fmap'
+        ],
+        [
+            'Codegen2026',
+            'PivotedFieldPose',
+            'FRC2026_ANDYMARK.fmap'
+        ],
+    ]
+
+    // Track the template as input and a folder as output
+    def templateFile = file('./src/main/java/com/chaos131/poses/FieldPoseTemplate.vm')
+
+    doLast {
+        def ve = new org.apache.velocity.app.VelocityEngine()
+        ve.init()
+
+        configs.each { config ->
+            def name = config[0]
+            def parent_class = config[1]
+            def json_file = config[2]
+
+            // Create a unique file for each entry
+            def outputFile = file("src/main/java/com/chaos131/poses/${name}.java")
+
+            def context = new org.apache.velocity.VelocityContext()
+            context.put("className", name)
+            context.put("parentClass", parent_class)
+
+            outputFile.withWriter { writer ->
+                ve.evaluate(context, writer, "LOG", templateFile.text)
+            }
+        }
+    }
+}
+
+// Codegen
+
 test {
     useJUnitPlatform()
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
@@ -131,6 +193,7 @@ test {
 wpi.java.configureTestTasks(test)
 
 project.compileJava.dependsOn(createVersionFile)
+project.compileJava.dependsOn(generateTemplates)
 project.compileJava.dependsOn 'spotlessApply'
 gversion {
     srcDir       = "src/main/java/"
