@@ -1,10 +1,14 @@
 package com.chaos131.poses;
 
+import edu.wpi.first.math.MatBuilder;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N4;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class ${className} extends ${parentClass} {
@@ -18,5 +22,9 @@ ${aprilTags}
 
     public ${className}(Alliance defaultAlliance, String name, Pose2d defaultPose) {
         super(Midpoint, defaultAlliance, name, new Pose3d(defaultPose));
+    }
+
+    public ${className}(String name, Matrix<N4, N4> transform) {
+        super(Midpoint, name, transform);
     }
 }

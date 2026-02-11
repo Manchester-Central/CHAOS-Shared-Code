@@ -182,7 +182,8 @@ tasks.register('generatePoseStructures') {
 
             def tag_strings = []
             for (fiducial in json_contents.fiducials) {
-                tag_strings.add("    public static final ${name} tag${fiducial.id} = null;")
+                double[] transform_array = fiducial.transform.collect { it as double }
+                tag_strings.add("public static final ${name} Tag${fiducial.id} = new ${name}(\"Tag${fiducial.id}\", MatBuilder.fill(Nat.N4(), Nat.N4(), new double[]{${transform_array.join(", ")}}));")
             }
 
             def context = new org.apache.velocity.VelocityContext()

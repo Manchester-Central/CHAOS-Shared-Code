@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N4;
@@ -53,6 +54,19 @@ public abstract class MirroredFieldPose extends FieldPose {
   protected MirroredFieldPose(
       Translation2d midpoint, Alliance defaultAlliance, String name, Pose2d defaultPose) {
     this(midpoint, defaultAlliance, name, new Pose3d(defaultPose));
+  }
+
+  /**
+   * Pose generator for use with April Tags which aren't associated with an alliance. There's room
+   * for improvement here to associate an alliance with an april tag, but the data currently isn't
+   * in the fmap.
+   *
+   * @param midpoint
+   * @param name
+   * @param transform
+   */
+  protected MirroredFieldPose(Translation2d midpoint, String name, Matrix<N4, N4> transform) {
+    super(midpoint, Alliance.Blue, name, new Pose3d().transformBy(new Transform3d(transform)));
   }
 
   /**
