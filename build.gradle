@@ -207,8 +207,6 @@ tasks.register('generatePoseStructures') {
 
             // Make the Tests file
             def testsFile = file("src/test/java/com/chaos131/poses/${name}Tests.java")
-            def pair_strings = []
-            tagPairs.each{ pair -> pair_strings.add(pair); }
             def testsContext = new org.apache.velocity.VelocityContext()
             testsContext.put("className", name)
             testsContext.put("pairs", tagPairs)
