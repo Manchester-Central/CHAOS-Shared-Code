@@ -12,19 +12,25 @@ import edu.wpi.first.math.numbers.N4;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public class ${className} extends ${parentClass} {
-    private static Translation2d Midpoint = new Translation2d(${fieldLength} / 2, ${fieldWidth} / 2);
+  private static Translation2d Midpoint = new Translation2d(${fieldLength} / 2, ${fieldWidth} / 2);
 
-${aprilTags}
+#foreach( $tag in $fiducials )
+  public static final ${className} Tag${tag.id} = new ${className}(${tag.id}, MatBuilder.fill(Nat.N4(), Nat.N4(), new double[]{
+    #foreach( $val in ${tag.transform} )
+    ${val},
+    #end
+  }));
+#end
 
-    public ${className}(Alliance defaultAlliance, String name, Pose3d defaultPose) {
-        super(Midpoint, defaultAlliance, name, defaultPose);
-    }
+  public ${className}(Alliance defaultAlliance, String name, Pose3d defaultPose) {
+    super(Midpoint, defaultAlliance, name, defaultPose);
+  }
 
-    public ${className}(Alliance defaultAlliance, String name, Pose2d defaultPose) {
-        super(Midpoint, defaultAlliance, name, new Pose3d(defaultPose));
-    }
+  public ${className}(Alliance defaultAlliance, String name, Pose2d defaultPose) {
+    super(Midpoint, defaultAlliance, name, new Pose3d(defaultPose));
+  }
 
-    public ${className}(String name, Matrix<N4, N4> transform) {
-        super(Midpoint, name, transform);
-    }
+  public ${className}(int id, Matrix<N4, N4> transform) {
+    super(Midpoint, id, transform);
+  }
 }
