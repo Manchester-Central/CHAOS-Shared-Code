@@ -9,9 +9,9 @@ import edu.wpi.first.units.Unit;
 import edu.wpi.first.units.measure.Distance;
 
 /** Add your docs here. */
-public interface ITableData<U extends Unit, M extends Measure<U>> {
+public interface ITableRow<U extends Unit, M extends Measure<U>> {
   M getMeasure();
 
-  ITableData<U, M> mergeData(
-      Distance targetMeasure, ITableData<U, M> data1, ITableData<U, M> data2);
+  ITableRow<U, M> mergeRow(
+      M targetMeasure, ITableRow<U, M> otherRow);
 }

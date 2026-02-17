@@ -13,12 +13,12 @@ import org.junit.jupiter.api.Test;
 
 public class LookupTableTests {
 
-  private class FakeTableData implements ITableData<DistanceUnit, Distance> {
+  private class FakeTableRow implements ITableRow<DistanceUnit, Distance> {
 
     private Distance m_distance;
     private LinearVelocity m_launchSpeed;
 
-    public FakeTableData(Distance distance, LinearVelocity launchSpeed) {
+    public FakeTableRow(Distance distance, LinearVelocity launchSpeed) {
       m_distance = distance;
       m_launchSpeed = launchSpeed;
     }
@@ -29,17 +29,16 @@ public class LookupTableTests {
     }
 
     @Override
-    public FakeTableData mergeData(
+    public FakeTableRow mergeRow(
         Distance targetMeasure,
-        ITableData<DistanceUnit, Distance> data1,
-        ITableData<DistanceUnit, Distance> data2) {
+        ITableRow<DistanceUnit, Distance> otherRow) {
       var linearVelocity =
           LookupTable.interpolate(
               targetMeasure,
-              data1,
-              data2,
-              (td) -> ((FakeTableData) td).m_launchSpeed.in(MetersPerSecond));
-      return new FakeTableData(targetMeasure, MetersPerSecond.of(linearVelocity));
+              this,
+              otherRow,
+              (row) -> ((FakeTableRow) row).m_launchSpeed.in(MetersPerSecond));
+      return new FakeTableRow(targetMeasure, MetersPerSecond.of(linearVelocity));
     }
   }
 
@@ -48,11 +47,11 @@ public class LookupTableTests {
 
   @Test
   public void testMirroringX() {
-    var table = new LookupTable<DistanceUnit, Distance, FakeTableData>();
-    table.addData(
+    var table = new LookupTable<DistanceUnit, Distance, FakeTableRow>();
+    table.addRows(
         List.of(
-            new FakeTableData(Meters.of(0), MetersPerSecond.of(0)),
-            new FakeTableData(Meters.of(10), MetersPerSecond.of(100))));
+            new FakeTableRow(Meters.of(0), MetersPerSecond.of(0)),
+            new FakeTableRow(Meters.of(10), MetersPerSecond.of(100))));
 
     // Check main measure (Distance) values
     assertEquals(
