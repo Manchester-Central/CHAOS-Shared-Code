@@ -6,12 +6,8 @@ package com.chaos131.tables;
 
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
-import edu.wpi.first.units.measure.Distance;
 
 /** Add your docs here. */
 public interface ITableRow<U extends Unit, M extends Measure<U>> {
   M getMeasure();
-
-  ITableRow<U, M> mergeRow(
-      M targetMeasure, ITableRow<U, M> otherRow);
 }

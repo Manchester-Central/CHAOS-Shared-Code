@@ -27,16 +27,16 @@ public class LookupTableTests {
     public Distance getMeasure() {
       return m_distance;
     }
+  }
 
+  private class FakeLookupTable extends LookupTable<DistanceUnit, Distance, FakeTableRow> {
     @Override
-    public FakeTableRow mergeRow(
-        Distance targetMeasure,
-        ITableRow<DistanceUnit, Distance> otherRow) {
+    public FakeTableRow mergeRows(Distance targetMeasure, FakeTableRow row1, FakeTableRow row2) {
       var linearVelocity =
-          LookupTable.interpolate(
+          interpolate(
               targetMeasure,
-              this,
-              otherRow,
+              row1,
+              row2,
               (row) -> ((FakeTableRow) row).m_launchSpeed.in(MetersPerSecond));
       return new FakeTableRow(targetMeasure, MetersPerSecond.of(linearVelocity));
     }
@@ -47,11 +47,12 @@ public class LookupTableTests {
 
   @Test
   public void testMirroringX() {
-    var table = new LookupTable<DistanceUnit, Distance, FakeTableRow>();
-    table.addRows(
-        List.of(
-            new FakeTableRow(Meters.of(0), MetersPerSecond.of(0)),
-            new FakeTableRow(Meters.of(10), MetersPerSecond.of(100))));
+    var table =
+        new FakeLookupTable()
+            .addRows(
+                List.of(
+                    new FakeTableRow(Meters.of(0), MetersPerSecond.of(0)),
+                    new FakeTableRow(Meters.of(10), MetersPerSecond.of(100))));
 
     // Check main measure (Distance) values
     assertEquals(
