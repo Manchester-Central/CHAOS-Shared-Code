@@ -8,6 +8,7 @@ import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import java.util.List;
+import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -46,7 +47,7 @@ public class LookupTableTests {
   public void clean() {}
 
   @Test
-  public void testMirroringX() {
+  public void testLookupTableDirectlyRelated() {
     var table =
         new FakeLookupTable()
             .addRows(
@@ -54,38 +55,34 @@ public class LookupTableTests {
                     new FakeTableRow(Meters.of(0), MetersPerSecond.of(0)),
                     new FakeTableRow(Meters.of(10), MetersPerSecond.of(100))));
 
+    Function<Distance, Double> getLookupMeters =
+        (Distance d) -> table.performLookup(d).m_distance.in(Meters);
+    Function<Distance, Double> getLookupSpeed =
+        (Distance d) -> table.performLookup(d).m_launchSpeed.in(MetersPerSecond);
+
     // Check main measure (Distance) values
     assertEquals(
-        table.performLookup(Meters.of(-1)).m_distance.in(Meters), // TODO: swap expected/actual
-        0); // If less than lowest value, expect lowest value
+        0, // TODO: swap expected/actual
+        getLookupMeters.apply(Meters.of(-1))); // If less than lowest value, expect lowest value
     assertEquals(
-        table.performLookup(Meters.of(11)).m_distance.in(Meters),
-        10); // If higher than highest value, expect highest value
+        10,
+        getLookupMeters.apply(Meters.of(11))); // If higher than highest value, expect highest value
     assertEquals(
-        table.performLookup(Meters.of(0)).m_distance.in(Meters),
-        0); // If exact value, expect exact value (low)
+        0, getLookupMeters.apply(Meters.of(0))); // If exact value, expect exact value (low)
     assertEquals(
-        table.performLookup(Meters.of(10)).m_distance.in(Meters),
-        10); // If exact value, expect exact value (high)
-    assertEquals(
-        table.performLookup(Meters.of(5)).m_distance.in(Meters),
-        5); // If inbetween value, expect same value
+        10, getLookupMeters.apply(Meters.of(10))); // If exact value, expect exact value (high)
+    assertEquals(5, getLookupMeters.apply(Meters.of(5))); // If inbetween value, expect same value
 
     // Check interpolated measure (LaunchSpeed) values
     assertEquals(
-        table.performLookup(Meters.of(-1)).m_launchSpeed.in(MetersPerSecond),
-        0); // If less than lowest value, expect lowest value
+        0, getLookupSpeed.apply(Meters.of(-1))); // If less than lowest value, expect lowest value
     assertEquals(
-        table.performLookup(Meters.of(11)).m_launchSpeed.in(MetersPerSecond),
-        100); // If higher than highest value, expect highest value
+        100,
+        getLookupSpeed.apply(Meters.of(11))); // If higher than highest value, expect highest value
+    assertEquals(0, getLookupSpeed.apply(Meters.of(0))); // If exact value, expect exact value (low)
+
     assertEquals(
-        table.performLookup(Meters.of(0)).m_launchSpeed.in(MetersPerSecond),
-        0); // If exact value, expect exact value (low)
-    assertEquals(
-        table.performLookup(Meters.of(10)).m_launchSpeed.in(MetersPerSecond),
-        100); // If exact value, expect exact value (high)
-    assertEquals(
-        table.performLookup(Meters.of(5)).m_launchSpeed.in(MetersPerSecond),
-        50); // If inbetween value, expect same value
+        100, getLookupSpeed.apply(Meters.of(10))); // If exact value, expect exact value (high)
+    assertEquals(50, getLookupSpeed.apply(Meters.of(5))); // If inbetween value, expect same value
   }
 }
