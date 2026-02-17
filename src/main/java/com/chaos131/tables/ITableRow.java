@@ -7,7 +7,8 @@ package com.chaos131.tables;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Unit;
 
-/** Add your docs here. */
+/** A class to represent a table row for a lookup table */
 public interface ITableRow<U extends Unit, M extends Measure<U>> {
+  /** The measure to use as the independent variable for lookups */
   M getMeasure();
 }
