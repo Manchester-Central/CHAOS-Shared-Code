@@ -4,8 +4,14 @@
 
 package com.chaos131.tables;
 
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Unit;
+import edu.wpi.first.units.measure.Distance;
+
 /** Add your docs here. */
-public interface ITableData<M> {
-    M getMeasure();
-    ITableData<M> interpolateData(ITableData<M> data1, ITableData<M> data2);
+public interface ITableData<U extends Unit, M extends Measure<U>> {
+  M getMeasure();
+
+  ITableData<U, M> mergeData(
+      Distance targetMeasure, ITableData<U, M> data1, ITableData<U, M> data2);
 }
