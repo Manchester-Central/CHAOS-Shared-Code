@@ -25,7 +25,9 @@ public class CameraSpecs {
   /** Deviation Coefficients */
   public LinearVelocity max_speed_acceptable;
 
+  /** Max speed that the robot can rotate before the data is discarded */
   public AngularVelocity max_rotation_acceptable;
 
+  /** Max average tag distance before the tag is discarded */
   public Distance max_distance_acceptable;
 }

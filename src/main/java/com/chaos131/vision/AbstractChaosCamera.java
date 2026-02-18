@@ -86,7 +86,7 @@ public abstract class AbstractChaosCamera extends SubsystemBase {
    * A high level operating mode for the camera system. Individual cameras may or may not implement
    * specific sub-states or sub-modes. For instance, multiple piece tracking modes.
    */
-  protected CameraMode m_mode;
+  protected CameraMode m_mode = CameraMode.LOCALIZATION;
 
   /*******************
    * Initializations *
@@ -102,7 +102,7 @@ public abstract class AbstractChaosCamera extends SubsystemBase {
   public AbstractChaosCamera(String name, CameraSpecs specs) {
     m_name = name;
     m_specs = specs;
-    m_useForOdometry = true;
+    setUseForOdometry(true);
     m_disconnectedTimer.start();
 
     m_poseData.reset();
@@ -221,6 +221,7 @@ public abstract class AbstractChaosCamera extends SubsystemBase {
       VisionData data = processMeasuredData(idx);
       if (data != null) {
         m_poseUpdator.accept(data);
+
         Logger.recordOutput(m_name + "/PoseTimestamp", data.getTimestampSeconds());
         Logger.recordOutput(m_name + "/RobotPose", data.getPose2d());
         Logger.recordOutput(m_name + "/RobotPose3d", data.getPose3d());
@@ -355,5 +356,6 @@ public abstract class AbstractChaosCamera extends SubsystemBase {
    */
   public void setUseForOdometry(boolean val) {
     m_useForOdometry = val;
+    Logger.recordOutput(m_name + "/useForOdometry", m_useForOdometry);
   }
 }
