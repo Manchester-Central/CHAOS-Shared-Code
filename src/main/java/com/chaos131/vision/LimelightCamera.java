@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
-/** Implements a Camera behavior for the This is up to date for Limelight OS 2024.10.2 (10/28/24) */
+/** Implements a Camera behavior for the This is up to date for Limelight OS 2026.0 (Feb 17, 2026) */
 public class LimelightCamera extends AbstractChaosCamera {
   /** Limelight versions can help the implementation navigate features and calibration */
   public enum LimelightVersion {
@@ -28,42 +28,13 @@ public class LimelightCamera extends AbstractChaosCamera {
     /** Limelight3 */
     LL3,
     /** Limelight3G (the global shutter / greyscale one) */
-    LL3G
+    LL3G,
+    /** Limelight4 with optional starboard Hailo attachment */
+    LL4
   }
 
   /** Version of the limelight instance */
   protected LimelightVersion m_limeLightVersion;
-
-  /**
-   * Represents which mode the robot is in.
-   *
-   * <p>APRIL_TAGS - The pipeline
-   *
-   * <p>PIECE_TRACKING - The pipeline used for finding notes on the field. This is typically for
-   * intake cameras, which may not be the forward camera.
-   */
-  public enum Mode {
-    /** Focus on localization, and processing April Tags */
-    APRIL_TAGS(0),
-    /** Focus on tracking one or many game pieces */
-    PIECE_TRACKING(1),
-    /** Focus on a primary Blue side objective */
-    BLUE_PRIMARY(2),
-    /** Focus on a primary Red side objective */
-    RED_PRIMARY(3),
-    /** Focus on analyzing the environment */
-    MAPPING(4);
-
-    /** The pipeline ID for these features on the Limelight itself */
-    public final Integer pipelineId;
-
-    /**
-     * @param pipelineId ID for the mode
-     */
-    private Mode(Integer pipelineId) {
-      this.pipelineId = pipelineId;
-    }
-  }
 
   /** NetworkTable name that corresponds with this Camera */
   protected NetworkTable m_visionTable;
@@ -74,7 +45,10 @@ public class LimelightCamera extends AbstractChaosCamera {
   /** NetworkTable entry for MegaTag2 */
   protected NetworkTableEntry m_botposeMT2;
 
-  /** A data structure used by AdvantageKit to record and replay Pose data */
+  /**
+   * A data structure used by AdvantageKit to record and replay Limelight specific MegaTag2 Pose
+   * data. m_poseData already exists for standard megatag1 pose info.
+   */
   protected NetworkPoseDataAutoLogged m_poseDataMT2 = new NetworkPoseDataAutoLogged();
 
   /** Distance in meters before swapping from MT1 to MT2 */
@@ -397,8 +371,9 @@ public class LimelightCamera extends AbstractChaosCamera {
   protected void LoadNTQueueToVisionData() {
     /** TODO: Serious race condition concern here! I can't simply fix this, Limelight needs to. */
     NetworkTableValue[] mt1_poses = m_botpose.readQueue();
-    Logger.recordOutput(m_name + "/DataLength", mt1_poses.length);
+    Logger.recordOutput(m_name + "/MT1Length", mt1_poses.length);
     NetworkTableValue[] mt2_poses = m_botposeMT2.readQueue();
+    Logger.recordOutput(m_name + "/MT2Length", mt2_poses.length);
     { // TODO: Analyze actual logs to see if this block is still necessary
       // TODO: Investigate TableEntry issues...
       if (mt1_poses.length == 1 && mt1_poses[0] == null) {
@@ -458,6 +433,10 @@ public class LimelightCamera extends AbstractChaosCamera {
       m_poseData.tagCount[idx] = (int) data[idxTagCount];
       m_poseData.timestamps[idx] = timestampSeconds;
     } // End MT1
+    if (mt1_poses.length > 0) {
+      Logger.recordOutput(m_name+"/Mt1TagDistance", mt1_poses[mt1_poses.length-1].getDoubleArray()[idxTagDistance]);
+      Logger.recordOutput(m_name+"/Mt1TagCount", mt1_poses[mt1_poses.length-1].getDoubleArray()[idxTagCount]);
+    }
 
     // Parse MegaTag2 Info
     m_poseDataMT2.resize(mt2_poses.length);
@@ -508,6 +487,11 @@ public class LimelightCamera extends AbstractChaosCamera {
       m_poseDataMT2.tagCount[idx] = (int) data[idxTagCount];
       m_poseDataMT2.timestamps[idx] = timestampSeconds;
     } // End MT2
+    if (mt2_poses.length > 0) {
+      Logger.recordOutput(m_name+"/Mt2avgTagDistance", mt2_poses[mt2_poses.length-1].getDoubleArray()[idxTagDistance]);
+      Logger.recordOutput(m_name+"/Mt2TagCount", mt2_poses[mt2_poses.length-1].getDoubleArray()[idxTagCount]);
+    }
+
   }
 
   public static CameraSpecs LL3GSpecs() {
