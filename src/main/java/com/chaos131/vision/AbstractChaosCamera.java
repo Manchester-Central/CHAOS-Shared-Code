@@ -221,13 +221,12 @@ public abstract class AbstractChaosCamera extends SubsystemBase {
       VisionData data = processMeasuredData(idx);
       if (data != null) {
         m_poseUpdator.accept(data);
+        Logger.recordOutput(m_name + "/PoseTimestamp", data.getTimestampSeconds());
+        Logger.recordOutput(m_name + "/RobotPose", data.getPose2d());
+        Logger.recordOutput(m_name + "/RobotPose3d", data.getPose3d());
+        Logger.recordOutput(m_name + "/Confidence", data.getConfidence());
+        Logger.recordOutput(m_name + "/Deviation", data.getDeviation());
       }
-
-      Logger.recordOutput(m_name + "/PoseTimestamp", data.getTimestampSeconds());
-      Logger.recordOutput(m_name + "/RobotPose", data.getPose2d());
-      Logger.recordOutput(m_name + "/RobotPose3d", data.getPose3d());
-      Logger.recordOutput(m_name + "/Confidence", data.getConfidence());
-      Logger.recordOutput(m_name + "/Deviation", data.getDeviation());
     }
   }
 
