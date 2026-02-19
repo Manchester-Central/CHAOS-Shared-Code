@@ -19,7 +19,9 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
-/** Implements a Camera behavior for the This is up to date for Limelight OS 2026.0 (Feb 17, 2026) */
+/**
+ * Implements a Camera behavior for the This is up to date for Limelight OS 2026.0 (Feb 17, 2026)
+ */
 public class LimelightCamera extends AbstractChaosCamera {
   /** Limelight versions can help the implementation navigate features and calibration */
   public enum LimelightVersion {
@@ -352,17 +354,17 @@ public class LimelightCamera extends AbstractChaosCamera {
 
     if (m_poseData.averageTagDistance[idx] < m_megatag2Threshold) {
       return new VisionData(
-          m_poseData.pose[idx],
-          m_poseData.timestamps[idx],
-          new double[] {m_poseData.deviations[idx], m_poseData.deviations[idx], 1},
-          conf,
-          m_name);
-    } else {
-      return new VisionData(
           m_poseDataMT2.pose[idx],
           m_poseDataMT2.timestamps[idx],
           new double[] {m_poseDataMT2.deviations[idx], m_poseDataMT2.deviations[idx], 1},
           conf2,
+          m_name);
+    } else {
+      return new VisionData(
+          m_poseData.pose[idx],
+          m_poseData.timestamps[idx],
+          new double[] {m_poseData.deviations[idx], m_poseData.deviations[idx], 1},
+          conf,
           m_name);
     }
   }
@@ -434,8 +436,11 @@ public class LimelightCamera extends AbstractChaosCamera {
       m_poseData.timestamps[idx] = timestampSeconds;
     } // End MT1
     if (mt1_poses.length > 0) {
-      Logger.recordOutput(m_name+"/Mt1TagDistance", mt1_poses[mt1_poses.length-1].getDoubleArray()[idxTagDistance]);
-      Logger.recordOutput(m_name+"/Mt1TagCount", mt1_poses[mt1_poses.length-1].getDoubleArray()[idxTagCount]);
+      Logger.recordOutput(
+          m_name + "/Mt1TagDistance",
+          mt1_poses[mt1_poses.length - 1].getDoubleArray()[idxTagDistance]);
+      Logger.recordOutput(
+          m_name + "/Mt1TagCount", mt1_poses[mt1_poses.length - 1].getDoubleArray()[idxTagCount]);
     }
 
     // Parse MegaTag2 Info
@@ -488,10 +493,12 @@ public class LimelightCamera extends AbstractChaosCamera {
       m_poseDataMT2.timestamps[idx] = timestampSeconds;
     } // End MT2
     if (mt2_poses.length > 0) {
-      Logger.recordOutput(m_name+"/Mt2avgTagDistance", mt2_poses[mt2_poses.length-1].getDoubleArray()[idxTagDistance]);
-      Logger.recordOutput(m_name+"/Mt2TagCount", mt2_poses[mt2_poses.length-1].getDoubleArray()[idxTagCount]);
+      Logger.recordOutput(
+          m_name + "/Mt2avgTagDistance",
+          mt2_poses[mt2_poses.length - 1].getDoubleArray()[idxTagDistance]);
+      Logger.recordOutput(
+          m_name + "/Mt2TagCount", mt2_poses[mt2_poses.length - 1].getDoubleArray()[idxTagCount]);
     }
-
   }
 
   public static CameraSpecs LL3GSpecs() {
