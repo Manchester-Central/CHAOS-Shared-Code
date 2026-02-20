@@ -212,15 +212,12 @@ public abstract class AbstractChaosCamera extends SubsystemBase {
    * Reads values off network tables, and hands off the queue of updates to another support function
    */
   protected void processUpdateQueue() {
-    if (!m_useForOdometry || m_poseUpdator == null) {
-      // Don't have to do anything fancy, periodic() has flushed the message queue
-      return;
-    }
-
     for (var idx = 0; idx < m_poseData.timestamps.length; idx++) {
       VisionData data = processMeasuredData(idx);
       if (data != null) {
-        m_poseUpdator.accept(data);
+        if (m_useForOdometry && m_poseUpdator != null && data.getConfidence() > 0.5) {
+          m_poseUpdator.accept(data);
+        }
 
         Logger.recordOutput(m_name + "/PoseTimestamp", data.getTimestampSeconds());
         Logger.recordOutput(m_name + "/RobotPose", data.getPose2d());
