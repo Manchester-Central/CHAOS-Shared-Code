@@ -7,6 +7,8 @@ package com.chaos131.gamepads;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import java.util.function.DoubleSupplier;
 
 /** A CHAOS Wrapper around `CommandXboxController` */
 public class Gamepad extends CommandXboxController {
@@ -15,6 +17,11 @@ public class Gamepad extends CommandXboxController {
   private SlewRateLimiter m_slewratelimiterRightX;
   private SlewRateLimiter m_slewratelimiterRightY;
   private double m_deadbandRange;
+
+  private Trigger m_leftXTrigger = createAxisTrigger(this::getLeftX);
+  private Trigger m_leftYTrigger = createAxisTrigger(this::getLeftY);
+  private Trigger m_rightXTrigger = createAxisTrigger(this::getRightX);
+  private Trigger m_rightYTrigger = createAxisTrigger(this::getRightY);
 
   /**
    * @param port ID of the controller, typically 0 is driver, 1 is operator, etc
@@ -62,6 +69,11 @@ public class Gamepad extends CommandXboxController {
     return applyDeadband(super.getLeftX());
   }
 
+  /** Gets a trigger that activates if the joystick is moved (after deadband applied) */
+  public Trigger leftX() {
+    return m_leftXTrigger;
+  }
+
   /**
    * @return Returns the deadbanded value of the joystick, and also attempts to update the slewrate
    *     calculator.
@@ -70,6 +82,11 @@ public class Gamepad extends CommandXboxController {
   public double getLeftY() {
     if (m_slewratelimiterLeftY != null) m_slewratelimiterLeftY.calculate(-super.getLeftY());
     return applyDeadband(-super.getLeftY());
+  }
+
+  /** Gets a trigger that activates if the joystick is moved (after deadband applied) */
+  public Trigger leftY() {
+    return m_leftYTrigger;
   }
 
   /**
@@ -82,6 +99,11 @@ public class Gamepad extends CommandXboxController {
     return applyDeadband(super.getRightX());
   }
 
+  /** Gets a trigger that activates if the joystick is moved (after deadband applied) */
+  public Trigger rightX() {
+    return m_rightXTrigger;
+  }
+
   /**
    * @return Returns the deadbanded value of the joystick, and also attempts to update the slewrate
    *     calculator.
@@ -90,6 +112,11 @@ public class Gamepad extends CommandXboxController {
   public double getRightY() {
     if (m_slewratelimiterRightY != null) m_slewratelimiterRightY.calculate(-super.getRightY());
     return applyDeadband(-super.getRightY());
+  }
+
+  /** Gets a trigger that activates if the joystick is moved (after deadband applied) */
+  public Trigger rightY() {
+    return m_rightYTrigger;
   }
 
   /**
@@ -164,5 +191,15 @@ public class Gamepad extends CommandXboxController {
    */
   public double getLeftMagnitude() {
     return Math.hypot(getLeftX(), getLeftY());
+  }
+
+  /**
+   * Creates a trigger from an exist - assumes a deadband is already applied to account for joystick
+   * drift
+   *
+   * @param axis the axis value
+   */
+  public static Trigger createAxisTrigger(DoubleSupplier axis) {
+    return new Trigger(() -> Math.abs(axis.getAsDouble()) > 0.0);
   }
 }
