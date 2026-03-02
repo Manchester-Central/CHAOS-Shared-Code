@@ -96,8 +96,8 @@ public abstract class FieldPose {
    * Calculates the distance from a specific spot on the field. Typically this is the robot's
    * position.
    *
-   * @param pose1
-   * @param pose2
+   * @param pose1 first pose
+   * @param pose2 second pose
    * @return the distance along the floor. Does not account for vertical component. Returns absolute
    *     values.
    */
@@ -164,6 +164,7 @@ public abstract class FieldPose {
    *
    * @param sourcePose the pose to compare to
    * @param fieldPoses the poses to search through
+   * @return the closest FieldPose object out of the given array
    */
   public static FieldPose getClosestPose(Pose2d sourcePose, FieldPose... fieldPoses) {
     return getClosestPose(sourcePose, Arrays.asList(fieldPoses));
@@ -175,6 +176,7 @@ public abstract class FieldPose {
    *
    * @param sourcePose the pose to compare to
    * @param fieldPoses the poses to search through
+   * @return the closest FieldPose object out of the given List
    */
   public static FieldPose getClosestPose(Pose2d sourcePose, List<FieldPose> fieldPoses) {
     // spotless:off

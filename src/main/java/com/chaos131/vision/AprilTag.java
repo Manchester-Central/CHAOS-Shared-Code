@@ -41,6 +41,8 @@ public class AprilTag extends Quad {
    *     Limelights
    * @param sizeInMeters used to define the distances to the corners from the center of the tag,
    *     assumed to be a square tag
+   * @param coord_shift shifts from the Limelight coordinate frame to the Blue Alliance coordinate
+   *     frame
    */
   public AprilTag(
       int tag_id, Matrix<N4, N4> transform, double sizeInMeters, Transform3d coord_shift) {
@@ -56,6 +58,8 @@ public class AprilTag extends Quad {
    *     Limelights
    * @param sizeInMeters used to define the distances to the corners from the center of the tag,
    *     assumed to be a square tag
+   * @param coord_shift shifts from the Limelight coordinate frame to the Blue Alliance coordinate
+   *     frame
    */
   public AprilTag(
       int tag_id,
