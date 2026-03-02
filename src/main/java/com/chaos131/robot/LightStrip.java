@@ -1,6 +1,6 @@
 package com.chaos131.robot;
 
-import com.chaos131.util.Color;
+import com.chaos131.util.ChaosColor;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -23,7 +23,7 @@ public class LightStrip extends SubsystemBase {
   private final int m_numLEDs;
 
   /** Function to indicate which color should be choosen */
-  private final Supplier<Color> m_colorPicker;
+  private final Supplier<ChaosColor> m_colorPicker;
 
   /**
    * Constructs the LightStrip Controller
@@ -33,7 +33,7 @@ public class LightStrip extends SubsystemBase {
    *     of leds)
    * @param colorPicker supplier function to decide the color
    */
-  public LightStrip(int port_number, int num_leds, Supplier<Color> colorPicker) {
+  public LightStrip(int port_number, int num_leds, Supplier<ChaosColor> colorPicker) {
     m_portNumber = port_number;
     m_numLEDs = num_leds;
     m_colorPicker = colorPicker;
@@ -46,7 +46,7 @@ public class LightStrip extends SubsystemBase {
   /** Every periodic cycle, update the color with whatever the supplier indicates */
   @Override
   public void periodic() {
-    Color choosen_color = m_colorPicker.get();
+    ChaosColor choosen_color = m_colorPicker.get();
     if (choosen_color != null) {
       setSingleColor(choosen_color);
     }
@@ -72,7 +72,7 @@ public class LightStrip extends SubsystemBase {
    *
    * @param color choosen
    */
-  public void setSingleColor(Color color) {
+  public void setSingleColor(ChaosColor color) {
     setSingleColor(color.red, color.green, color.blue);
   }
 }
