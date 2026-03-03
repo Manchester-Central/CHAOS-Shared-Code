@@ -57,6 +57,15 @@ public class ChaosTalonFx extends TalonFX {
     this(canId, canBus, new TalonFXConfiguration());
   }
 
+  public void attachMotorSim(CtreMotorSimValues values) {
+    attachMotorSim(
+        values.dcMotorSim(),
+        values.gearRatio(),
+        values.isMainSimMotor(),
+        values.orientation(),
+        values.motorType());
+  }
+
   /** Adds physical simulation support. */
   public void attachMotorSim(
       DCMotorSim dcMotorSim,
