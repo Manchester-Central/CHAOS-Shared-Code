@@ -2,6 +2,13 @@ package com.chaos131.poses;
 
 import static edu.wpi.first.units.Units.Meters;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -9,12 +16,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public abstract class FieldPose {
   public static final Map<String, FieldPose> FieldPoses = new HashMap<String, FieldPose>();
@@ -103,6 +104,28 @@ public abstract class FieldPose {
    */
   public static Distance getDistanceFromLocations(Pose2d pose1, Pose2d pose2) {
     return Meters.of(pose2.getTranslation().getDistance(pose1.getTranslation()));
+  }
+
+  /**
+   * Calculates the delta x between two poses. Typically this is the robot's position.
+   *
+   * @param pose1
+   * @param pose2
+   * @return the x displacement of pose 2 relative to pose 1.
+   */
+  public static Distance getDeltaXFromLocations(Pose2d pose1, Pose2d pose2) {
+    return pose2.getTranslation().getMeasureX().minus(pose1.getTranslation().getMeasureX());
+  }
+
+  /**
+   * Calculates the delta y between two poses. Typically this is the robot's position.
+   *
+   * @param pose1
+   * @param pose2
+   * @return the y displacement of pose 2 relative to pose 1.
+   */
+  public static Distance getDeltaYFromLocations(Pose2d pose1, Pose2d pose2) {
+    return pose2.getTranslation().getMeasureY().minus(pose1.getTranslation().getMeasureY());
   }
 
   /**
