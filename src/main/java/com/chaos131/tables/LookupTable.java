@@ -110,5 +110,5 @@ public abstract class LookupTable<
    * @param row1 one row
    * @param row2 the other row
    */
-  abstract TR mergeRows(M targetMeasure, TR row1, TR row2);
+  public abstract TR mergeRows(M targetMeasure, TR row1, TR row2);
 }
