@@ -17,13 +17,21 @@ import java.util.function.Function;
  */
 public abstract class LookupTable<
     U extends Unit, M extends Measure<U>, TR extends ITableRow<U, M>> {
-  private List<TR> m_data = new ArrayList<>();
+  private List<TR> m_data;
   private Comparator<TR> m_comparator =
       new Comparator<TR>() {
         public int compare(TR row1, TR row2) {
           return row1.getMeasure().compareTo(row2.getMeasure());
         }
       };
+
+  public LookupTable() {
+    m_data = new ArrayList<>();
+  }
+
+  public LookupTable(List<TR> rows) {
+    m_data = new ArrayList<>(rows);
+  }
 
   /**
    * Adds a row to the lookup table
@@ -71,14 +79,14 @@ public abstract class LookupTable<
       return lastEntry;
     }
 
-    var lowerRow =
+    var highRow =
         m_data.stream()
-            .filter(row -> row.getMeasure().lte(measure))
+            .filter(row -> row.getMeasure().gt(measure))
             .findFirst()
             .get(); // TODO: check logic
-    var lowerRowIndex = m_data.indexOf(lowerRow);
-    var higherRow = m_data.get(lowerRowIndex + 1);
-    return mergeRows(measure, lowerRow, higherRow);
+    var highRowIndex = m_data.indexOf(highRow);
+    var lowRow = m_data.get(highRowIndex - 1);
+    return mergeRows(measure, lowRow, highRow);
   }
 
   /**
@@ -110,5 +118,5 @@ public abstract class LookupTable<
    * @param row1 one row
    * @param row2 the other row
    */
-  abstract TR mergeRows(M targetMeasure, TR row1, TR row2);
+  public abstract TR mergeRows(M targetMeasure, TR row1, TR row2);
 }

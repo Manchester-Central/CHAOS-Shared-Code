@@ -124,6 +124,29 @@ public class LookupTableTests {
 
     assertEquals(
         0, getLookupSpeed.apply(Meters.of(10))); // If exact value, expect exact value (high)
-    assertEquals(50, getLookupSpeed.apply(Meters.of(5))); // If inbetween value, expect same value
+    assertEquals(
+        50, getLookupSpeed.apply(Meters.of(5))); // If inbetween value, expect interpolated value
+  }
+
+  @Test
+  public void testLookupTableManyRows() {
+    var table =
+        new FakeLookupTable()
+            .addRows(
+                List.of(
+                    new FakeTableRow(Meters.of(0), MetersPerSecond.of(0)),
+                    new FakeTableRow(Meters.of(4), MetersPerSecond.of(10)),
+                    new FakeTableRow(Meters.of(6), MetersPerSecond.of(20)),
+                    new FakeTableRow(Meters.of(10), MetersPerSecond.of(100))));
+
+    Function<Distance, Double> getLookupSpeed =
+        (Distance d) -> table.performLookup(d).m_launchSpeed.in(MetersPerSecond);
+
+    assertEquals(
+        5, getLookupSpeed.apply(Meters.of(2))); // If inbetween values, expect interpolated value
+    assertEquals(
+        15, getLookupSpeed.apply(Meters.of(5))); // If inbetween values, expect interpolated value
+    assertEquals(
+        60, getLookupSpeed.apply(Meters.of(8))); // If inbetween values, expect interpolated value
   }
 }
