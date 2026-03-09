@@ -32,7 +32,7 @@ public abstract class LookupTable<
   public LookupTable(List<TR> rows) {
     m_data = new ArrayList<>(rows);
   }
-  
+
   /**
    * Adds a row to the lookup table
    *
