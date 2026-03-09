@@ -4,13 +4,15 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.List;
+import java.util.function.Function;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
-import java.util.List;
-import java.util.function.Function;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 public class LookupTableTests {
 
@@ -124,7 +126,7 @@ public class LookupTableTests {
 
     assertEquals(
         0, getLookupSpeed.apply(Meters.of(10))); // If exact value, expect exact value (high)
-    assertEquals(50, getLookupSpeed.apply(Meters.of(5))); // If inbetween value, expect same value
+    assertEquals(50, getLookupSpeed.apply(Meters.of(5))); // If inbetween value, expect interpolated value
   }
 
   @Test
@@ -141,8 +143,8 @@ public class LookupTableTests {
     Function<Distance, Double> getLookupSpeed =
         (Distance d) -> table.performLookup(d).m_launchSpeed.in(MetersPerSecond);
 
-    assertEquals(5, getLookupSpeed.apply(Meters.of(2))); // If inbetween value, expect same value
-    assertEquals(15, getLookupSpeed.apply(Meters.of(5))); // If inbetween value, expect same value
-    assertEquals(60, getLookupSpeed.apply(Meters.of(8))); // If inbetween value, expect same value
+    assertEquals(5, getLookupSpeed.apply(Meters.of(2))); // If inbetween values, expect interpolated value
+    assertEquals(15, getLookupSpeed.apply(Meters.of(5))); // If inbetween values, expect interpolated value
+    assertEquals(60, getLookupSpeed.apply(Meters.of(8))); // If inbetween values, expect interpolated value
   }
 }
