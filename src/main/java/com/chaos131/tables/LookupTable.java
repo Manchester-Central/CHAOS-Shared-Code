@@ -17,7 +17,7 @@ import java.util.function.Function;
  */
 public abstract class LookupTable<
     U extends Unit, M extends Measure<U>, TR extends ITableRow<U, M>> {
-  private List<TR> m_data = new ArrayList<>();
+  private List<TR> m_data;
   private Comparator<TR> m_comparator =
       new Comparator<TR>() {
         public int compare(TR row1, TR row2) {
@@ -25,6 +25,14 @@ public abstract class LookupTable<
         }
       };
 
+  public LookupTable() {
+    m_data = new ArrayList<>();
+  }
+
+  public LookupTable(List<TR> rows) {
+    m_data = new ArrayList<>(rows);
+  }
+  
   /**
    * Adds a row to the lookup table
    *
