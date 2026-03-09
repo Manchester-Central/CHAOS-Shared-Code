@@ -71,14 +71,14 @@ public abstract class LookupTable<
       return lastEntry;
     }
 
-    var lowerRow =
+    var highRow =
         m_data.stream()
-            .filter(row -> row.getMeasure().lte(measure))
+            .filter(row -> row.getMeasure().gt(measure))
             .findFirst()
             .get(); // TODO: check logic
-    var lowerRowIndex = m_data.indexOf(lowerRow);
-    var higherRow = m_data.get(lowerRowIndex + 1);
-    return mergeRows(measure, lowerRow, higherRow);
+    var highRowIndex = m_data.indexOf(highRow);
+    var lowRow = m_data.get(highRowIndex - 1);
+    return mergeRows(measure, lowRow, highRow);
   }
 
   /**
