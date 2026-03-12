@@ -10,13 +10,12 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.chaos131.can.CanConstants.CanBusName;
 import com.chaos131.can.CanConstants.CanId;
-import com.chaos131.pid.PIDFValue;
 import com.chaos131.util.PeriodicTasks;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DynamicMotionMagicVoltage;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.sim.CANcoderSimState;
@@ -41,6 +40,7 @@ public class ChaosTalonFx extends TalonFX {
   private final MotionMagicVoltage m_positionMotionMagicVoltage = new MotionMagicVoltage(0);
   private final DynamicMotionMagicVoltage m_positionDynamicMotionMagicVoltage =
       new DynamicMotionMagicVoltage(0, 0, 0);
+  private final VelocityTorqueCurrentFOC m_velocityFOC = new VelocityTorqueCurrentFOC(0);
   public final TalonFXConfiguration Configuration;
 
   /** Creates the new TalonFX wrapper WITHOUT simulation support. */
@@ -141,42 +141,14 @@ public class ChaosTalonFx extends TalonFX {
     getConfigurator().apply(Configuration);
   }
 
-  /**
-   * Tunes the PID default slot (0) PID of the motor.
-   *
-   * @deprecated this will be removed in favor of ChaosTalonFxTuner
-   */
-  public void tunePid(PIDFValue pidValue, double kg) {
-    var slot0 = new Slot0Configs();
-    slot0.kP = pidValue.P;
-    slot0.kI = pidValue.I;
-    slot0.kD = pidValue.D;
-    slot0.kG = kg;
-    Configuration.Slot0 = slot0;
-    applyConfig();
-  }
-
-  /**
-   * Tunes the PID and MotionMagic default slot (0).
-   *
-   * @deprecated this will be removed in favor of ChaosTalonFxTuner
-   */
-  public void tuneMotionMagic(PIDFValue pidValue, double kg, double ks, double kv, double ka) {
-    var slot0 = new Slot0Configs();
-    slot0.kP = pidValue.P;
-    slot0.kI = pidValue.I;
-    slot0.kD = pidValue.D;
-    slot0.kG = kg;
-    slot0.kS = ks;
-    slot0.kV = kv;
-    slot0.kA = ka;
-    Configuration.Slot0 = slot0;
-    applyConfig();
-  }
-
   public void moveAtVelocity(AngularVelocity velocity) {
     m_velocityVoltage.Slot = 0;
     setControl(m_velocityVoltage.withVelocity(velocity));
+  }
+
+  public void moveAtVelocityFOC(AngularVelocity velocity) {
+    m_velocityVoltage.Slot = 0;
+    setControl(m_velocityFOC.withVelocity(velocity));
   }
 
   /** Tells the motor controller to move to the target position. */
