@@ -143,6 +143,7 @@ public class ChaosTalonFx extends TalonFX {
 
   public void moveAtVelocity(AngularVelocity velocity) {
     m_velocityVoltage.Slot = 0;
+    m_velocityVoltage.EnableFOC = true;
     setControl(m_velocityVoltage.withVelocity(velocity));
   }
 
