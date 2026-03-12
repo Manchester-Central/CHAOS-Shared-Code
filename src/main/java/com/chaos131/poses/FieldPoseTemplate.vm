@@ -1,0 +1,36 @@
+package com.chaos131.poses;
+
+import edu.wpi.first.math.MatBuilder;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N4;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+
+public class ${className} extends ${parentClass} {
+  private static Translation2d Midpoint = new Translation2d(${fieldLength} / 2, ${fieldWidth} / 2);
+
+#foreach( $tag in $fiducials )
+  public static final ${className} Tag${tag.id} = new ${className}(${tag.id}, MatBuilder.fill(Nat.N4(), Nat.N4(), new double[]{
+    #foreach( $val in ${tag.transform} )
+    ${val},
+    #end
+  }));
+#end
+
+  public ${className}(Alliance defaultAlliance, String name, Pose3d defaultPose) {
+    super(Midpoint, defaultAlliance, name, defaultPose);
+  }
+
+  public ${className}(Alliance defaultAlliance, String name, Pose2d defaultPose) {
+    super(Midpoint, defaultAlliance, name, new Pose3d(defaultPose));
+  }
+
+  public ${className}(int id, Matrix<N4, N4> transform) {
+    super(Midpoint, id, transform);
+  }
+}
