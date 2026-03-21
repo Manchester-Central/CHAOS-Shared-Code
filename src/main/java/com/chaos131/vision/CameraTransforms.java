@@ -127,7 +127,7 @@ public class CameraTransforms {
    * @return a list of 4 element vectors that are in view of the camera
    */
   public static ArrayList<Matrix<N4, N1>> CalculateVisibleCoordinates(
-      Pose3d pose, Quad[] quads, double hfov, double vfov) {
+      Pose3d pose, ArrayList<? extends Quad> quads, double hfov, double vfov) {
     return CalculateVisibleCoordinates(pose, quads, hfov, vfov, 0.05, 100);
   }
 
@@ -143,7 +143,7 @@ public class CameraTransforms {
    * @return a list of 4 element vectors that are in view of the camera
    */
   public static ArrayList<Matrix<N4, N1>> CalculateVisibleCoordinates(
-      Pose3d pose, Quad[] quads, double hfov, double vfov, double n, double f) {
+      Pose3d pose, ArrayList<? extends Quad> quads, double hfov, double vfov, double n, double f) {
     var view_projection_matrix = FrustumProjectionMatrix(hfov, vfov, n, f).times(ViewMatrix(pose));
     ArrayList<Matrix<N4, N1>> final_points = new ArrayList<>();
     for (Quad q : quads) {
@@ -174,7 +174,7 @@ public class CameraTransforms {
    * @return a list of 4 element vectors that are in view of the camera
    */
   public static ArrayList<Matrix<N4, N1>> CalculateVisibleCoordinates(
-      Pose3d pose, Quad[] quads, Matrix<N4, N4> view_proj) {
+      Pose3d pose, ArrayList<? extends Quad> quads, Matrix<N4, N4> view_proj) {
     ArrayList<Matrix<N4, N1>> final_points = new ArrayList<>();
     for (Quad q : quads) {
       var points = q.getPoints();

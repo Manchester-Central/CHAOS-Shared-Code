@@ -66,7 +66,7 @@ public abstract class AbstractChaosCamera extends SubsystemBase {
   /**
    * A list of April Tags we care about. This is typically the list of all april tags on the field.
    */
-  protected ArrayList<Quad> m_localizationTags = new ArrayList<Quad>();
+  protected ArrayList<? extends Quad> m_localizationTags = new ArrayList<Quad>();
 
   /**
    * There are only 3 core modes for cameras in FRC: localization, tracking a game piece, mapping
@@ -177,7 +177,7 @@ public abstract class AbstractChaosCamera extends SubsystemBase {
    * @param tags list of quads describing the april tags
    * @return the class itself for chaining
    */
-  public AbstractChaosCamera setTagsOfInterest(ArrayList<Quad> tags) {
+  public AbstractChaosCamera setTagsOfInterest(ArrayList<? extends Quad> tags) {
     m_localizationTags = tags;
     return this;
   }

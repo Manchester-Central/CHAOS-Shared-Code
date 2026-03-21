@@ -18,7 +18,8 @@ public class CameraTransformsTests {
   @Test
   public void testCalculateVisibleCoordinates() {
     var source_tag = new Translation3d(-0.0381, 5.547868, 1.368552);
-    var tag_coords = new Quad[] {new Quad(source_tag, source_tag, source_tag, source_tag)};
+    var tag_coords = new ArrayList<Quad>();
+    tag_coords.add(new Quad(source_tag, source_tag, source_tag, source_tag));
 
     var camerapose =
         new Pose3d(new Translation3d(4.0, 5.547868, 1.368552), new Rotation3d(0, 0, Math.PI));
@@ -102,9 +103,7 @@ public class CameraTransformsTests {
             new Translation3d(22.0, field_up_meters / 2, 1.451102), // z is the speaker tag height
             new Rotation3d(0, 0, Math.PI));
     ArrayList<AprilTag> fmap_data = FieldData.LoadTagLocations(fmap.fmap2024);
-    AprilTag[] tags = new AprilTag[fmap_data.size()];
-    fmap_data.toArray(tags);
-    var res = CameraTransforms.CalculateVisibleCoordinates(camerapose, tags, 80, 56, 0.2, 100);
+    var res = CameraTransforms.CalculateVisibleCoordinates(camerapose, fmap_data, 80, 56, 0.2, 100);
     // String desmos = "";
     // for (var p : res) {
     //   desmos += "(" + p.get(0, 0) + "," + p.get(1, 0) + "),";
@@ -116,7 +115,8 @@ public class CameraTransformsTests {
   @Test
   public void testCropSpace() {
     var speaker_tag = new Translation3d(-0.0381, 5.547868, 1.368552);
-    var tag_coords = new Quad[] {new Quad(speaker_tag, speaker_tag, speaker_tag, speaker_tag)};
+    var tag_coords = new ArrayList<Quad>();
+    tag_coords.add(new Quad(speaker_tag, speaker_tag, speaker_tag, speaker_tag));
 
     var camerapose =
         new Pose3d(new Translation3d(5.0, 5.547868, 1.368552), new Rotation3d(0, 0, Math.PI));
