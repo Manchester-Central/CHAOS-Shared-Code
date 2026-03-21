@@ -5,7 +5,6 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import com.chaos131.util.Quad;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -289,7 +288,7 @@ public class LimelightCamera extends AbstractChaosCamera {
       Pose3d robotPose, double horizontal_margin, double vertical_margin) {
     var visibletags =
         CameraTransforms.CalculateVisibleCoordinates(
-            robotPose, (Quad[]) m_localizationTags.toArray(), EPSILON, EPSILON);
+            robotPose, m_localizationTags, EPSILON, EPSILON);
     // returns in the order of [minX, minY, maxX, maxY]
     var bounds = CameraTransforms.FindBounds(visibletags, horizontal_margin, vertical_margin);
 
