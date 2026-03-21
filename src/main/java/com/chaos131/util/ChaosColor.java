@@ -1,9 +1,12 @@
 package com.chaos131.util;
 
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 
+// import edu.wpi.first.wpilibj.util.Color as WpiColor;
+
 /** Colors stored in RGB format */
-public enum Color {
+public enum ChaosColor {
   /** Red */
   RED(255, 0, 0),
   /** Green */
@@ -33,12 +36,12 @@ public enum Color {
   public int blue;
 
   /** Forms a Color out of numbers */
-  Color(int r, int g, int b) {
+  ChaosColor(int r, int g, int b) {
     this(new Color8Bit(r, g, b));
   }
 
   /** Forms a Color out of a Color8BIt */
-  Color(Color8Bit c) {
+  ChaosColor(Color8Bit c) {
     color8Bit = c;
     red = c.red;
     green = c.green;
@@ -46,26 +49,19 @@ public enum Color {
   }
 
   /**
-   * Returns a COlor8Bit that shows scaled values for the duty cycle
+   * Returns a Color8Bit that shows scaled values for the duty cycle
    *
    * @param dutyCycle a percentage value [-1.0, 1.0] to convert to a scaled color
    */
   public static Color8Bit fromDutyCycle(double dutyCycle) {
-    int grayBase = 131;
     // If duty cycle is zero, show gray
     if (dutyCycle == 0) {
-      return new Color8Bit(grayBase, grayBase, grayBase);
+      return new Color8Bit(Color.kDimGray);
     }
 
-    int scaleValue = (int) Math.floor(100 * dutyCycle);
-    int scaledUpValue = grayBase + scaleValue + 10;
-    int scaledDownValue = grayBase - scaleValue - 10;
-    return dutyCycle > 0
-        ? new Color8Bit(
-            scaledDownValue,
-            scaledUpValue,
-            scaledDownValue) // Show a scaled green value if positive
-        : new Color8Bit(
-            scaledUpValue, scaledDownValue, scaledDownValue); // Show a scaled red value if negatve
+    var h = dutyCycle < 0 ? 0 : 65; // red or green if negative or positive respectively
+    var s = (int) Math.floor(Math.max(100.0, Math.abs(dutyCycle) * 255.0));
+
+    return new Color8Bit(Color.fromHSV(h, s, 255));
   }
 }

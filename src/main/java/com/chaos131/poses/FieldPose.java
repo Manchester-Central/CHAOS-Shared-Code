@@ -106,6 +106,28 @@ public abstract class FieldPose {
   }
 
   /**
+   * Calculates the delta x between two poses. Typically this is the robot's position.
+   *
+   * @param pose1
+   * @param pose2
+   * @return the x displacement of pose 2 relative to pose 1.
+   */
+  public static Distance getDeltaXFromLocations(Pose2d pose1, Pose2d pose2) {
+    return pose2.getTranslation().getMeasureX().minus(pose1.getTranslation().getMeasureX());
+  }
+
+  /**
+   * Calculates the delta y between two poses. Typically this is the robot's position.
+   *
+   * @param pose1
+   * @param pose2
+   * @return the y displacement of pose 2 relative to pose 1.
+   */
+  public static Distance getDeltaYFromLocations(Pose2d pose1, Pose2d pose2) {
+    return pose2.getTranslation().getMeasureY().minus(pose1.getTranslation().getMeasureY());
+  }
+
+  /**
    * Calculates the angle from the robotPose to the FieldPose. Useful for aiming the robot.
    *
    * @param robotpose to calculate from

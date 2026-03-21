@@ -9,6 +9,7 @@ import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.ExternalFeedbackConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXSConfiguration;
+import com.ctre.phoenix6.configs.VoltageConfigs;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -49,6 +50,32 @@ public class ChaosTalonFxsTuner {
     tunable("Slot0_kS", initialConfig.kS, (config, newValue) -> config.Slot0.kS = newValue);
     tunable("Slot0_kV", initialConfig.kV, (config, newValue) -> config.Slot0.kV = newValue);
     tunable("Slot0_kA", initialConfig.kA, (config, newValue) -> config.Slot0.kA = newValue);
+    return this;
+  }
+
+  /** Creates tunables for the voltage control values */
+  public ChaosTalonFxsTuner withVoltageControls() {
+    return withVoltageControls(m_talons[0].Configuration.Voltage);
+  }
+
+  /**
+   * Creates tunables for the voltage control values
+   *
+   * @param initialConfig the starting voltage values
+   */
+  public ChaosTalonFxsTuner withVoltageControls(VoltageConfigs initialConfig) {
+    tunable(
+        "PeakForwardVoltage",
+        initialConfig.PeakForwardVoltage,
+        (config, newValue) -> config.Voltage.PeakForwardVoltage = newValue);
+    tunable(
+        "PeakReverseVoltage",
+        initialConfig.PeakReverseVoltage,
+        (config, newValue) -> config.Voltage.PeakReverseVoltage = newValue);
+    tunable(
+        "SupplyVoltageTimeConstant",
+        initialConfig.SupplyVoltageTimeConstant,
+        (config, newValue) -> config.Voltage.SupplyVoltageTimeConstant = newValue);
     return this;
   }
 
@@ -121,6 +148,7 @@ public class ChaosTalonFxsTuner {
    */
   public ChaosTalonFxsTuner withAllConfigs(TalonFXSConfiguration initialConfig) {
     withSlot0(initialConfig.Slot0);
+    withVoltageControls(initialConfig.Voltage);
     withCurrentLimits(initialConfig.CurrentLimits);
     withFeedbackValues(initialConfig.ExternalFeedback);
     return this;
