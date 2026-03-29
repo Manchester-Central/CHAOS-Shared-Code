@@ -1,3 +1,12 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'org.apache.velocity:velocity-engine-core:2.3'
+    }
+}
+
 plugins {
     id "java"
     id 'maven-publish'
@@ -44,6 +53,11 @@ tasks.withType(JavaCompile) {
 
 tasks.withType(Javadoc).configureEach {
     options.encoding = 'UTF-8'
+}
+
+javadoc {
+    exclude 'com/chaos131/poses/AprilTags*.java'
+    exclude 'com/chaos131/poses/AprilTags*Tests.java'
 }
 
 dependencies {
@@ -124,6 +138,87 @@ spotless {
     }
 }
 
+// Codegen
+import org.apache.velocity.app.VelocityEngine
+import org.apache.velocity.VelocityContext
+tasks.register('generatePoseStructures') {
+    group = 'Generation'
+
+    // Define the data to loop over
+    def configs = [
+        // [
+        //     'Codegen2024',
+        //     'MirroredFieldPose',
+        //     'frc2024.fmap'
+        // ],
+        [
+            'AprilTags2025',
+            'PivotedFieldPose',
+            'frc2025r2_ANDYMARK.fmap',
+            [
+                ["15", "4"],
+                ["13", "1"]
+            ]
+        ],
+        [
+            'AprilTags2026',
+            'PivotedFieldPose',
+            'FRC2026_ANDYMARK.fmap',
+            [
+                ["23", "7"],
+                ["28", "12"]
+            ]
+        ],
+    ]
+
+    // Track the template as input and a folder as output
+    def templateFile = file('./src/main/java/com/chaos131/poses/FieldPoseTemplate.vm')
+    def templateTests = file('./src/main/java/com/chaos131/poses/FieldPoseTemplateTest.vm')
+
+    doLast {
+        def ve = new org.apache.velocity.app.VelocityEngine()
+        ve.init()
+
+        configs.each { config ->
+            def (name, parent_class, json_filename, tagPairs) = config
+            def json_filepath = file("src/main/deploy/${json_filename}")
+
+            if (!json_filepath.exists()) {
+                throw new GradleException("Unable to find json file ${json_filepath} to codegen ${name}");
+            }
+
+            def json_contents = new groovy.json.JsonSlurper().parseText(json_filepath.text)
+            def field_length = json_contents.fieldlength
+            def field_width = json_contents.fieldwidth
+
+            // Make the AprilTag File
+            def outputFile = file("src/main/java/com/chaos131/poses/${name}.java")
+            def context = new org.apache.velocity.VelocityContext()
+            context.put("className", name)
+            context.put("parentClass", parent_class)
+            context.put("fieldLength", field_length)
+            context.put("fieldWidth", field_width)
+            context.put("fiducials", json_contents.fiducials)
+            // context.put("aprilTags", tag_strings.join('\n'))
+
+            outputFile.withWriter { writer ->
+                ve.evaluate(context, writer, "LOG", templateFile.text)
+            }
+
+            // Make the Tests file
+            def testsFile = file("src/test/java/com/chaos131/poses/${name}Tests.java")
+            def testsContext = new org.apache.velocity.VelocityContext()
+            testsContext.put("className", name)
+            testsContext.put("pairs", tagPairs)
+            testsFile.withWriter { writer ->
+                ve.evaluate(testsContext, writer, "LOG", templateTests.text)
+            }
+        }
+    }
+}
+
+// Codegen
+
 test {
     useJUnitPlatform()
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
@@ -131,6 +226,7 @@ test {
 wpi.java.configureTestTasks(test)
 
 project.compileJava.dependsOn(createVersionFile)
+project.compileJava.dependsOn(generatePoseStructures)
 project.compileJava.dependsOn 'spotlessApply'
 gversion {
     srcDir       = "src/main/java/"
