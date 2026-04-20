@@ -1,0 +1,21 @@
+package com.chaos131.poses;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+public class ${className}Tests {
+  // Threshold to check tag pairs against, units in meters
+  private final double distanceDelta = 0.02;
+
+  #foreach( $tagPair in $pairs )
+  @Test
+  public void testTag${tagPair[0]}Tag${tagPair[1]}() {
+    ${className} Tag${tagPair[0]} = ${className}.Tag${tagPair[0]};
+    ${className} Tag${tagPair[1]} = ${className}.Tag${tagPair[1]};
+    double d = Tag${tagPair[0]}.m_redPose.getTranslation().getDistance(Tag${tagPair[1]}.m_bluePose.getTranslation());
+    assertEquals(d, 0.0, distanceDelta);
+  }
+  #end
+}
