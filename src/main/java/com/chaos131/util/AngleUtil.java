@@ -11,7 +11,7 @@ import edu.wpi.first.units.measure.Angle;
 
 public class AngleUtil {
   /**
-   * Checks to see if 2 angles are close (handles -179 & 179)
+   * Checks to see if 2 angles are close (handles -179, 179)
    *
    * @param angle1 the first angle
    * @param angle2 the second angle
