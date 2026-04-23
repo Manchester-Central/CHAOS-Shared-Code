@@ -16,7 +16,7 @@ public class AngleUtil {
    * @param angle1 the first angle
    * @param angle2 the second angle
    * @param tolerance the angle difference accepted
-   * @returntrue if angle1 and angle2's difference is within the tolerance
+   * @return true if angle1 and angle2's difference is within the tolerance
    */
   public static boolean isNearWrapped(Angle angle1, Angle angle2, Angle tolerance) {
     var angleDiffRads = MathUtil.angleModulus(angle1.minus(angle2).in(Radians));
