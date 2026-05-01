@@ -4,10 +4,11 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
  * Simple syntactic sugar to automatically trigger runnables when a chooser changes state. Ex.
+ *
  * <pre>{@code var chooser = new DashboardActions("TopicGroup/Topic",
  *  "Enable", () -> robotFlag = true);
- *chooser.addOption("Disable", () -> robotFlag = false);
- *return chooser;}</pre>
+ * chooser.addOption("Disable", () -> robotFlag = false);
+ * return chooser;}</pre>
  */
 public class DashboardActions extends LoggedDashboardChooser<Runnable> {
   public DashboardActions(String name, String default_action_name, Runnable default_task) {
